@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MrZain - حلول تعليمية تفاعلية للأطفال</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6C63FF;
+            --primary-dark: #5A52D5;
+            --secondary: #FF6B6B;
+            --accent: #4ECDC4;
+            --yellow: #FFE66D;
+            --orange: #FF8A5C;
+            --dark: #2D3436;
+            --light: #F8F9FA;
+            --gradient-1: linear-gradient(135deg, #6C63FF 0%, #4ECDC4 100%);
+            --gradient-2: linear-gradient(135deg, #FF6B6B 0%, #FFE66D 100%);
+            --gradient-3: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            overflow-x: hidden;
+            line-height: 1.8;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.4s ease;
+            padding: 15px 0;
+        }
+
+        header.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 900;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            -webkit-text-fill-color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 35px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 1.05rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            right: 0;
+            width: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            background: var(--gradient-1);
+            color: white !important;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s;
+            -webkit-text-fill-color: initial;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 99, 255, 0.4);
+        }
+
+        .nav-cta::after {
+            display: none !important;
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            width: 28px;
+            height: 3px;
+            background: var(--dark);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #f0f0ff 0%, #ffffff 100%);
+        }
+
+        .hero-bg-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            top: 10%;
+            left: -5%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            background: var(--secondary);
+            top: 60%;
+            right: -3%;
+            animation-delay: 2s;
+        }
+
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            background: var(--accent);
+            bottom: 10%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        .shape-4 {
+            width: 100px;
+            height: 100px;
+            background: var(--yellow);
+            top: 20%;
+            right: 15%;
+            animation-delay: 1s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(5deg); }
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            padding: 0 20px;
+            max-width: 900px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+            padding: 8px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1.3;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .hero h1 .highlight {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: #666;
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease 0.4s both;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            font-family: 'Tajawal', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 8px 30px rgba(108, 99, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(108, 99, 255, 0.5);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 60px;
+            animation: fadeInUp 0.8s ease 0.8s both;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== SERVICES SECTION ===== */
+        .services {
+            padding: 100px 20px;
+            background: white;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .section-badge {
+            display: inline-block;
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+            padding: 8px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .section-header h2 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+        }
+
+        .section-header p {
+            color: #888;
+            font-size: 1.15rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 24px;
+            padding: 45px 35px;
+            text-align: center;
+            transition: all 0.4s ease;
+            border: 2px solid #f0f0f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            transition: height 0.4s;
+        }
+
+        .service-card:nth-child(1)::before { background: var(--gradient-1); }
+        .service-card:nth-child(2)::before { background: var(--gradient-2); }
+        .service-card:nth-child(3)::before { background: linear-gradient(135deg, #4ECDC4, #44B09E); }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border-color: transparent;
+        }
+
+        .service-card:hover::before {
+            height: 100%;
+            opacity: 0.05;
+        }
+
+        .service-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-card:nth-child(1) .service-icon {
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .service-card:nth-child(2) .service-icon {
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .service-card:nth-child(3) .service-icon {
+            background: rgba(78, 205, 196, 0.1);
+        }
+
+        .service-card h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-card p {
+            color: #777;
+            font-size: 1.05rem;
+            line-height: 1.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== PORTFOLIO SECTION ===== */
+        .portfolio {
+            padding: 100px 20px;
+            background: linear-gradient(180deg, #f8f9ff 0%, #ffffff 100%);
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .portfolio-card {
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .portfolio-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .portfolio-preview {
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portfolio-card:nth-child(1) .portfolio-preview { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .portfolio-card:nth-child(2) .portfolio-preview { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .portfolio-card:nth-child(3) .portfolio-preview { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .portfolio-card:nth-child(4) .portfolio-preview { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .portfolio-card:nth-child(5) .portfolio-preview { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .portfolio-card:nth-child(6) .portfolio-preview { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+
+        .portfolio-preview .emoji {
+            font-size: 5rem;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+            transition: transform 0.4s;
+        }
+
+        .portfolio-card:hover .emoji {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        .portfolio-info {
+            padding: 25px;
+        }
+
+        .portfolio-info h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .portfolio-info p {
+            color: #888;
+            font-size: 0.95rem;
+        }
+
+        .portfolio-tag {
+            display: inline-block;
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+            padding: 4px 15px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        /* ===== CONTACT SECTION ===== */
+        .contact {
+            padding: 100px 20px;
+            background: white;
+        }
+
+        .contact-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .contact-card {
+            background: var(--gradient-1);
+            border-radius: 30px;
+            padding: 60px 40px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            top: -100px;
+            left: -100px;
+        }
+
+        .contact-card::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+            bottom: -80px;
+            right: -80px;
+        }
+
+        .contact-card h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-card p {
+            font-size: 1.15rem;
+            opacity: 0.9;
+            margin-bottom: 35px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .contact-item .icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .contact-item a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        .contact-item a:hover {
+            opacity: 0.8;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 20px 30px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand .logo {
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .footer-brand p {
+            color: #aaa;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        .footer-links h4 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #aaa;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            padding-right: 5px;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 25px;
+            text-align: center;
+            color: #888;
+            font-size: 0.95rem;
+        }
+
+        .footer-bottom a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* ===== SCROLL ANIMATIONS ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: 100vh;
+                background: white;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 30px;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: flex;
+                z-index: 1001;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .hero-stats {
+                gap: 25px;
+            }
+
+            .stat-number {
+                font-size: 1.8rem;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .contact-card {
+                padding: 40px 25px;
+            }
+
+            .contact-card h2 {
+                font-size: 1.8rem;
+            }
+
+            .contact-info {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header id="header">
+        <div class="nav-container">
+            <div class="logo" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+                <div class="logo-icon">Z</div>
+                MrZain
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home">الرئيسية</a></li>
+                <li><a href="#services">خدماتنا</a></li>
+                <li><a href="#portfolio">أعمالنا</a></li>
+                <li><a href="#contact" class="nav-cta">تواصل معنا</a></li>
+            </ul>
+            <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero" id="home">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">🚀 نحول التعلم إلى متعة</div>
+            <h1>حلول تعليمية <span class="highlight">تفاعلية</span><br>مصممة لإلهام الأطفال</h1>
+            <p>نصنع تجارب تعليمية غامرة تجمع بين التكنولوجيا والإبداع لتحويل المحتوى التعليمي إلى مغامرات ممتعة يحبها الأطفال</p>
+            <div class="hero-buttons">
+                <a href="#portfolio" class="btn btn-primary">🎮 استعرض أعمالنا</a>
+                <a href="#contact" class="btn btn-outline">💬 تواصل معنا</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">+50</div>
+                    <div class="stat-label">مشروع منجز</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">+1000</div>
+                    <div class="stat-label">طفل مستفيد</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">رضا العملاء</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SERVICES SECTION ===== -->
+    <section class="services" id="services">
+        <div class="section-header reveal">
+            <div class="section-badge">✨ ماذا نقدم</div>
+            <h2>خدماتنا المميزة</h2>
+            <p>نقدم حلولاً تعليمية متكاملة تجمع بين الإبداع والتكنولوجيا</p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card reveal">
+                <div class="service-icon">📚</div>
+                <h3>كتب أطفال تفاعلية</h3>
+                <p>نحوّل كتب الأطفال التقليدية إلى تجارب تفاعلية مذهلة بالصوت والحركة والألوان الجذابة، مما يجعل القراءة مغامرة شيقة يحبها الأطفال</p>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">🎮</div>
+                <h3>ألعاب تعليمية</h3>
+                <p>نصمم ألعاباً تعليمية ممتعة تجمع بين التعلم والمرح، تغطي مواضيع متنوعة من الرياضيات والعلوم واللغات والجغرافيا بأساليب مبتكرة</p>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">🎧</div>
+                <h3>كتب استماع لتدريب اللغات</h3>
+                <p>نطور كتب استماع تفاعلية لتدريب الأطفال على اللغات المختلفة مع تمارين النطق والاستماع باستخدام تقنيات التعرف على الصوت</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PORTFOLIO SECTION ===== -->
+    <section class="portfolio" id="portfolio">
+        <div class="section-header reveal">
+            <div class="section-badge">🏆 معرض الأعمال</div>
+            <h2>أمثلة على أعمالنا</h2>
+            <p>نماذج من المشاريع التفاعلية التي صممناها بعناية</p>
+        </div>
+        <div class="portfolio-grid">
+            <a href="game.html" class="portfolio-card reveal">
+                <div class="portfolio-preview">
+                    <span class="emoji">🏰</span>
+                </div>
+                <div class="portfolio-info">
+                    <h3>أبراج الرياضيات</h3>
+                    <p>لعبة دفاع تعتمد على حل المسائل الرياضية لبناء الأبراج</p>
+                    <span class="portfolio-tag">🎮 لعبة تعليمية</span>
+                </div>
+            </a>
+            <a href="body.html" class="portfolio-card reveal">
+                <div class="portfolio-preview">
+                    <span class="emoji">🫀</span>
+                </div>
+                <div class="portfolio-info">
+                    <h3>أجزاء الجسم</h3>
+                    <p>لعبة تفاعلية لتعليم الأطفال أعضاء الجسم وأجهزته</p>
+                    <span class="portfolio-tag">🎮 لعبة تعليمية</span>
+                </div>
+            </a>
+            <a href="countries.html" class="portfolio-card reveal">
+                <div class="portfolio-preview">
+                    <span class="emoji">🌍</span>
+                </div>
+                <div class="portfolio-info">
+                    <h3>لعبة البلدان</h3>
+                    <p>تعلّم خرائط العالم والعواصم بطريقة ممتعة وتفاعلية</p>
+                    <span class="portfolio-tag">🎮 لعبة تعليمية</span>
+                </div>
+            </a>
+            <a href="speak.html" class="portfolio-card reveal">
+                <div class="portfolio-preview">
+                    <span class="emoji">🎤</span>
+                </div>
+                <div class="portfolio-info">
+                    <h3>Speak & Learn</h3>
+                    <p>لعبة تدريب النطق والاستماع باستخدام تقنيات التعرف على الصوت</p>
+                    <span class="portfolio-tag">🎧 كتاب استماع</span>
+                </div>
+            </a>
+            <a href="audio5.html" class="portfolio-card reveal">
+                <div class="portfolio-preview">
+                    <span class="emoji">📖</span>
+                </div>
+                <div class="portfolio-info">
+                    <h3>كتاب الاستماع التفاعلي</h3>
+                    <p>كتاب تفاعلي للاستماع والقراءة مع الأصدقاء</p>
+                    <span class="portfolio-tag">📚 كتاب تفاعلي</span>
+                </div>
+            </a>
+            <a href="math5.html" class="portfolio-card reveal">
+                <div class="portfolio-preview">
+                    <span class="emoji">🧮</span>
+                </div>
+                <div class="portfolio-info">
+                    <h3>تحدي الرياضيات</h3>
+                    <p>تطبيق تفاعلي لتدريب الأطفال على العمليات الحسابية</p>
+                    <span class="portfolio-tag">🎮 لعبة تعليمية</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT SECTION ===== -->
+    <section class="contact" id="contact">
+        <div class="contact-wrapper reveal">
+            <div class="contact-card">
+                <h2>📬 تواصل معنا</h2>
+                <p>هل لديك مشروع تعليمي تريد تحويله إلى تجربة تفاعلية؟<br>نحن هنا لمساعدتك!</p>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="icon">📧</div>
+                        <a href="mailto:info@mrzain.com">info@mrzain.com</a>
+                    </div>
+                    <div class="contact-item">
+                        <div class="icon">🌐</div>
+                        <a href="https://mrzain.com" target="_blank">MrZain.com</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo">
+                    <div class="logo-icon">Z</div>
+                    MrZain
+                </div>
+                <p>نحول المحتوى التعليمي إلى تجارب تفاعلية ممتعة تلهم الأطفال وتساعدهم على التعلم بأسلوب عصري ومبتكر.</p>
+            </div>
+            <div class="footer-links">
+                <h4>روابط سريعة</h4>
+                <ul>
+                    <li><a href="#home">الرئيسية</a></li>
+                    <li><a href="#services">خدماتنا</a></li>
+                    <li><a href="#portfolio">أعمالنا</a></li>
+                    <li><a href="#contact">تواصل معنا</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>خدماتنا</h4>
+                <ul>
+                    <li><a href="#services">كتب أطفال تفاعلية</a></li>
+                    <li><a href="#services">ألعاب تعليمية</a></li>
+                    <li><a href="#services">كتب استماع</a></li>
+                    <li><a href="#services">تدريب لغات</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>تواصل معنا</h4>
+                <ul>
+                    <li><a href="mailto:info@mrzain.com">📧 info@mrzain.com</a></li>
+                    <li><a href="https://mrzain.com">🌐 MrZain.com</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 <a href="https://mrzain.com">MrZain</a> - جميع الحقوق محفوظة | صُنع بـ ❤️ لتعليم أفضل</p>
+        </div>
+    </footer>
+
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu toggle
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        // Close menu on link click
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navLinks').classList.remove('active');
+            });
+        });
+
+        // Scroll reveal animation
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const revealTop = el.getBoundingClientRect().top;
+                const revealPoint = 150;
+                if (revealTop < windowHeight - revealPoint) {
+                    el.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', revealOnScroll);
+
+        // Counter animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            counters.forEach(counter => {
+                const text = counter.innerText;
+                const hasPlus = text.includes('+');
+                const hasPercent = text.includes('%');
+                const target = parseInt(text.replace(/[^0-9]/g, ''));
+                let current = 0;
+                const increment = target / 60;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    let display = Math.floor(current);
+                    if (hasPlus) display = '+' + display;
+                    if (hasPercent) display = display + '%';
+                    counter.innerText = display;
+                }, 30);
+            });
+        }
+
+        // Trigger counter animation when hero is visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    observer.disconnect();
+                }
+            });
+        });
+        observer.observe(document.querySelector('.hero-stats'));
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive English Book</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cairo@4.5.10/index.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@4.5.10/index.min.css">
+<style>
+  * { font-family: 'Cairo', sans-serif; }
+  .book-font { font-family: 'Playfair Display', serif; }
+  
+  body {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 50%, #1e3a5f 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  .book-container {
+    perspective: 3000px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  
+  .book {
+    width: 100%;
+    max-width: 1100px;
+    min-height: 90vh;
+    background: linear-gradient(to right, #fef9e7 0%, #fdf6e3 50%, #fef9e7 100%);
+    border-radius: 20px 8px 8px 20px;
+    box-shadow: 
+      0 25px 50px rgba(0,0,0,0.5),
+      inset 0 0 80px rgba(139, 90, 43, 0.1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+  }
+  
+  .book::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(to right, rgba(139, 90, 43, 0.3), transparent);
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  .book::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(to left, rgba(139, 90, 43, 0.2), transparent);
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  .page {
+    flex: 1;
+    padding: 50px 60px;
+    overflow-y: auto;
+    position: relative;
+  }
+  
+  .page::-webkit-scrollbar { width: 8px; }
+  .page::-webkit-scrollbar-track { background: rgba(139, 90, 43, 0.1); }
+  .page::-webkit-scrollbar-thumb { background: rgba(139, 90, 43, 0.4); border-radius: 4px; }
+  
+  .cover-page {
+    background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+    color: #fef9e7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+  }
+  
+  .cover-page::before {
+    content: '';
+    position: absolute;
+    inset: 20px;
+    border: 3px double #d4af37;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  
+  .cover-page::after {
+    content: '';
+    position: absolute;
+    inset: 35px;
+    border: 1px solid #d4af37;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  
+  .page-number {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: #8B4513;
+    font-style: italic;
+  }
+  
+  .unit-header {
+    border-bottom: 3px double #8B4513;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+  }
+  
+  .reading-text {
+    background: rgba(254, 249, 231, 0.7);
+    border-left: 4px solid #8B4513;
+    padding: 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1.9;
+    color: #3d2817;
+    box-shadow: inset 0 0 20px rgba(139, 90, 43, 0.05);
+  }
+  
+  .exercise-card {
+    background: #fff;
+    border: 1px solid rgba(139, 90, 43, 0.2);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(139, 90, 43, 0.1);
+    transition: all 0.3s;
+  }
+  
+  .exercise-card:hover {
+    box-shadow: 0 4px 16px rgba(139, 90, 43, 0.2);
+  }
+  
+  .btn-answer {
+    background: linear-gradient(135deg, #8B4513, #A0522D);
+    color: #fef9e7;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+  .btn-answer:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 90, 43, 0.4);
+  }
+  
+  .btn-option {
+    background: #fef9e7;
+    border: 2px solid #8B4513;
+    color: #8B4513;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+    margin: 4px;
+  }
+  
+  .btn-option:hover {
+    background: #8B4513;
+    color: #fef9e7;
+  }
+  
+  .btn-option.selected {
+    background: #8B4513;
+    color: #fef9e7;
+  }
+  
+  .btn-option.correct {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+  }
+  
+  .btn-option.wrong {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: white;
+  }
+  
+  .input-answer {
+    border: 2px solid #8B4513;
+    border-radius: 8px;
+    padding: 8px 12px;
+    width: 100%;
+    background: #fef9e7;
+    color: #3d2817;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s;
+  }
+  
+  .input-answer:focus {
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  }
+  
+  .toc-item {
+    padding: 12px 20px;
+    border-bottom: 1px dashed rgba(139, 90, 43, 0.3);
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+  }
+  
+  .toc-item:hover {
+    background: rgba(212, 175, 55, 0.15);
+    padding-left: 30px;
+  }
+  
+  .nav-btn {
+    background: #8B4513;
+    color: #fef9e7;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(139, 90, 43, 0.3);
+  }
+  
+  .nav-btn:hover:not(:disabled) {
+    background: #A0522D;
+    transform: translateY(-2px);
+  }
+  
+  .nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  
+  .progress-bar {
+    height: 8px;
+    background: rgba(139, 90, 43, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #d4af37, #f59e0b);
+    transition: width 0.5s;
+    border-radius: 4px;
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.6s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .ornament {
+    color: #d4af37;
+    font-size: 24px;
+    letter-spacing: 8px;
+  }
+  
+  .score-badge {
+    background: linear-gradient(135deg, #d4af37, #f59e0b);
+    color: #3d2817;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  
+  .feedback {
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-weight: 600;
+    animation: slideIn 0.3s;
+  }
+  
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  .feedback.correct {
+    background: #d1fae5;
+    color: #065f46;
+    border-left: 4px solid #10b981;
+  }
+  
+  .feedback.wrong {
+    background: #fee2e2;
+    color: #991b1b;
+    border-left: 4px solid #ef4444;
+  }
+  
+  .unit-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+  }
+  
+  .chapter-title {
+    font-family: 'Playfair Display', serif;
+    color: #8B4513;
+    font-size: 32px;
+    font-weight: 700;
+  }
+  
+  @media (max-width: 768px) {
+    .book { flex-direction: column; min-height: auto; }
+    .page { padding: 30px 25px; }
+    .chapter-title { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ============ Data ============
+const units = [
+  {
+    id: 1, title: "Countries", icon: "🌍",
+    reading: "Citizenship means to be a good citizen in your community, following rules and helping people. Good citizens are kind and helpful people. It is not very difficult to be a good citizen. Ramez, for example, is a good citizen. He goes to school every day. Ramez likes to read about the world. He learns about the history of different countries and their cultures. This way, he can respect others and take care of things. Ramez is very nice to everyone. He also helps old people. At weekends, Ramez does some voluntary work with his friends to protect the environment. They pick up rubbish in parks and plant trees. We can all be good citizens. It feels great to make the world a better place.",
+    exercises: [
+      { type: "true_false", q: "It is difficult to be a good citizen.", a: "False" },
+      { type: "true_false", q: "We should learn about history and different cultures to respect others.", a: "True" },
+      { type: "true_false", q: "At weekends, Ramez plays video games with his friends.", a: "False" },
+      { type: "true_false", q: "When we pick up rubbish we help the environment.", a: "True" },
+      { type: "fill_blank", q: "We should ... good citizens.", a: "be" },
+      { type: "fill_blank", q: "We should ... some voluntary work in our community.", a: "do" },
+      { type: "multiple_choice", q: "The United Kingdom consists of ... countries.", opts: ["three", "four"], a: "four" },
+      { type: "multiple_choice", q: "They share the same ... and money.", opts: ["clothes", "language"], a: "language" },
+      { type: "classification", q: "London is the capital city of England.", a: "Fact" },
+      { type: "classification", q: "It is fun to visit different countries.", a: "Opinion" },
+      { type: "pronouns", q: "Fiona read about the continents.", a: "She read about them." },
+      { type: "pronouns", q: "Eve is carrying a map.", a: "She is carrying it." }
+    ]
+  },
+  {
+    id: 2, title: "At the Theatre", icon: "🎭",
+    reading: "The history of theatres goes back to the ancient times. Theatres have different kinds such as the puppet theatre, the shadow theatre, the carriage theatre and the modern theatre. Actors and actresses perform plays on the stage in order to entertain the audience and teach moral lessons. In Syria, all kinds of theatres, the old and the modern ones, are active. Visitors all around the world come to Bosra Theatre or to Aleppo Castle theatre to watch and enjoy the beautiful dances, songs, plays and shows which are performed on those stages.",
+    exercises: [
+      { type: "true_false", q: "The history of theatres is new.", a: "False" },
+      { type: "true_false", q: "There are many types of theatres.", a: "True" },
+      { type: "true_false", q: "There is a lesson in every play.", a: "True" },
+      { type: "multiple_choice", q: "Fatima and (her / hers) father are watching a play.", opts: ["her", "hers"], a: "her" },
+      { type: "multiple_choice", q: "These tickets are (our / ours).", opts: ["our", "ours"], a: "ours" },
+      { type: "multiple_choice", q: "The curtain on the stage is beautiful. (Its / It) colour is blue.", opts: ["Its", "It"], a: "Its" },
+      { type: "multiple_choice", q: "This is my seat and that is (yours / your).", opts: ["yours", "your"], a: "yours" }
+    ]
+  },
+  {
+    id: 3, title: "The Big Blue", icon: "🐢",
+    reading: "Turtles are amazing sea animals. They have hard shells to protect them. Their shells are covered with scales. Not all turtles can tuck their head inside the shell. They can also hold their breath for one hour. Turtles are reptiles. They have webbed feet. Turtles can lay eggs. They can float in water. Turtles only come out of water to lay eggs.",
+    exercises: [
+      { type: "fill_blank", q: "Turtles have hard ... to protect them.", a: "shells" },
+      { type: "fill_blank", q: "Their shells are covered with ...", a: "scales" },
+      { type: "fill_blank", q: "Turtles are ...", a: "reptiles" },
+      { type: "fill_blank", q: "They have ...", a: "webbed feet" },
+      { type: "fill_blank", q: "Turtles can ... eggs.", a: "lay" },
+      { type: "riddle", q: "I'm a small fish but I have the head of a horse. Who am I?", a: "Seahorse" },
+      { type: "riddle", q: "I'm very nice and intelligent, I have lungs not gills. Who am I?", a: "Dolphin" },
+      { type: "riddle", q: "I'm a big fish and have sharp teeth. Who am I?", a: "Shark" },
+      { type: "riddle", q: "My name means 8 feet. Who am I?", a: "Octopus" },
+      { type: "multiple_choice", q: "Sharks ... all over the sea world. (live / lives)", opts: ["live", "lives"], a: "live" },
+      { type: "multiple_choice", q: "The shark ... with gills. (breathe / breathes)", opts: ["breathe", "breathes"], a: "breathes" },
+      { type: "multiple_choice", q: "The dolphin moves ... tail up and down.", opts: ["Its", "It has", "It is"], a: "Its" },
+      { type: "multiple_choice", q: "The blue whale is very big. ... about 100 feet long.", opts: ["Its", "It has", "It is"], a: "It is" }
+    ]
+  },
+  {
+    id: 4, title: "Arts", icon: "🎨",
+    reading: "Tina: Wow! It's amazing here! Lola: Yes, look. Is that Marta? Tim: Ah! Yes, she's my favourite actress. What is she doing? Tina: She's talking to the director. Tim: I think he wants her to repeat the scene. Tina: What is she wearing? Lola: She's wearing a strange suit. Tim: Yes, the film is about space. The costumes must be strange. Lola: The director is angry. He's shouting all the time. He isn't talking quietly. Tina: The cameraman seems very busy. He is moving the camera to another place. Tim: And that man is fixing the lights. Lola: There are lots of men building the set. Tina: The actors are reading the script. Tim: I am excited! I can't wait to see the film in the cinema.",
+    exercises: [
+      { type: "true_false", q: "The children are watching a film on TV.", a: "False" },
+      { type: "true_false", q: "Marta is their friend.", a: "False" },
+      { type: "true_false", q: "A man is fixing the lights.", a: "True" },
+      { type: "multiple_choice", q: "(Now / yesterday), we are buying tickets at the cinema.", opts: ["Now", "yesterday"], a: "Now" },
+      { type: "multiple_choice", q: "He (is carving / are carving) into wood at the moment.", opts: ["is carving", "are carving"], a: "is carving" },
+      { type: "multiple_choice", q: "They (are / is) going round the gallery.", opts: ["are", "is"], a: "are" }
+    ]
+  },
+  {
+    id: 5, title: "What's on TV", icon: "📺",
+    reading: "I'm Naya and I'm a student. I usually watch TV for an hour everyday after doing my homework. I only switch on the TV when I know there is something I want to watch and now I'm watching a new Disney film. I sometimes watch the news because I think it's important to know what's happening in the world. I also like to watch documentaries, especially the ones about space and the natural world. However, I don't like many other programmes, like TV series. There are too many of them and nothing interesting ever happens. When they are on, I get the remote control and switch the TV off!",
+    exercises: [
+      { type: "multiple_choice", q: "Naya watches TV ...", opts: ["all day long", "after doing homework", "every evening"], a: "after doing homework" },
+      { type: "multiple_choice", q: "She usually doesn't watch lots of programmes but now she's watching ...", opts: ["a film", "a cartoon", "a series"], a: "a film" },
+      { type: "multiple_choice", q: "To know what's happening in the world, she watches the ...", opts: ["weather forecast", "documentaries", "news"], a: "news" },
+      { type: "multiple_choice", q: "When there's something uninteresting on, Naya ...", opts: ["switches on the TV", "Changes the channel", "switches the TV off"], a: "switches the TV off" },
+      { type: "fill_blank", q: "The opposite of 'switch off' is ...", a: "switch on" },
+      { type: "fill_blank", q: "The opposite of 'unimportant' is ...", a: "important" },
+      { type: "multiple_choice", q: "Emma often ... a uniform, but at the moment she ... a tracksuit.", opts: ["wears / is wearing", "is wearing / wears"], a: "wears / is wearing" }
+    ]
+  },
+  {
+    id: 6, title: "At the Hospital", icon: "🏥",
+    reading: "Yesterday, Mrs. Brown was very ill. She had a fever. She phoned the doctor and made an appointment. When she arrived at the hospital, there were many patients. A man was suffering from backache. A woman had a sore throat and a little girl had a leg injury. The doctor called Mrs. Brown and examined her. He took her temperature. He asked her some questions. She told him that she coughed, sneezed and had a runny nose. She had a headache. The doctor said she had flu and gave her the treatment: a syrup for the cough, tablets for the headache and injections. He advised her to stay in bed for three days.",
+    exercises: [
+      { type: "fill_blank", q: "Mrs. Brown had a ...", a: "fever" },
+      { type: "fill_blank", q: "She had a runny ...", a: "nose" },
+      { type: "fill_blank", q: "She had a ...", a: "headache" },
+      { type: "multiple_choice", q: "Write in negative: 'She was ill last week.'", opts: ["She wasn't ill last week.", "She didn't ill last week."], a: "She wasn't ill last week." },
+      { type: "multiple_choice", q: "Write in negative: 'He went to the doctor.'", opts: ["He wasn't go to the doctor.", "He didn't go to the doctor."], a: "He didn't go to the doctor." },
+      { type: "multiple_choice", q: "Write in question: 'He had an injection.'", opts: ["Had he an injection?", "Did he have an injection?"], a: "Did he have an injection?" }
+    ]
+  },
+  {
+    id: 7, title: "Free Time", icon: "⚽",
+    reading: "Rana: I'm really sorry, sir. Teacher: Why are you so late, Rana? Rana: I was stuck in a traffic jam. Teacher: Next time please come earlier or you will miss the lesson. Rana: Why don't we go to the concert tonight? Helen: Sorry, it doesn't sound much fun to me. Let's go to the gym. It has been a long time since we worked out. Rana: OK, that's a great idea. Helen: How do you spend your free time? Rana: I read adventure stories. Helen: That's fine. Could you lend me some of them please? Rana: Yes, of course. I have various collections of stories.",
+    exercises: [
+      { type: "multiple_choice", q: "Rana was late because of ...", opts: ["the traffic", "the rain", "the snow"], a: "the traffic" },
+      { type: "multiple_choice", q: "Where did Rana and Helen decide to go?", opts: ["to the concert", "to the gym", "to the bookshop"], a: "to the gym" },
+      { type: "multiple_choice", q: "What kind of books does Rana read in her spare time?", opts: ["history books", "poetry books", "story books"], a: "story books" },
+      { type: "fill_blank", q: "The synonym of 'different types' is ...", a: "various" },
+      { type: "fill_blank", q: "The synonym of 'couldn't get away from a place' is ...", a: "stuck" },
+      { type: "fill_blank", q: "The synonym of 'exercised' is ...", a: "worked out" }
+    ]
+  },
+  {
+    id: 8, title: "Appearance", icon: "👤",
+    reading: "1- Hi, I am Linda. I am a student. I am short and slim. I've got long wavy blonde hair and I have big blue eyes, I look like my mum. I have a lot of friends. I like to meet new people because I am out-going and funny. 2- Hi, I am Fayez. I am a teacher. I am tall and slim. I've got short curly blonde hair and small green eyes. I like to read books. I always learn new things about my job. All my students love me because I am a hardworking and honest teacher. 3- She is Janet. She is a doctor. She is a medium-height plump girl. She's got long straight black hair and big black eyes. She looks like her father. She is kind and smart.",
+    exercises: [
+      { type: "multiple_choice", q: "Write the adjectives in the right order: (new, big, nice)", opts: ["nice big new", "big nice new", "new big nice"], a: "nice big new" },
+      { type: "multiple_choice", q: "Write the adjectives in the right order: (beautiful, slim, tall)", opts: ["beautiful tall slim", "tall slim beautiful", "slim beautiful tall"], a: "beautiful tall slim" },
+      { type: "multiple_choice", q: "Tia has got ... hair.", opts: ["blond long straight", "long straight blond", "straight long blond"], a: "long straight blond" },
+      { type: "multiple_choice", q: "Mira is a ... girl.", opts: ["slim medium-height beautiful", "beautiful medium-height slim", "medium-height beautiful slim"], a: "beautiful medium-height slim" }
+    ]
+  },
+  {
+    id: 9, title: "Farming", icon: "🌾",
+    reading: "Plants are living things. Trees, flowers, grass and bushes are common plants. Plants make their own food from water, sunlight and soil. They reproduce with seeds. They have different parts: seeds, roots, stems, leaves, flowers and fruits. Most plants start as seeds. Seeds need a safe place to be buried in the soil before they can grow. The seed produces a plant. Some plants grow above the ground like tomatoes, aubergines and cabbage. Others have parts that grow under the ground like turnips, potatoes and beetroot. We use plants for food and drink. We also use them for medicines and making things like clothes.",
+    exercises: [
+      { type: "multiple_choice", q: "Plants ... water, air and sunlight.", opts: ["can", "have", "need"], a: "need" },
+      { type: "multiple_choice", q: "Roots, ... and stems are parts of a plant.", opts: ["bushes", "leaves", "sunlight"], a: "leaves" },
+      { type: "multiple_choice", q: "Seeds must be put in the ... to reproduce.", opts: ["grass", "medicine", "soil"], a: "soil" },
+      { type: "multiple_choice", q: "Turnips grow ... the ground.", opts: ["under", "between", "on"], a: "under" },
+      { type: "fill_blank", q: "Plants' roots are ... the soil.", a: "in" },
+      { type: "fill_blank", q: "The fruits are ... the tree.", a: "on" },
+      { type: "fill_blank", q: "The roots take water from the soil and give it ... the leaves.", a: "to" },
+      { type: "multiple_choice", q: "I haven't seen ... fruit trees in my uncle's garden.", opts: ["some", "any", "a"], a: "any" },
+      { type: "multiple_choice", q: "My father planted ... fruit trees.", opts: ["some", "any", "an"], a: "some" },
+      { type: "multiple_choice", q: "He gave me ... orange to eat.", opts: ["a", "an", "some"], a: "an" }
+    ]
+  },
+  {
+    id: 10, title: "Recycling and Reusing", icon: "♻️",
+    reading: "Most of us want to help the environment today through many ways, and reusing is one of them. Instead of buying new things, we can reuse old ones. For example, we can reuse empty plastic bottles as planters for flowers, moneyboxes and pencil cases. Plastic and glass jars can be reused as containers for rice and sugar. We also can turn towels and cotton shirts into drying rags. So, giving our children information about the importance of reusing can help to have a greener and healthier place.",
+    exercises: [
+      { type: "true_false", q: "Few people want to help the environment.", a: "False" },
+      { type: "true_false", q: "Reusing is bad for the environment.", a: "False" },
+      { type: "true_false", q: "We should give our children information about recycling.", a: "True" },
+      { type: "multiple_choice", q: "Recycling and reusing reduce ... pollution.", opts: ["too much", "too many"], a: "too much" },
+      { type: "multiple_choice", q: "Recycling doesn't need ... energy.", opts: ["much", "many"], a: "much" },
+      { type: "multiple_choice", q: "I ate ... sandwiches today.", opts: ["much", "many"], a: "many" },
+      { type: "multiple_choice", q: "There ... too many people in the theatre.", opts: ["is", "are"], a: "are" },
+      { type: "multiple_choice", q: "There ... too much traffic in this street.", opts: ["is", "are"], a: "is" }
+    ]
+  },
+  {
+    id: 11, title: "Tasty Food", icon: "🍎",
+    reading: "Hi. I'm Natali from Tartous. I want to tell you about what I have done recently. I have visited the 'Tropical Cave' by the Syrian coast. I've eaten the most delicious fruit ever. It was an amazing place. I went there with my family. We thought we were in the Amazon. There were all those strange-looking fruit, like the star fruit and the jackfruit. In a restaurant there, we tried some of those fresh fruit. I tried the chocolate pudding fruit. It was a little bitter, but it really tasted like chocolate. Then we tried others, like the dragon fruit, which had a sweet taste, and the papaya, which was juicy just like mango. Actually, it was a real adventure. I was really pleased.",
+    exercises: [
+      { type: "fill_blank", q: "Full of juice = ...", a: "juicy" },
+      { type: "fill_blank", q: "With a taste like sugar = ...", a: "sweet" },
+      { type: "fill_blank", q: "Collected recently = ...", a: "fresh" },
+      { type: "fill_blank", q: "Not sweet = ...", a: "bitter" },
+      { type: "fill_blank", q: "Having a lovely taste = ...", a: "delicious" },
+      { type: "multiple_choice", q: "The 'Tropical Cave' is in ...", opts: ["Arwad", "Tartous", "the Amazon"], a: "Tartous" },
+      { type: "multiple_choice", q: "The ... has a juicy taste.", opts: ["mango", "star fruit", "jackfruit"], a: "mango" },
+      { type: "multiple_choice", q: "Write in present perfect: Salma / just / wash / the dishes.", opts: ["Salma has just washed the dishes.", "Salma just washes the dishes."], a: "Salma has just washed the dishes." }
+    ]
+  },
+  {
+    id: 12, title: "Shopping Around the World", icon: "🛍️",
+    reading: "Hello, I'm Nabil. I have never bought anything online. I really like going round the markets with my friends. There is a market every Friday near my house. The market contains different parts. You can do your weekly grocery shopping from the food area where my parents always go. There is also the clothes section, which my sister loves. Actually, you can find everything in this market: books, furniture, glasses and many amazing goods. I have found an old paperweight there. It's made of heavy glass and it's wonderful because you can see different colours in it. I think it is an antique.",
+    exercises: [
+      { type: "fill_blank", q: "An object we use to stop paper from blowing away = ...", a: "paperweight" },
+      { type: "fill_blank", q: "Things that we sell and buy = ...", a: "goods" },
+      { type: "fill_blank", q: "An old valuable thing = ...", a: "antique" },
+      { type: "fill_blank", q: "Large objects such as chairs, tables, beds = ...", a: "furniture" },
+      { type: "multiple_choice", q: "Nabil likes ... shopping.", opts: ["online", "going", "grocery"], a: "going" },
+      { type: "multiple_choice", q: "Nabil goes to the market on ...", opts: ["Friday", "Sunday", "Tuesday"], a: "Friday" },
+      { type: "multiple_choice", q: "I have had this lovely money box for ...", opts: ["2 weeks", "last week"], a: "2 weeks" },
+      { type: "multiple_choice", q: "Malak has ... ridden a horse.", opts: ["ever", "never"], a: "never" },
+      { type: "multiple_choice", q: "I haven't seen my uncle ... 2016.", opts: ["for", "since"], a: "since" }
+    ]
+  },
+  {
+    id: 13, title: "Feelings", icon: "😊",
+    reading: "Usually, surprises give happiness and pleasure. Last week, we planned a surprise reunion for my mother, Nadia. We sent an invitation to her close old friend, who lived in France, to spend the weekend at my grandparents' villa. In the afternoon, we went to our grandparents' villa. There, my mum was surprised when she saw her old friend, Maria, who came from France. Maria was impressed and pleased to have such an exciting meeting. My mum was very excited and proud of us. We had a lovely weekend.",
+    exercises: [
+      { type: "true_false", q: "Nadia was surprised in a positive way.", a: "True" },
+      { type: "true_false", q: "The reunion party was in their grandparents' villa.", a: "True" },
+      { type: "true_false", q: "Maria was sad to meet her best friend again.", a: "False" },
+      { type: "multiple_choice", q: "Surprises make us feel ...", opts: ["happy", "unhappy"], a: "happy" },
+      { type: "multiple_choice", q: "Mum was ... when she saw her old friend.", opts: ["surprised", "sad"], a: "surprised" },
+      { type: "multiple_choice", q: "I'm ... with my job, so I'm looking for a new one.", opts: ["unhappy", "tired", "worried", "pleased", "hungry"], a: "unhappy" },
+      { type: "multiple_choice", q: "Mark has got good grades in his exam, so Mark is ...", opts: ["unhappy", "tired", "worried", "pleased", "hungry"], a: "pleased" },
+      { type: "multiple_choice", q: "Lina has walked all day, so she's very ...", opts: ["unhappy", "tired", "worried", "pleased", "hungry"], a: "tired" }
+    ]
+  },
+  {
+    id: 14, title: "Natural Resources", icon: "☀️",
+    reading: "The world uses too much oil, gas and coal. These natural resources will not last for a long time. So, we must look for other sources like: solar power, wind power, and wave power. The solar power comes from the Sun which is the main source of energy for all living things. We should use the sunlight to change it into useful forms of energy such as electricity. This is one way to protect the natural resources. The Sun power doesn't cause pollution, and we can use it again and again.",
+    exercises: [
+      { type: "multiple_choice", q: "The Sun gives us ... power.", opts: ["wind", "solar", "wave"], a: "solar" },
+      { type: "multiple_choice", q: "Coal, oil and gas will not ... forever.", opts: ["finish", "work", "continue"], a: "continue" },
+      { type: "multiple_choice", q: "The Sun is the main source of ... for all living things.", opts: ["food", "water", "power"], a: "power" },
+      { type: "true_false", q: "The source of solar power is the Moon.", a: "False" },
+      { type: "true_false", q: "Solar energy is bad for the environment.", a: "False" },
+      { type: "multiple_choice", q: "In the future all people ... use solar power.", opts: ["should", "mustn't"], a: "should" },
+      { type: "multiple_choice", q: "We ... shout at school.", opts: ["have to", "shouldn't"], a: "shouldn't" },
+      { type: "multiple_choice", q: "I ... do my homework.", opts: ["must", "should"], a: "must" },
+      { type: "fill_blank", q: "Anas likes to paint, ... Hind likes to paint, too.", a: "and" },
+      { type: "fill_blank", q: "It was cloudy, ... it didn't rain.", a: "but" }
+    ]
+  },
+  {
+    id: 15, title: "I Know my Rights", icon: "⚖️",
+    reading: "The United Nations listed the child's rights on the 20th November 1989 and this date is now the World Children's Day. It is a day to celebrate children because they are important in society. Every year on this day, teachers and parents around the world give ideas for children to learn about their rights and celebrate them. They do activities that are fun, practical and easy. They celebrate every year to ask for a better future for every child.",
+    exercises: [
+      { type: "true_false", q: "The United Nations made a list for children's rights in 1998.", a: "False" },
+      { type: "true_false", q: "Children have a day because they are important.", a: "True" },
+      { type: "true_false", q: "The world celebrates Children's Day to ask for a better future.", a: "True" },
+      { type: "multiple_choice", q: "We celebrate the World Children's Day on the ...", opts: ["12th December", "2nd October", "20th November"], a: "20th November" },
+      { type: "multiple_choice", q: "Teachers and parents around the world give ideas for children to ...", opts: ["learn about their rights", "get money", "work"], a: "learn about their rights" },
+      { type: "multiple_choice", q: "The activities which children do on the World Children's Day are ...", opts: ["difficult", "boring", "fun"], a: "fun" }
+    ]
+  },
+  {
+    id: 16, title: "Parties", icon: "🎉",
+    reading: "One of my best occasions is Mother's Day. Last March, we celebrated it at a restaurant and invited all our relatives. Each one of us had something to do. My sister chose the cake and the sweets. My brother bought the present. My dad booked tables at the restaurant. On the day of the party, when we arrived at the restaurant, the restaurant staff were decorating the place with balloons and hanging lights. It was a surprise for my mum. We were clapping and singing when the waitress came with a huge cake. We were cheering while my mum was cutting the cake, then we ate the cake and had a good time. It was delicious. It was the most enjoyable party I've ever had. My mom was so happy. We gave her the present and said 'Happy Mother's Day'.",
+    exercises: [
+      { type: "true_false", q: "They had the party in a coffee shop.", a: "False" },
+      { type: "true_false", q: "The cake was very big.", a: "True" },
+      { type: "true_false", q: "They didn't like the cake.", a: "False" },
+      { type: "multiple_choice", q: "My brother and I ... the house last night.", opts: ["was decorating", "were decorating"], a: "were decorating" },
+      { type: "multiple_choice", q: "I was cutting the cake while my friends were ...", opts: ["singing", "sang"], a: "singing" },
+      { type: "multiple_choice", q: "... your mother making your favourite dish?", opts: ["Were", "Was"], a: "Was" },
+      { type: "multiple_choice", q: "Write the correct order: having/yesterday/They/lunch/were/afternoon", opts: ["They were having lunch yesterday afternoon.", "They were having yesterday lunch afternoon."], a: "They were having lunch yesterday afternoon." }
+    ]
+  },
+  {
+    id: 17, title: "Maths", icon: "🔢",
+    reading: "Maths is fun! We use numbers every day. We count, add, subtract, multiply and divide. We use maths to solve problems and to understand the world around us.",
+    exercises: [
+      { type: "fill_blank", q: "How old is Tia? (age = 13 × 3)", a: "39" },
+      { type: "fill_blank", q: "Which month was she born in? (77 ÷ 7 = 11)", a: "November" },
+      { type: "fill_blank", q: "When is her birthday? (46 ÷ 2 = 23)", a: "23rd" },
+      { type: "fill_blank", q: "How many sisters does she have? (4 - 1 = 3)", a: "3" },
+      { type: "fill_blank", q: "How many pets does she have? (3 + 1 = 4)", a: "4" },
+      { type: "fill_blank", q: "How tall is she? (100 + 71 = 171)", a: "171" },
+      { type: "fill_blank", q: "Today is the ... December. (1st)", a: "first" },
+      { type: "fill_blank", q: "Timmy wasn't the winner. He came ... (3rd)", a: "third" },
+      { type: "fill_blank", q: "November is the ... month in the year. (11th)", a: "eleventh" }
+    ]
+  },
+  {
+    id: 18, title: "Technology", icon: "💻",
+    reading: "We are chained to technology! We are always sitting in front of a screen sending and receiving phone calls, text messages or emails. We live with the mobile and its apps, photos, and videos, as well as the Internet. We play games, listen to music, use GPS, and much more. We need a break from technology. Every weekend, we should switch off the computer and the mobile phone and get out in nature with family or friends. We should go for long walks and enjoy the outdoors. It is going to be very relaxing and this way we are going to have a balance between science and nature.",
+    exercises: [
+      { type: "multiple_choice", q: "We believe we ... to the moon on holiday one day. (travel)", opts: ["will travel", "are going to travel"], a: "will travel" },
+      { type: "multiple_choice", q: "He is running too fast. He ... (fall)", opts: ["will fall", "is going to fall"], a: "is going to fall" },
+      { type: "multiple_choice", q: "I think future transport ... fuel to move. (not/use)", opts: ["won't use", "isn't going to use"], a: "won't use" },
+      { type: "multiple_choice", q: "I'm sure smartphones ... able to check our health. (be)", opts: ["will be", "are going to be"], a: "will be" },
+      { type: "true_false", q: "In the future, they will have robot nurses.", a: "True" },
+      { type: "true_false", q: "The camera pill will fix the problems from inside the body.", a: "True" },
+      { type: "true_false", q: "People will never get sick in the future.", a: "False" }
+    ]
+  },
+  {
+    id: 19, title: "Holidays", icon: "🏕️",
+    reading: "Next summer, we are going to camp in one of the most amazing campsites in my country. It's in a forest near a lake. I like the direct contact with nature and that is the best part about camping. We can do many outdoor activities like boating, hiking and fishing. I'm going to go on a night walk with my parents this year too. Another good thing about camping is that we can play with other children all day. We can swim and ride bikes. At night, we're going to sit around fire, play music and sing. My dad says we aren't going to take a tent or any equipment for camping, because the site has everything we need. However, I'll take my camera and my guitar. I'm so excited.",
+    exercises: [
+      { type: "multiple_choice", q: "Andy is going to have a ... holiday.", opts: ["sightseeing", "camping", "backpacking"], a: "camping" },
+      { type: "multiple_choice", q: "In this holiday he is going to do ... activities.", opts: ["outdoor", "indoor", "dangerous"], a: "outdoor" },
+      { type: "multiple_choice", q: "Children can go ... together.", opts: ["climbing", "diving", "swimming"], a: "swimming" },
+      { type: "multiple_choice", q: "Andy's family aren't going to take a ...", opts: ["tent", "guitar", "camera"], a: "tent" },
+      { type: "fill_blank", q: "Andy is going to camp in ...", a: "a forest near a lake" },
+      { type: "fill_blank", q: "Andy will take ...", a: "his camera and his guitar" },
+      { type: "fill_blank", q: "Andy will play ...", a: "music" }
+    ]
+  },
+  {
+    id: 20, title: "The Solar System", icon: "🪐",
+    reading: "The solar system consists of the Sun and the nine planets. The Sun is not a planet. It's a star. It's in the center of the solar system. All planets orbit the Sun. The Earth takes 365 days to go round the sun; this is how we have the four seasons. Some planets take less or more days than the others. Mercury takes less days than the Earth because it's the closest to the Sun. The Earth also rotates around itself. It takes 24 hours to have a full round. This is why we have day and night. When it is day at one part of the Earth, it's night at the other part.",
+    exercises: [
+      { type: "true_false", q: "The Sun is a planet.", a: "False" },
+      { type: "true_false", q: "All planets go round the Sun.", a: "True" },
+      { type: "true_false", q: "The Earth takes 365 days to go round Mars.", a: "False" },
+      { type: "multiple_choice", q: "The Sun and the nine planets are called the ... system.", opts: ["lunar", "geographic", "solar"], a: "solar" },
+      { type: "multiple_choice", q: "The Sun is in the ... of the solar system.", opts: ["east", "west", "middle"], a: "middle" },
+      { type: "multiple_choice", q: "... takes the least days to orbit the Sun.", opts: ["Mercury", "Mars", "Venus"], a: "Mercury" },
+      { type: "multiple_choice", q: "The Earth takes twenty-four ... to make a full round.", opts: ["days", "months", "hours"], a: "hours" },
+      { type: "fill_blank", q: "The moon is ... than the Earth. (small)", a: "smaller" },
+      { type: "fill_blank", q: "The Earth is ... than Mercury. (large)", a: "larger" },
+      { type: "fill_blank", q: "Life on Earth is ... than life on Venus. (wonderful)", a: "more wonderful" },
+      { type: "multiple_choice", q: "Correct: 'Jupiter is the larger planet.'", opts: ["Jupiter is the largest planet.", "Jupiter is larger planet."], a: "Jupiter is the largest planet." },
+      { type: "multiple_choice", q: "Correct: 'Venus is the hotest planet.'", opts: ["Venus is the hottest planet.", "Venus is the more hot planet."], a: "Venus is the hottest planet." }
+    ]
+  }
+];
+
+// ============ State ============
+let state = {
+  currentPage: 'cover',
+  currentUnit: 0,
+  answers: {},
+  showReading: {},
+  score: 0,
+  totalAnswered: 0
+};
+
+// ============ Statistics ============
+function getStats() {
+  let totalQuestions = 0;
+  units.forEach(u => totalQuestions += u.exercises.length);
+  let answered = Object.keys(state.answers).filter(k => state.answers[k].answered).length;
+  let correct = Object.keys(state.answers).filter(k => state.answers[k].correct).length;
+  return { total: totalQuestions, answered, correct };
+}
+
+// ============ Render ============
+function render() {
+  const app = document.getElementById('app');
+  const stats = getStats();
+  const progress = stats.total > 0 ? (stats.answered / stats.total) * 100 : 0;
+  
+  let content = '';
+  
+  if (state.currentPage === 'cover') {
+    content = renderCover();
+  } else if (state.currentPage === 'toc') {
+    content = renderTOC(stats, progress);
+  } else if (state.currentPage === 'unit') {
+    content = renderUnit(state.currentUnit);
+  }
+  
+  app.innerHTML = `
+    <div class="book-container">
+      <div class="book">
+        <div class="page fade-in">
+          ${content}
+          <div class="page-number">${state.currentPage === 'cover' ? '—' : state.currentPage === 'toc' ? 'Table of Contents' : `Page ${state.currentUnit + 1} of ${units.length}`}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  attachEvents();
+}
+
+function renderCover() {
+  return `
+    <div class="cover-page" style="margin: -50px -60px; min-height: calc(90vh - 100px);">
+      <div style="position: relative; z-index: 2; padding: 40px;">
+        <div class="ornament">❦ ❦ ❦</div>
+        <div style="font-size: 80px; margin: 20px 0;">📚</div>
+        <h1 class="book-font" style="font-size: 52px; font-weight: 700; margin: 20px 0; color: #fef9e7; text-shadow: 2px 2px 8px rgba(0,0,0,0.3);">
+          Interactive Book
+        </h1>
+        <h2 class="book-font" style="font-size: 32px; color: #d4af37; margin: 10px 0; font-style: italic;">
+          English Language
+        </h2>
+        <div class="ornament" style="margin: 20px 0;">✦ ✦ ✦</div>
+        <p style="font-size: 18px; margin: 20px 0; line-height: 1.8;">
+          20 Interactive Study Units<br>
+          Reading Texts • Exercises • Quizzes
+        </p>
+        <button onclick="goToTOC()" class="btn-answer" style="margin-top: 30px; padding: 14px 40px; font-size: 18px;">
+          📖 Start Reading
+        </button>
+        <div style="margin-top: 40px; font-size: 14px; opacity: 0.8;">
+          Basic Educational Level
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTOC(stats, progress) {
+  return `
+    <div style="text-align: center; margin-bottom: 30px;">
+      <div class="ornament">❦ ❦ ❦</div>
+      <h1 class="chapter-title" style="margin: 15px 0;">Table of Contents</h1>
+      <div class="ornament">✦ ✦ ✦</div>
+    </div>
+    
+    <div style="background: rgba(139, 90, 43, 0.08); padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 600; color: #8B4513;">
+        <span>📊 Your Progress</span>
+        <span>${stats.answered} / ${stats.total} Questions</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: ${progress}%;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-around; margin-top: 15px; font-size: 14px;">
+        <div><span style="color: #10b981;">✓</span> Correct: <strong>${stats.correct}</strong></div>
+        <div><span style="color: #ef4444;">✗</span> Wrong: <strong>${stats.answered - stats.correct}</strong></div>
+      </div>
+    </div>
+    
+    <div style="max-height: 55vh; overflow-y: auto;">
+      ${units.map((u, i) => {
+        const unitAnswered = u.exercises.filter((_, idx) => state.answers[`${u.id}-${idx}`]?.answered).length;
+        const unitTotal = u.exercises.length;
+        const unitProgress = unitTotal > 0 ? (unitAnswered / unitTotal) * 100 : 0;
+        return `
+          <div class="toc-item" onclick="goToUnit(${i})">
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <div style="font-size: 32px;">${u.icon}</div>
+              <div>
+                <div style="font-weight: 700; color: #8B4513; font-size: 17px;">
+                  Unit ${u.id}: ${u.title}
+                </div>
+                <div class="progress-bar" style="width: 150px; margin-top: 5px; height: 4px;">
+                  <div class="progress-fill" style="width: ${unitProgress}%;"></div>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+              <span class="score-badge">${unitAnswered}/${unitTotal}</span>
+              <span style="color: #8B4513; font-size: 20px;">→</span>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+    
+    <div style="text-align: center; margin-top: 25px;">
+      <button onclick="goToCover()" class="nav-btn">🏠 Back to Cover</button>
+    </div>
+  `;
+}
+
+function renderUnit(idx) {
+  const unit = units[idx];
+  const readingShown = state.showReading[unit.id];
+  
+  let exercisesHTML = unit.exercises.map((ex, exIdx) => renderExercise(unit.id, ex, exIdx)).join('');
+  
+  const unitAnswered = unit.exercises.filter((_, idx) => state.answers[`${unit.id}-${idx}`]?.answered).length;
+  const unitCorrect = unit.exercises.filter((_, idx) => state.answers[`${unit.id}-${idx}`]?.correct).length;
+  const unitTotal = unit.exercises.length;
+  
+  return `
+    <div style="margin-bottom: 20px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div style="font-size: 14px; color: #8B4513; font-weight: 600;">Unit ${unit.id}</div>
+        <div class="unit-icon">${unit.icon}</div>
+        <h1 class="chapter-title">${unit.title}</h1>
+        <div class="ornament" style="margin-top: 10px;">✦ ✦ ✦</div>
+      </div>
+      
+      <div class="unit-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2 style="color: #8B4513; font-size: 22px; font-weight: 700;">📖 Reading Text</h2>
+          <button onclick="toggleReading(${unit.id})" class="btn-answer" style="font-size: 13px; padding: 6px 16px;">
+            ${readingShown ? '🙈 Hide Text' : '👁️ Show Text'}
+          </button>
+        </div>
+      </div>
+      
+      ${readingShown ? `
+        <div class="reading-text book-font" style="margin-bottom: 30px;">
+          ${unit.reading}
+        </div>
+      ` : ''}
+      
+      <div style="background: rgba(212, 175, 55, 0.15); padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: 700; color: #8B4513;">✏️ Interactive Exercises</div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <span class="score-badge">✓ ${unitCorrect} / ${unitTotal}</span>
+          <div class="progress-bar" style="width: 100px;">
+            <div class="progress-fill" style="width: ${(unitAnswered/unitTotal)*100}%;"></div>
+          </div>
+        </div>
+      </div>
+      
+      ${exercisesHTML}
+      
+      <div style="display: flex; justify-content: space-between; margin-top: 30px; gap: 10px;">
+        <button onclick="goToUnit(${idx - 1})" class="nav-btn" ${idx === 0 ? 'disabled' : ''}>
+          ← Previous Unit
+        </button>
+        <button onclick="goToTOC()" class="nav-btn" style="background: #d4af37; color: #3d2817;">
+          📋 Contents
+        </button>
+        <button onclick="goToUnit(${idx + 1})" class="nav-btn" ${idx === units.length - 1 ? 'disabled' : ''}>
+          Next Unit →
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderExercise(unitId, ex, exIdx) {
+  const key = `${unitId}-${exIdx}`;
+  const answer = state.answers[key];
+  const answered = answer?.answered;
+  
+  let inputHTML = '';
+  let feedbackHTML = '';
+  
+  if (ex.type === 'true_false') {
+    inputHTML = `
+      <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button class="btn-option ${answered && answer.userAnswer === 'True' ? (answer.correct ? 'correct' : 'wrong') : ''}" 
+                onclick="answerQuestion('${key}', 'True', '${ex.a}')" ${answered ? 'disabled' : ''}>
+          ✅ True
+        </button>
+        <button class="btn-option ${answered && answer.userAnswer === 'False' ? (answer.correct ? 'correct' : 'wrong') : ''}" 
+                onclick="answerQuestion('${key}', 'False', '${ex.a}')" ${answered ? 'disabled' : ''}>
+          ❌ False
+        </button>
+      </div>
+    `;
+  } else if (ex.type === 'multiple_choice') {
+    inputHTML = `
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+        ${ex.opts.map(opt => {
+          const isSelected = answered && answer.userAnswer === opt;
+          const isCorrectOpt = opt === ex.a;
+          let cls = 'btn-option';
+          if (answered) {
+            if (isSelected && isCorrectOpt) cls += ' correct';
+            else if (isSelected && !isCorrectOpt) cls += ' wrong';
+            else if (isCorrectOpt) cls += ' correct';
+          }
+          return `<button class="${cls}" onclick="answerQuestion('${key}', '${opt.replace(/'/g, "\\'")}', '${ex.a.replace(/'/g, "\\'")}')" ${answered ? 'disabled' : ''}>${opt}</button>`;
+        }).join('')}
+      </div>
+    `;
+  } else if (ex.type === 'fill_blank' || ex.type === 'riddle' || ex.type === 'pronouns') {
+    inputHTML = `
+      <div style="display: flex; gap: 10px; margin-top: 10px; align-items: center;">
+        <input type="text" class="input-answer" id="input-${key}" placeholder="Type your answer here..." ${answered ? 'disabled' : ''} style="flex: 1;">
+        <button class="btn-answer" onclick="checkTextAnswer('${key}', '${ex.a.replace(/'/g, "\\'")}')" ${answered ? 'disabled' : ''}>
+          Check ✓
+        </button>
+      </div>
+    `;
+  } else if (ex.type === 'classification') {
+    inputHTML = `
+      <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button class="btn-option ${answered && answer.userAnswer === 'Fact' ? (answer.correct ? 'correct' : 'wrong') : ''}" 
+                onclick="answerQuestion('${key}', 'Fact', '${ex.a}')" ${answered ? 'disabled' : ''}>
+          📊 Fact
+        </button>
+        <button class="btn-option ${answered && answer.userAnswer === 'Opinion' ? (answer.correct ? 'correct' : 'wrong') : ''}" 
+                onclick="answerQuestion('${key}', 'Opinion', '${ex.a}')" ${answered ? 'disabled' : ''}>
+          💭 Opinion
+        </button>
+      </div>
+    `;
+  }
+  
+  if (answered) {
+    feedbackHTML = `
+      <div class="feedback ${answer.correct ? 'correct' : 'wrong'}">
+        ${answer.correct ? '✅ Correct! Well done' : `❌ Wrong. The correct answer is: <strong>${ex.a}</strong>`}
+      </div>
+    `;
+  }
+  
+  const typeLabels = {
+    'true_false': '✅ True or False',
+    'multiple_choice': '🎯 Choose the correct answer',
+    'fill_blank': '✍️ Fill in the blank',
+    'riddle': '🧩 Riddle - Who am I?',
+    'pronouns': '🔄 Rewrite using pronouns',
+    'classification': '📊 Classify the sentence'
+  };
+  
+  return `
+    <div class="exercise-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span style="background: #8B4513; color: #fef9e7; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700;">
+          ${typeLabels[ex.type] || 'Exercise'}
+        </span>
+        ${answered ? `<span class="score-badge">${answer.correct ? '✓ +1' : '✗ 0'}</span>` : ''}
+      </div>
+      <div style="font-size: 16px; color: #3d2817; line-height: 1.7; margin-bottom: 10px;">
+        <strong style="color: #8B4513;">Question:</strong> ${ex.q}
+      </div>
+      ${inputHTML}
+      ${feedbackHTML}
+    </div>
+  `;
+}
+
+// ============ Events ============
+function attachEvents() {
+  // Nothing needed for now
+}
+
+function goToCover() {
+  state.currentPage = 'cover';
+  render();
+  window.scrollTo(0, 0);
+}
+
+function goToTOC() {
+  state.currentPage = 'toc';
+  render();
+  window.scrollTo(0, 0);
+}
+
+function goToUnit(idx) {
+  if (idx < 0 || idx >= units.length) return;
+  state.currentPage = 'unit';
+  state.currentUnit = idx;
+  render();
+  window.scrollTo(0, 0);
+}
+
+function toggleReading(unitId) {
+  state.showReading[unitId] = !state.showReading[unitId];
+  render();
+}
+
+function answerQuestion(key, userAnswer, correctAnswer) {
+  const isCorrect = userAnswer === correctAnswer;
+  state.answers[key] = {
+    answered: true,
+    correct: isCorrect,
+    userAnswer: userAnswer
+  };
+  render();
+}
+
+function checkTextAnswer(key, correctAnswer) {
+  const input = document.getElementById(`input-${key}`);
+  if (!input) return;
+  const userAnswer = input.value.trim();
+  if (!userAnswer) {
+    input.style.borderColor = '#ef4444';
+    return;
+  }
+  const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase() ||
+                    correctAnswer.toLowerCase().includes(userAnswer.toLowerCase()) ||
+                    userAnswer.toLowerCase().includes(correctAnswer.toLowerCase());
+  state.answers[key] = {
+    answered: true,
+    correct: isCorrect,
+    userAnswer: userAnswer
+  };
+  render();
+}
+
+// ============ Start ============
+render();
+</script>
+
+</body>
+</html>

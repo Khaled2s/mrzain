@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Interactive Listening Book for Kids</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5.0.0/index.css">
+<style>
+  * { 
+    font-family: 'Poppins', sans-serif; 
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    background: linear-gradient(135deg, #fef3c7 0%, #fbcfe8 50%, #c4b5fd 100%);
+    min-height: 100vh;
+    padding: 12px;
+    overflow-x: hidden;
+  }
+
+  @media (min-width: 768px) {
+    body { padding: 24px; }
+  }
+
+  .book-card {
+    background: rgba(255,255,255,0.98);
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+
+  @media (min-width: 768px) {
+    .book-card {
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #f472b6, #ec4899);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(236,72,153,0.3);
+  }
+
+  .btn-primary:hover:not(:disabled) { 
+    transform: translateY(-3px); 
+    box-shadow: 0 8px 25px rgba(236,72,153,0.5); 
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(59,130,246,0.3);
+  }
+
+  .btn-secondary:hover:not(:disabled) { 
+    transform: translateY(-3px); 
+    box-shadow: 0 8px 25px rgba(59,130,246,0.5); 
+  }
+
+  .option-btn {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 3px solid #fbbf24;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(251,191,36,0.2);
+  }
+
+  .option-btn:hover:not(:disabled) { 
+    transform: scale(1.03); 
+    background: linear-gradient(135deg, #fde68a, #fcd34d);
+    box-shadow: 0 4px 12px rgba(251,191,36,0.4);
+  }
+
+  .option-btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .option-btn.correct {
+    background: linear-gradient(135deg, #86efac, #4ade80);
+    border-color: #22c55e;
+    animation: correctPulse 0.6s ease-out;
+    box-shadow: 0 4px 20px rgba(34,197,94,0.4);
+  }
+
+  .option-btn.wrong {
+    background: linear-gradient(135deg, #fca5a5, #f87171);
+    border-color: #ef4444;
+    animation: shake 0.5s ease-out;
+    box-shadow: 0 4px 20px rgba(239,68,68,0.4);
+  }
+
+  @keyframes correctPulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .float-anim { animation: float 3s ease-in-out infinite; }
+
+  @keyframes starPop {
+    0% { transform: scale(0) rotate(0); opacity: 0; }
+    50% { transform: scale(1.4) rotate(180deg); opacity: 1; }
+    100% { transform: scale(1) rotate(360deg); opacity: 1; }
+  }
+
+  .star-pop { animation: starPop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+
+  .progress-fill {
+    background: linear-gradient(90deg, #f472b6, #a78bfa, #60a5fa);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 10px rgba(167,139,250,0.5);
+  }
+
+  .speaking-indicator {
+    display: inline-block;
+    width: 6px; 
+    height: 6px;
+    background: #ef4444;
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: speakBounce 0.5s infinite;
+  }
+
+  .speaking-indicator:nth-child(2) { animation-delay: 0.1s; }
+  .speaking-indicator:nth-child(3) { animation-delay: 0.2s; }
+  .speaking-indicator:nth-child(4) { animation-delay: 0.3s; }
+
+  @keyframes speakBounce {
+    0%,100% { transform: scaleY(1); }
+    50% { transform: scaleY(2.5); }
+  }
+
+  .confetti {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  .slide-in { 
+    animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+  }
+
+  @keyframes slideIn {
+    from { 
+      opacity: 0; 
+      transform: translateY(30px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+
+  .nav-dot { 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    cursor: pointer;
+  }
+
+  .nav-dot.active { 
+    background: #ec4899; 
+    transform: scale(1.4);
+    box-shadow: 0 0 12px rgba(236,72,153,0.6);
+  }
+
+  .nav-dot.completed { 
+    background: #22c55e;
+    box-shadow: 0 0 8px rgba(34,197,94,0.5);
+  }
+
+  .score-badge {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    box-shadow: 0 4px 15px rgba(245,158,11,0.4);
+    transition: all 0.3s;
+  }
+
+  .score-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(245,158,11,0.6);
+  }
+
+  .passage-image {
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+    max-width: 100%;
+    height: auto;
+  }
+
+  @media (min-width: 768px) {
+    .passage-image {
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    }
+  }
+
+  .passage-image:hover { 
+    transform: scale(1.02); 
+  }
+
+  .control-btn {
+    background: white;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .control-btn:hover { 
+    border-color: #ec4899; 
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(236,72,153,0.3);
+  }
+
+  .control-btn:active { 
+    transform: scale(0.95); 
+  }
+
+  .speed-indicator {
+    background: linear-gradient(90deg, #a78bfa, #ec4899);
+    height: 6px;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    box-shadow: 0 2px 8px rgba(167,139,250,0.4);
+  }
+
+  .question-card {
+    transition: all 0.3s ease;
+  }
+
+  .question-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  }
+
+  .emoji-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+
+  @media (min-width: 768px) {
+    .emoji-icon {
+      font-size: 3.5rem;
+    }
+  }
+
+  .text-responsive {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  @media (min-width: 768px) {
+    .text-responsive {
+      font-size: 1.25rem;
+      line-height: 2;
+    }
+  }
+
+  .btn-responsive {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  @media (min-width: 768px) {
+    .btn-responsive {
+      padding: 12px 28px;
+      font-size: 1rem;
+    }
+  }
+
+  .header-title {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+
+  @media (min-width: 768px) {
+    .header-title {
+      font-size: 2.25rem;
+    }
+  }
+
+  .passage-title {
+    font-size: 1.75rem;
+  }
+
+  @media (min-width: 768px) {
+    .passage-title {
+      font-size: 2.25rem;
+    }
+  }
+
+  .question-title {
+    font-size: 1.1rem;
+  }
+
+  @media (min-width: 768px) {
+    .question-title {
+      font-size: 1.25rem;
+    }
+  }
+
+  .option-text {
+    font-size: 0.95rem;
+  }
+
+  @media (min-width: 768px) {
+    .option-text {
+      font-size: 1.05rem;
+    }
+  }
+
+  .celebration-overlay {
+    backdrop-filter: blur(8px);
+    background: rgba(0,0,0,0.6);
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  .bounce-anim {
+    animation: bounce 1s ease-in-out infinite;
+  }
+
+  .glow-effect {
+    animation: glow 2s ease-in-out infinite;
+  }
+
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(236,72,153,0.5); }
+    50% { box-shadow: 0 0 40px rgba(236,72,153,0.8); }
+  }
+
+  .mobile-optimized {
+    touch-action: manipulation;
+  }
+
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+
+  .card-spacing {
+    margin-bottom: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .card-spacing {
+      margin-bottom: 2rem;
+    }
+  }
+</style>
+</head>
+<body class="smooth-scroll">
+
+<!-- Header -->
+<header class="max-w-6xl mx-auto card-spacing">
+  <div class="book-card p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div class="flex items-center gap-3 md:gap-4 w-full md:w-auto">
+      <div class="text-4xl md:text-5xl float-anim">📚</div>
+      <div class="flex-1 md:flex-initial">
+        <h1 class="header-title font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+          Interactive Listening Book
+        </h1>
+        <p class="text-gray-600 text-xs md:text-sm mt-1">Listen, read, and learn with friends!</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 md:gap-3 w-full md:w-auto justify-between md:justify-end">
+      <div class="score-badge px-3 md:px-4 py-2 rounded-full flex items-center gap-2 mobile-optimized">
+        <span class="text-xl md:text-2xl">⭐</span>
+        <div>
+          <div class="text-xs text-yellow-800">Score</div>
+          <div id="totalScore" class="text-lg md:text-xl font-bold text-yellow-900">0</div>
+        </div>
+      </div>
+      <div class="bg-gradient-to-br from-purple-400 to-pink-400 text-white px-3 md:px-4 py-2 rounded-full">
+        <div class="text-xs">Progress</div>
+        <div id="progressPercent" class="text-lg md:text-xl font-bold">0%</div>
+      </div>
+      <button onclick="resetProgress()" class="control-btn p-2 md:p-3 rounded-full mobile-optimized" title="Restart">
+        <span class="text-lg md:text-xl">🔄</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Progress Bar -->
+<div class="max-w-6xl mx-auto card-spacing">
+  <div class="book-card p-4 md:p-5">
+    <div class="flex justify-between mb-3 text-xs md:text-sm font-bold text-gray-700">
+      <span>Completed Passages</span>
+      <span id="completedCount">0 / 23</span>
+    </div>
+    <div class="w-full bg-gray-200 rounded-full h-3 md:h-4 overflow-hidden">
+      <div id="progressBar" class="progress-fill h-full rounded-full" style="width: 0%"></div>
+    </div>
+    <div class="flex justify-center gap-1.5 md:gap-2 mt-4 flex-wrap" id="navDots"></div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<main id="mainContent" class="max-w-6xl mx-auto"></main>
+
+<!-- Celebration Overlay -->
+<div id="celebration" class="fixed inset-0 pointer-events-none z-50"></div>
+
+<script>
+// ============ DATA ============
+const passagesData = [
+  {
+    id: 1,
+    title: "My Friends",
+    emoji: "👫",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/182a067ff-3a01-4f8b-a50f-0316902874a0.png",
+    text: "Hello! I'm Sam and these are my friends. My best friend's name is Alex. He is very clever. My friend Emma is kind and helpful. I've got a friend called Lily. She is funny and makes us laugh. My friend Tom is tall and strong. He plays basketball. My friend Mia has got long brown hair. She loves reading books. My friend Jack is small but fast. He likes running.",
+    questions: [
+      { q: "Who is Sam's best friend?", options: ["Alex", "Emma", "Lily", "Tom"], correct: 0 },
+      { q: "What does Tom like to play?", options: ["Football", "Basketball", "Tennis", "Chess"], correct: 1 },
+      { q: "Who has long brown hair?", options: ["Emma", "Lily", "Mia", "Jack"], correct: 2 },
+      { q: "What is Lily like?", options: ["Clever", "Kind", "Funny", "Tall"], correct: 2 },
+      { q: "What does Jack like?", options: ["Reading", "Running", "Swimming", "Painting"], correct: 1 }
+    ]
+  },
+  {
+    id: 2,
+    title: "Layla's Day",
+    emoji: "⏰",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/16d213b2e-2608-434d-a794-2eea52b7915f.png",
+    text: "Hi, I am Layla. My dad always wakes me up at seven o'clock. I get up quickly and have breakfast. I leave home to school at half past seven. I usually come back home at half past three. In the afternoon, I do my homework and I often read stories. In the evening, my family watches TV together. I sometimes help my mum with dinner. I go to bed at ten o'clock.",
+    questions: [
+      { q: "What time does Layla wake up?", options: ["Six o'clock", "Seven o'clock", "Eight o'clock", "Nine o'clock"], correct: 1 },
+      { q: "When does Layla leave for school?", options: ["Half past six", "Half past seven", "Eight o'clock", "Half past eight"], correct: 1 },
+      { q: "What does Layla do in the afternoon?", options: ["Watches TV", "Reads stories", "Does homework", "Plays games"], correct: 2 },
+      { q: "What does Layla sometimes do in the evening?", options: ["Watches TV", "Helps with dinner", "Does homework", "Reads stories"], correct: 1 },
+      { q: "What time does Layla go to bed?", options: ["Nine o'clock", "Ten o'clock", "Eleven o'clock", "Twelve o'clock"], correct: 1 }
+    ]
+  },
+  {
+    id: 3,
+    title: "Our Five Senses",
+    emoji: "🎒",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/1abc87f56-a108-49ca-88e6-23378f34c13f.png",
+    text: "My bag is blue. Lemons taste sour. Ali doesn't like fast music. Do you smell the flowers? The cat's fur feels soft.",
+    questions: [
+      { q: "What colour is the bag?", options: ["Red", "Blue", "Green", "Yellow"], correct: 1 },
+      { q: "How do lemons taste?", options: ["Sweet", "Sour", "Salty", "Bitter"], correct: 1 },
+      { q: "What doesn't Ali like?", options: ["Slow music", "Pop music", "Fast music", "Jazz music"], correct: 2 },
+      { q: "What do you smell?", options: ["The food", "The flowers", "The grass", "The rain"], correct: 1 },
+      { q: "How does the cat's fur feel?", options: ["Rough", "Soft", "Smooth", "Hard"], correct: 1 }
+    ]
+  },
+  {
+    id: 4,
+    title: "Our Clothes",
+    emoji: "👗",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/1c791e26d-0344-4765-8a5e-134c2f87e091.png",
+    text: "Kate is wearing a red dress and white shoes. Mike is wearing a blue shirt and black trousers. Anna is wearing a yellow sweater, blue jeans and brown shoes. Tom is wearing a green T-shirt and grey shorts. Emma is wearing a pink skirt, white blouse and black shoes.",
+    questions: [
+      { q: "What is Kate wearing?", options: ["A blue shirt", "A red dress", "A yellow sweater", "A pink skirt"], correct: 1 },
+      { q: "What colour are Mike's trousers?", options: ["Black", "Brown", "Blue", "Grey"], correct: 0 },
+      { q: "What is Anna wearing?", options: ["A pink skirt", "A red dress", "A yellow sweater", "A green T-shirt"], correct: 2 },
+      { q: "What is Tom wearing?", options: ["A green T-shirt", "A blue shirt", "A yellow sweater", "A pink skirt"], correct: 0 },
+      { q: "What colour are Emma's shoes?", options: ["Brown", "White", "Black", "Blue"], correct: 2 }
+    ]
+  },
+  {
+    id: 5,
+    title: "Healthy Life",
+    emoji: "🥗",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/1907579b6-768f-473f-aad0-9515f41b9c8f.png",
+    text: "Living a healthy life is easy! Follow these tips: Eat good food. Eat vegetables and fruit every day. Drink milk and water. Play outside and do sports. Running and jumping are good for you. Sleep well. You should go to bed early. You shouldn't watch TV late at night.",
+    questions: [
+      { q: "What should you eat every day?", options: ["Meat and rice", "Fruit and vegetables", "Bread and cheese", "Sweets and candy"], correct: 1 },
+      { q: "What should you drink?", options: ["Juice", "Milk and water", "Soda", "Coffee"], correct: 1 },
+      { q: "What is good for you?", options: ["Watching TV", "Playing outside", "Eating fast food", "Staying in bed"], correct: 1 },
+      { q: "When should you go to bed?", options: ["Late", "Early", "After midnight", "Before breakfast"], correct: 1 },
+      { q: "What shouldn't you do late at night?", options: ["Read a book", "Watch TV", "Play games", "Do homework"], correct: 1 }
+    ]
+  },
+  {
+    id: 6,
+    title: "Faris's Hobby",
+    emoji: "⚽",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/182a067ff-3a01-4f8b-a50f-0316902874a0.png",
+    text: "Interviewer: What is your favourite hobby? Faris: I like playing football. Interviewer: Do you have a favourite team? Faris: Yes, I like the Syrian team. Interviewer: When do you play? Faris: I play after school and on weekends.",
+    questions: [
+      { q: "What is Faris's favourite hobby?", options: ["Swimming", "Football", "Basketball", "Reading"], correct: 1 },
+      { q: "Which team does Faris like?", options: ["Brazilian team", "Syrian team", "Italian team", "Spanish team"], correct: 1 },
+      { q: "When does Faris play?", options: ["Morning", "After school", "Evening", "Night"], correct: 1 },
+      { q: "How often does Faris play?", options: ["Every day", "Once a week", "After school and weekends", "In the morning"], correct: 2 },
+      { q: "What does Faris like watching?", options: ["Movies", "Matches", "Concerts", "Games"], correct: 1 }
+    ]
+  },
+  {
+    id: 7,
+    title: "Great Inventors",
+    emoji: "💡",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/1f51912c9-19ac-4346-b8be-faf8eddcbd5b.png",
+    text: "Alexander Graham Bell invented the telephone. The Wright brothers invented the airplane. People remember Ibn Sina for his medical books. Al-Jazari invented many machines. Ibn Al-Haytham discovered how light works.",
+    questions: [
+      { q: "Who invented the telephone?", options: ["Wright brothers", "Alexander Graham Bell", "Ibn Sina", "Al-Jazari"], correct: 1 },
+      { q: "Who invented the airplane?", options: ["Alexander Graham Bell", "Ibn Sina", "Wright brothers", "Al-Jazari"], correct: 2 },
+      { q: "What is Ibn Sina famous for?", options: ["Machines", "Medical books", "Light", "Airplanes"], correct: 1 },
+      { q: "Who invented many machines?", options: ["Ibn Sina", "Al-Jazari", "Ibn Al-Haytham", "Wright brothers"], correct: 1 },
+      { q: "Who discovered how light works?", options: ["Al-Jazari", "Ibn Sina", "Ibn Al-Haytham", "Wright brothers"], correct: 2 }
+    ]
+  },
+  {
+    id: 8,
+    title: "Music Class",
+    emoji: "🎸",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/1f51912c9-19ac-4346-b8be-faf8eddcbd5b.png",
+    text: "Teacher: Today we will talk about music. Mona, what will you play? Mona: I will play the guitar. What about you, Sam? Sam: I will play the keyboard. Will you play the drums, Ali? Ali: I will play the drum. Great! And there is a trumpet there! Mona: Yes, Nada will play it.",
+    questions: [
+      { q: "What will Mona play?", options: ["Piano", "Guitar", "Drums", "Trumpet"], correct: 1 },
+      { q: "What will Sam play?", options: ["Guitar", "Piano", "Keyboard", "Drums"], correct: 2 },
+      { q: "What will Ali play?", options: ["Keyboard", "Guitar", "Drums", "Trumpet"], correct: 2 },
+      { q: "What will Nada play?", options: ["Guitar", "Drums", "Trumpet", "Keyboard"], correct: 2 },
+      { q: "Who will play the guitar?", options: ["Sam", "Ali", "Mona", "Nada"], correct: 2 }
+    ]
+  },
+  {
+    id: 9,
+    title: "My Devices",
+    emoji: "📱",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/1907579b6-768f-473f-aad0-9515f41b9c8f.png",
+    text: "I've got a tablet. I use it for homework. I can read books on it. I like to play games on my mobile phone. I also watch videos. I have a camera. I take photos of my friends and family. I make albums and share them.",
+    questions: [
+      { q: "What does Huda use her tablet for?", options: ["Games", "Homework", "Photos", "Videos"], correct: 1 },
+      { q: "What does Samer like to do on his phone?", options: ["Read books", "Take photos", "Play games", "Listen to music"], correct: 2 },
+      { q: "What does Lina have?", options: ["Tablet", "Mobile phone", "Camera", "Laptop"], correct: 2 },
+      { q: "What does Lina do with her photos?", options: ["Share them", "Delete them", "Print them", "Hide them"], correct: 0 },
+      { q: "What can Huda do on her tablet?", options: ["Watch videos", "Play games", "Read books", "Take photos"], correct: 2 }
+    ]
+  },
+  {
+    id: 10,
+    title: "Travel Around the World",
+    emoji: "✈️",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/195b2e9ba-e696-4f5a-99d1-16549be1cda3.png",
+    text: "Next week, we will travel to Paris to see the Eiffel Tower. They will go to Egypt to see the Pyramids. Sam will visit the Colosseum in Italy, next month. My family will come to Syria to visit Damascus.",
+    questions: [
+      { q: "Where will they travel to see the Eiffel Tower?", options: ["Egypt", "Italy", "Paris", "Syria"], correct: 2 },
+      { q: "Where will they go to see the Pyramids?", options: ["Paris", "Italy", "Egypt", "Syria"], correct: 2 },
+      { q: "What will Sam visit in Italy?", options: ["Pyramids", "Eiffel Tower", "Colosseum", "Big Ben"], correct: 2 },
+      { q: "Where will the family go to visit Damascus?", options: ["Egypt", "Italy", "Paris", "Syria"], correct: 3 },
+      { q: "When will they travel to Paris?", options: ["This week", "Next week", "Next month", "Tomorrow"], correct: 1 }
+    ]
+  },
+  {
+    id: 11,
+    title: "Train Journey",
+    emoji: "🚂",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/195b2e9ba-e696-4f5a-99d1-16549be1cda3.png",
+    text: "Omar is going to travel by train. First: Buy our tickets at the ticket office. Then: Go to the platform and find our train. After that: Find our seats. Finally: Wait until the train leaves.",
+    questions: [
+      { q: "What is the first step?", options: ["Find seats", "Go to platform", "Buy tickets", "Wait for train"], correct: 2 },
+      { q: "What is the second step?", options: ["Buy tickets", "Find seats", "Wait for train", "Go to platform"], correct: 3 },
+      { q: "What is the third step?", options: ["Buy tickets", "Go to platform", "Find seats", "Wait for train"], correct: 2 },
+      { q: "What is the final step?", options: ["Buy tickets", "Find seats", "Go to platform", "Wait until train leaves"], correct: 3 },
+      { q: "Where do you buy tickets?", options: ["Platform", "Ticket office", "Train", "Seat"], correct: 1 }
+    ]
+  },
+  {
+    id: 12,
+    title: "Apple Picking",
+    emoji: "🍎",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/1907579b6-768f-473f-aad0-9515f41b9c8f.png",
+    text: "We're collecting some apples. Why are you collecting them? We're collecting them to eat them. Do you know that apples are good for you? You are right, sir. We're sorry. We will not take too many.",
+    questions: [
+      { q: "What are they collecting?", options: ["Flowers", "Apples", "Oranges", "Bananas"], correct: 1 },
+      { q: "Why are they collecting them?", options: ["To sell them", "To eat them", "To plant them", "To give them"], correct: 1 },
+      { q: "What did the man say about apples?", options: ["They are sweet", "They are good for you", "They are expensive", "They are small"], correct: 1 },
+      { q: "What did they say sorry for?", options: ["Talking", "Collecting", "Being late", "Taking too many"], correct: 3 },
+      { q: "What did they decide not to do?", options: ["Eat apples", "Collect flowers", "Take too many", "Go to the farm"], correct: 2 }
+    ]
+  },
+  {
+    id: 13,
+    title: "At the Park",
+    emoji: "🌳",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/182a067ff-3a01-4f8b-a50f-0316902874a0.png",
+    text: "Hello, I'm Hala. Yesterday at 3 o'clock, I went to the park. My friends were doing different sports. Sami and Rami were watching a football match. Lina was skipping. Omar was playing tennis. Nada and Sara were playing volleyball. Ali and Khalid were playing basketball. Mr. Hassan was riding his bike.",
+    questions: [
+      { q: "What were Sami and Rami doing?", options: ["Watching football", "Playing tennis", "Playing basketball", "Riding bikes"], correct: 0 },
+      { q: "What was Lina doing?", options: ["Playing tennis", "Skipping", "Playing volleyball", "Riding a bike"], correct: 1 },
+      { q: "What was Omar doing?", options: ["Watching football", "Skipping", "Playing tennis", "Playing basketball"], correct: 2 },
+      { q: "What were Nada and Sara doing?", options: ["Watching football", "Playing tennis", "Playing volleyball", "Playing basketball"], correct: 2 },
+      { q: "What was Mr. Hassan doing?", options: ["Walking", "Running", "Riding his bike", "Playing tennis"], correct: 2 }
+    ]
+  },
+  {
+    id: 14,
+    title: "Sports",
+    emoji: "⚽",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/182a067ff-3a01-4f8b-a50f-0316902874a0.png",
+    text: "In a game of football you usually play outside. You can play it with two teams. You kick the ball into a goal. In a game of tennis you usually play outside. You can play it with two or four players. You hit the ball with a racket.",
+    questions: [
+      { q: "Where do you play football?", options: ["Inside", "Outside", "In the gym", "In the pool"], correct: 1 },
+      { q: "How many teams play football?", options: ["One", "Two", "Three", "Four"], correct: 1 },
+      { q: "What do you do with the ball in football?", options: ["Throw it", "Hit it", "Kick it", "Bounce it"], correct: 2 },
+      { q: "What do you play tennis with?", options: ["A bat", "A racket", "A glove", "A stick"], correct: 1 },
+      { q: "How many players can play tennis?", options: ["One or two", "Two or four", "Three or five", "Four or six"], correct: 1 }
+    ]
+  },
+  {
+    id: 15,
+    title: "Sports Equipment",
+    emoji: "🎾",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/182a067ff-3a01-4f8b-a50f-0316902874a0.png",
+    text: "Hassan: Ali, is this ball yours? Ali: No, I play tennis. This racket is mine. Hassan: So, this ball is Sami's. Ali: Yes, he plays football. This ball is his. Nada: Whose shoes are these? Lina: I think Rana has a match. They are hers. Nada: Are these gloves Rana's too? Lina: No, they are mine. I do boxing.",
+    questions: [
+      { q: "Whose racket is it?", options: ["Hassan's", "Ali's", "Sami's", "Rana's"], correct: 1 },
+      { q: "Whose ball is it?", options: ["Ali's", "Hassan's", "Sami's", "Rana's"], correct: 2 },
+      { q: "Whose shoes are these?", options: ["Lina's", "Nada's", "Rana's", "Hassan's"], correct: 2 },
+      { q: "Whose gloves are these?", options: ["Rana's", "Ali's", "Lina's", "Hassan's"], correct: 2 },
+      { q: "What sport does Ali play?", options: ["Football", "Boxing", "Tennis", "Basketball"], correct: 2 }
+    ]
+  },
+  {
+    id: 16,
+    title: "Cooking Steps",
+    emoji: "🍝",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/1907579b6-768f-473f-aad0-9515f41b9c8f.png",
+    text: "Chop the onions. Boil the pasta. Slice the bread. Mix the ingredients. Bake the cake.",
+    questions: [
+      { q: "What is the first step?", options: ["Boil the pasta", "Chop the onions", "Slice the bread", "Mix the ingredients"], correct: 1 },
+      { q: "What is the second step?", options: ["Chop the onions", "Slice the bread", "Boil the pasta", "Mix the ingredients"], correct: 2 },
+      { q: "What is the third step?", options: ["Boil the pasta", "Chop the onions", "Mix the ingredients", "Slice the bread"], correct: 3 },
+      { q: "What is the fourth step?", options: ["Boil the pasta", "Mix the ingredients", "Chop the onions", "Bake the cake"], correct: 1 },
+      { q: "What is the fifth step?", options: ["Chop the onions", "Mix the ingredients", "Boil the pasta", "Bake the cake"], correct: 3 }
+    ]
+  },
+  {
+    id: 17,
+    title: "Fruit Salad",
+    emoji: "🍓",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/1907579b6-768f-473f-aad0-9515f41b9c8f.png",
+    text: "Wash the fruit. Cut the apples and bananas. Add sugar and milk. Mix the fruit together.",
+    questions: [
+      { q: "What is the first step?", options: ["Cut the fruit", "Add sugar", "Wash the fruit", "Mix the fruit"], correct: 2 },
+      { q: "What is the second step?", options: ["Wash the fruit", "Add sugar", "Cut the apples and bananas", "Mix the fruit"], correct: 2 },
+      { q: "What is the third step?", options: ["Wash the fruit", "Cut the fruit", "Mix the fruit", "Add sugar and milk"], correct: 3 },
+      { q: "What is the fourth step?", options: ["Wash the fruit", "Cut the fruit", "Add sugar", "Mix the fruit together"], correct: 3 },
+      { q: "What do you add to the fruit?", options: ["Salt and oil", "Sugar and milk", "Butter and cheese", "Honey and nuts"], correct: 1 }
+    ]
+  },
+  {
+    id: 18,
+    title: "The Farm Visit",
+    emoji: "🐄",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/1907579b6-768f-473f-aad0-9515f41b9c8f.png",
+    text: "One day, a boy went to the farm to see the animals. While he was walking, he saw some cows in the field. He went to the cows to get some milk. When he tried to milk the cow, it kicked him. He quickly ran away saying: \"I'm not going to do that again!\"",
+    questions: [
+      { q: "Where did the boy go?", options: ["To the park", "To the farm", "To the zoo", "To the market"], correct: 1 },
+      { q: "What animals did he see?", options: ["Sheep", "Horses", "Cows", "Goats"], correct: 2 },
+      { q: "Why did he go to the cows?", options: ["To feed them", "To see them", "To get milk", "To ride them"], correct: 2 },
+      { q: "What did the cow do?", options: ["It ran away", "It kicked him", "It ate grass", "It slept"], correct: 1 },
+      { q: "What did the boy say?", options: ["I will try again", "I'm not going to do that again", "I like cows", "This is fun"], correct: 1 }
+    ]
+  },
+  {
+    id: 19,
+    title: "At the Train Station",
+    emoji: "🚉",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/195b2e9ba-e696-4f5a-99d1-16549be1cda3.png",
+    text: "Omar: Wow! Is this the train station dad? It's very big. Dad: Yes son! Dad: Did you bring our bags from the car, Ali? Ali: Yes, Here they are. Omar: Look dad! Is that the train driver? Dad: Yes, and next to him is the guard. Omar: I can't wait to be on the train. I want to sit by the window. Dad: You will son, but we need to do some things first.",
+    questions: [
+      { q: "Where is Omar?", options: ["At the airport", "At the train station", "At the bus stop", "At the port"], correct: 1 },
+      { q: "Who is with Omar?", options: ["His mother", "His friend", "His father", "His sister"], correct: 2 },
+      { q: "What did Ali bring?", options: ["The tickets", "The bags", "The food", "The camera"], correct: 1 },
+      { q: "Who is next to the train driver?", options: ["The guard", "The pilot", "The captain", "The policeman"], correct: 0 },
+      { q: "Where does Omar want to sit?", options: ["By the window", "Next to Ali", "Near the door", "At the front"], correct: 0 }
+    ]
+  },
+  {
+    id: 20,
+    title: "Celebration",
+    emoji: "🎊",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/11b428d11-07e7-4c60-8c2e-841910c2e916.png",
+    text: "Mona: Mum, the celebration is tomorrow. I'm so excited! Mother: Me too! Let's go shopping for what we need! Mona: Mum, why don't you order online? It's faster and easier. Mother: Wow! Life is different now. In the past, we bought decorations from shops. We spent hours decorating the house. That was fun! Mona: Now, we can watch everything on our phones. It's great! Mother: In the past, people sang traditional songs in the streets. Mona: Now, we can watch it on TV. Mother: In the past, we took photos with our cameras. Mona: Now, we can download videos from the Internet.",
+    questions: [
+      { q: "When is the celebration?", options: ["Today", "Tomorrow", "Next week", "Next month"], correct: 1 },
+      { q: "What did people do in the past?", options: ["Order online", "Buy decorations from shops", "Watch on phones", "Download videos"], correct: 1 },
+      { q: "What did people sing in the past?", options: ["Pop songs", "Traditional songs", "New songs", "English songs"], correct: 1 },
+      { q: "How do people watch celebrations now?", options: ["On TV", "In the streets", "At the museum", "On the radio"], correct: 0 },
+      { q: "What did people use to take photos in the past?", options: ["Phones", "Cameras", "Tablets", "Computers"], correct: 1 }
+    ]
+  },
+  {
+    id: 21,
+    title: "World Festivals",
+    emoji: "🎉",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/11b428d11-07e7-4c60-8c2e-841910c2e916.png",
+    text: "The Carnival in Brazil is in February. People wear colourful clothes, dance and play in the streets. The Lantern Festival in China is in February. People make beautiful lanterns. The Tulip Festival in Turkey is in April. People see beautiful flowers of all colours.",
+    questions: [
+      { q: "When is the Carnival in Brazil?", options: ["January", "February", "March", "April"], correct: 1 },
+      { q: "What do people do at the Carnival?", options: ["Make lanterns", "See flowers", "Wear colourful clothes and dance", "Sing songs"], correct: 2 },
+      { q: "When is the Lantern Festival in China?", options: ["January", "February", "March", "April"], correct: 1 },
+      { q: "What do people make for the Lantern Festival?", options: ["Flowers", "Lanterns", "Cakes", "Clothes"], correct: 1 },
+      { q: "When is the Tulip Festival in Turkey?", options: ["February", "March", "April", "May"], correct: 2 }
+    ]
+  },
+  {
+    id: 22,
+    title: "Travel Plans",
+    emoji: "🗼",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/195b2e9ba-e696-4f5a-99d1-16549be1cda3.png",
+    text: "Next week, we will travel to Paris to see the Eiffel Tower. They will go to Egypt to see the Pyramids. Sam will visit the Colosseum in Italy, next month. My family will come to Syria to visit Damascus.",
+    questions: [
+      { q: "Where will they travel to see the Eiffel Tower?", options: ["Egypt", "Italy", "Paris", "Syria"], correct: 2 },
+      { q: "Where will they go to see the Pyramids?", options: ["Paris", "Italy", "Egypt", "Syria"], correct: 2 },
+      { q: "What will Sam visit in Italy?", options: ["Pyramids", "Eiffel Tower", "Colosseum", "Big Ben"], correct: 2 },
+      { q: "Where will the family go to visit Damascus?", options: ["Egypt", "Italy", "Paris", "Syria"], correct: 3 },
+      { q: "When will they travel to Paris?", options: ["This week", "Next week", "Next month", "Tomorrow"], correct: 1 }
+    ]
+  },
+  {
+    id: 23,
+    title: "New Students",
+    emoji: "🏛️",
+    image: "https://image.qwenlm.ai/public_source/3159c94a-c2d7-4079-96ed-2a9a4d2d8249/195b2e9ba-e696-4f5a-99d1-16549be1cda3.png",
+    text: "These new students, Emma and Lucas, come from different countries. Emma is from London. We will visit Big Ben. We will walk in parks. Lucas is from France. I will take you to see the Eiffel Tower. And we will travel to Damascus to visit the Umayyad Mosque.",
+    questions: [
+      { q: "Where is Emma from?", options: ["France", "Egypt", "London", "Syria"], correct: 2 },
+      { q: "What will Emma show you?", options: ["The Eiffel Tower", "Big Ben", "The Umayyad Mosque", "The Pyramids"], correct: 1 },
+      { q: "Where is Lucas from?", options: ["London", "Italy", "France", "Egypt"], correct: 2 },
+      { q: "What will Lucas show you?", options: ["Big Ben", "The Colosseum", "The Eiffel Tower", "The Umayyad Mosque"], correct: 2 },
+      { q: "Where will they travel to visit the Umayyad Mosque?", options: ["Paris", "Rome", "London", "Damascus"], correct: 3 }
+    ]
+  }
+];
+
+// ============ STATE ============
+let currentPassage = 0;
+let answers = {};
+let state = loadState();
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('listeningBookStateEN_v2');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return { score: 0, completed: [], answers: {} };
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('listeningBookStateEN_v2', JSON.stringify(state));
+  } catch(e) {}
+}
+
+function resetProgress() {
+  if (confirm('Do you want to restart? All points will be reset.')) {
+    state = { score: 0, completed: [], answers: {} };
+    saveState();
+    currentPassage = 0;
+    render();
+  }
+}
+
+// ============ TTS ============
+let currentUtterance = null;
+let isSpeaking = false;
+let speechRate = 0.9;
+let speechVoice = null;
+
+function loadVoices() {
+  const voices = speechSynthesis.getVoices();
+  speechVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Female')) 
+             || voices.find(v => v.lang.startsWith('en-US'))
+             || voices.find(v => v.lang.startsWith('en'))
+             || voices[0];
+}
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+function speak(text, onEnd) {
+  stopSpeaking();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US';
+  utter.rate = speechRate;
+  utter.pitch = 1.1;
+  if (speechVoice) utter.voice = speechVoice;
+  utter.onend = () => {
+    isSpeaking = false;
+    updateSpeakButton();
+    if (onEnd) onEnd();
+  };
+  utter.onerror = () => {
+    isSpeaking = false;
+    updateSpeakButton();
+  };
+  currentUtterance = utter;
+  isSpeaking = true;
+  updateSpeakButton();
+  speechSynthesis.speak(utter);
+}
+
+function stopSpeaking() {
+  speechSynthesis.cancel();
+  isSpeaking = false;
+  updateSpeakButton();
+}
+
+function updateSpeakButton() {
+  const btn = document.getElementById('speakBtn');
+  if (!btn) return;
+  if (isSpeaking) {
+    btn.innerHTML = `
+      <div class="flex items-center gap-2">
+        <span class="speaking-indicator"></span>
+        <span class="speaking-indicator"></span>
+        <span class="speaking-indicator"></span>
+        <span class="speaking-indicator"></span>
+        <span class="text-sm md:text-base">Reading...</span>
+      </div>`;
+    btn.classList.add('bg-red-500', 'text-white');
+  } else {
+    btn.innerHTML = '<span class="text-xl md:text-2xl">🔊</span><span class="text-sm md:text-base">Listen to passage</span>';
+    btn.classList.remove('bg-red-500', 'text-white');
+  }
+}
+
+// ============ RENDER ============
+function render() {
+  updateHeader();
+  renderNavDots();
+  renderPassage();
+}
+
+function updateHeader() {
+  document.getElementById('totalScore').textContent = state.score;
+  const pct = Math.round((state.completed.length / passagesData.length) * 100);
+  document.getElementById('progressPercent').textContent = pct + '%';
+  document.getElementById('completedCount').textContent = `${state.completed.length} / ${passagesData.length}`;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function renderNavDots() {
+  const container = document.getElementById('navDots');
+  container.innerHTML = passagesData.map((p, i) => {
+    let cls = 'nav-dot w-3 h-3 md:w-4 md:h-4 rounded-full mobile-optimized';
+    if (i === currentPassage) cls += ' active';
+    else if (state.completed.includes(p.id)) cls += ' completed';
+    else cls += ' bg-gray-300';
+    return `<div class="${cls}" onclick="goToPassage(${i})" title="${p.title}"></div>`;
+  }).join('');
+}
+
+function renderPassage() {
+  const p = passagesData[currentPassage];
+  const isCompleted = state.completed.includes(p.id);
+  const main = document.getElementById('mainContent');
+  
+  main.innerHTML = `
+    <div class="book-card p-4 md:p-8 slide-in">
+      <!-- Passage Header -->
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-3">
+        <div class="flex items-center gap-3 md:gap-4">
+          <div class="emoji-icon">${p.emoji}</div>
+          <div>
+            <div class="text-xs md:text-sm text-gray-500 mb-1">Passage ${currentPassage + 1} of ${passagesData.length}</div>
+            <h2 class="passage-title font-bold text-gray-800">${p.title}</h2>
+          </div>
+        </div>
+        ${isCompleted ? '<div class="bg-green-100 text-green-700 px-4 py-2 rounded-full font-bold text-sm md:text-base glow-effect">✅ Completed</div>' : ''}
+      </div>
+      
+      <!-- Image -->
+      <div class="mb-6 flex justify-center">
+        <img src="${p.image}" alt="${p.title}" class="passage-image max-h-64 md:max-h-96 object-cover">
+      </div>
+      
+      <!-- Text with TTS Controls -->
+      <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl md:rounded-2xl p-4 md:p-6 mb-6 border-2 border-blue-200">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-xl md:text-2xl">📖</span>
+            <span class="font-bold text-base md:text-lg text-gray-700">The Text</span>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap w-full md:w-auto">
+            <button id="speakBtn" onclick="toggleSpeak()" class="btn-primary text-white px-4 md:px-5 py-2 md:py-3 rounded-full flex items-center gap-2 font-bold mobile-optimized flex-1 md:flex-initial justify-center">
+              <span class="text-xl md:text-2xl">🔊</span>
+              <span class="text-sm md:text-base">Listen to passage</span>
+            </button>
+            <button onclick="stopSpeaking()" class="control-btn p-2 md:p-3 rounded-full mobile-optimized" title="Stop">
+              <span class="text-lg md:text-xl">⏹️</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Speed Control -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between text-xs md:text-sm text-gray-600 mb-2">
+            <span>⚡ Reading Speed</span>
+            <span id="speedLabel" class="font-bold">${Math.round(speechRate * 100)}%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
+            <div class="speed-indicator" style="width: ${((speechRate - 0.5) / 1) * 100}%"></div>
+          </div>
+          <div class="flex justify-between gap-2">
+            <button onclick="changeSpeed(-0.1)" class="control-btn px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm mobile-optimized flex-1">🐢 Slower</button>
+            <button onclick="changeSpeed(0.1)" class="control-btn px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm mobile-optimized flex-1">🐇 Faster</button>
+          </div>
+        </div>
+        
+        <p class="text-responsive text-gray-800">${p.text}</p>
+      </div>
+      
+      <!-- Questions -->
+      <div class="mt-6 md:mt-8">
+        <div class="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+          <span class="text-2xl md:text-3xl">❓</span>
+          <h3 class="text-xl md:text-2xl font-bold text-gray-800">Test Your Understanding</h3>
+          <span class="bg-pink-100 text-pink-700 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-bold">${p.questions.length} questions</span>
+        </div>
+        
+        <div class="space-y-3 md:space-y-4">
+          ${p.questions.map((q, qi) => renderQuestion(q, qi, p.id)).join('')}
+        </div>
+      </div>
+      
+      <!-- Navigation -->
+      <div class="flex justify-between mt-6 md:mt-8 pt-4 md:pt-6 border-t-2 border-gray-100 gap-2">
+        <button onclick="prevPassage()" ${currentPassage === 0 ? 'disabled' : ''} 
+          class="btn-secondary text-white btn-responsive rounded-full font-bold disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 mobile-optimized flex-1 justify-center md:flex-initial md:justify-start">
+          <span class="hidden md:inline">←</span>
+          <span>Previous</span>
+        </button>
+        <button onclick="nextPassage()" ${currentPassage === passagesData.length - 1 ? 'disabled' : ''}
+          class="btn-primary text-white btn-responsive rounded-full font-bold disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 mobile-optimized flex-1 justify-center md:flex-initial md:justify-end">
+          <span>Next</span>
+          <span class="hidden md:inline">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+  
+  updateSpeakButton();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderQuestion(q, qi, passageId) {
+  const key = `${passageId}_${qi}`;
+  const answered = state.answers[key] !== undefined;
+  const selectedIdx = state.answers[key];
+  
+  return `
+    <div class="question-card bg-white rounded-xl md:rounded-2xl p-4 md:p-5 border-2 ${answered ? 'border-green-300' : 'border-gray-200'} shadow-sm">
+      <div class="flex items-start gap-2 md:gap-3 mb-3 md:mb-4">
+        <div class="bg-gradient-to-br from-pink-400 to-purple-500 text-white w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-sm md:text-base">${qi + 1}</div>
+        <div class="flex-1">
+          <p class="question-title font-bold text-gray-800">${q.q}</p>
+        </div>
+        ${answered ? '<span class="text-xl md:text-2xl">⭐</span>' : ''}
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+        ${q.options.map((opt, oi) => {
+          let cls = 'option-btn';
+          if (answered) {
+            if (oi === q.correct) cls += ' correct';
+            else if (oi === selectedIdx && oi !== q.correct) cls += ' wrong';
+            else cls += ' opacity-50';
+          }
+          const letters = ['A', 'B', 'C', 'D'];
+          return `
+            <button onclick="selectAnswer(${passageId}, ${qi}, ${oi})" 
+              class="${cls} px-3 md:px-4 py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold text-gray-800 text-left flex items-center gap-2 mobile-optimized"
+              ${answered ? 'disabled' : ''}>
+              <span class="inline-flex items-center justify-center w-6 h-6 md:w-7 md:h-7 bg-white rounded-full text-xs md:text-sm font-bold flex-shrink-0">${letters[oi]}</span>
+              <span class="option-text">${opt}</span>
+            </button>
+          `;
+        }).join('')}
+      </div>
+      ${answered && selectedIdx === q.correct ? '<div class="mt-3 text-green-600 font-bold text-xs md:text-sm">🎉 Correct answer! Well done!</div>' : ''}
+      ${answered && selectedIdx !== q.correct ? `<div class="mt-3 text-red-600 font-bold text-xs md:text-sm">❌ The correct answer is: ${q.options[q.correct]}</div>` : ''}
+    </div>
+  `;
+}
+
+// ============ ACTIONS ============
+function toggleSpeak() {
+  if (isSpeaking) {
+    stopSpeaking();
+  } else {
+    speak(passagesData[currentPassage].text);
+  }
+}
+
+function changeSpeed(delta) {
+  speechRate = Math.max(0.5, Math.min(1.5, speechRate + delta));
+  document.getElementById('speedLabel').textContent = Math.round(speechRate * 100) + '%';
+  const bar = document.querySelector('.speed-indicator');
+  if (bar) bar.style.width = ((speechRate - 0.5) / 1) * 100 + '%';
+  if (isSpeaking) {
+    stopSpeaking();
+    setTimeout(() => speak(passagesData[currentPassage].text), 100);
+  }
+}
+
+function selectAnswer(passageId, qi, oi) {
+  const key = `${passageId}_${qi}`;
+  if (state.answers[key] !== undefined) return;
+  
+  const passage = passagesData.find(p => p.id === passageId);
+  const q = passage.questions[qi];
+  const isCorrect = oi === q.correct;
+  
+  state.answers[key] = oi;
+  
+  if (isCorrect) {
+    state.score += 10;
+    createConfetti();
+    playSuccessSound();
+  } else {
+    playErrorSound();
+  }
+  
+  const allAnswered = passage.questions.every((_, idx) => state.answers[`${passageId}_${idx}`] !== undefined);
+  if (allAnswered && !state.completed.includes(passageId)) {
+    state.completed.push(passageId);
+    state.score += 20;
+    setTimeout(() => showPassageComplete(passage.title), 500);
+  }
+  
+  saveState();
+  renderPassage();
+  updateHeader();
+  renderNavDots();
+}
+
+function goToPassage(idx) {
+  currentPassage = idx;
+  stopSpeaking();
+  render();
+}
+
+function prevPassage() {
+  if (currentPassage > 0) {
+    currentPassage--;
+    stopSpeaking();
+    render();
+  }
+}
+
+function nextPassage() {
+  if (currentPassage < passagesData.length - 1) {
+    currentPassage++;
+    stopSpeaking();
+    render();
+  }
+}
+
+// ============ EFFECTS ============
+function createConfetti() {
+  const colors = ['#f472b6', '#a78bfa', '#60a5fa', '#fbbf24', '#4ade80', '#f87171'];
+  const container = document.getElementById('celebration');
+  for (let i = 0; i < 40; i++) {
+    const conf = document.createElement('div');
+    conf.className = 'confetti';
+    conf.style.left = Math.random() * 100 + 'vw';
+    conf.style.top = '-10px';
+    conf.style.background = colors[Math.floor(Math.random() * colors.length)];
+    conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    conf.style.width = (Math.random() * 12 + 6) + 'px';
+    conf.style.height = (Math.random() * 12 + 6) + 'px';
+    container.appendChild(conf);
+    
+    const duration = Math.random() * 2000 + 1500;
+    conf.animate([
+      { transform: 'translateY(0) rotate(0)', opacity: 1 },
+      { transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+    ], { duration, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' });
+    
+    setTimeout(() => conf.remove(), duration);
+  }
+}
+
+function showPassageComplete(title) {
+  createConfetti();
+  const overlay = document.createElement('div');
+  overlay.className = 'fixed inset-0 flex items-center justify-center z-50 p-4 celebration-overlay';
+  overlay.innerHTML = `
+    <div class="book-card p-6 md:p-8 text-center max-w-md star-pop">
+      <div class="text-6xl md:text-7xl mb-4 bounce-anim">🏆</div>
+      <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Well Done!</h3>
+      <p class="text-base md:text-lg text-gray-600 mb-2">You completed the passage</p>
+      <p class="text-xl md:text-2xl font-bold text-pink-600 mb-4">${title}</p>
+      <div class="text-4xl md:text-5xl mb-4">⭐⭐⭐</div>
+      <p class="text-gray-600 mb-4 text-sm md:text-base">+20 bonus points!</p>
+      <button onclick="this.parentElement.parentElement.remove()" class="btn-primary text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold mobile-optimized">
+        Continue
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function playSuccessSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(523, ctx.currentTime);
+    osc.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+function playErrorSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(200, ctx.currentTime);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.3);
+  } catch(e) {}
+}
+
+// ============ INIT ============
+render();
+</script>
+</body>
+</html>

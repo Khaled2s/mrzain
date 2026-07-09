@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>أبراج الرياضيات - Tower Defence</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/cairo@latest/arabic-400-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/cairo@latest/arabic-700-normal.css">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background: radial-gradient(circle at center, #1a1a3e 0%, #0a0a1f 100%);
+    color:#fff; min-height:100vh; min-height:100dvh;
+    overflow-x:hidden; touch-action:manipulation;
+  }
+  body {
+    display:flex; flex-direction:column; align-items:center;
+    padding:10px; padding-bottom:env(safe-area-inset-bottom);
+  }
+  h1 {
+    font-size:clamp(1.3rem, 5vw, 2.2rem); margin-bottom:6px;
+    background: linear-gradient(90deg, #ffd700, #ff6b6b, #4ecdc4);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text; text-align:center;
+  }
+  .subtitle { color:#aaa; margin-bottom:12px; font-size:clamp(0.75rem, 2.5vw, 0.95rem); text-align:center; padding:0 10px; }
+  .game-wrap { position:relative; width:100%; max-width:900px; }
+  .hud {
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:6px;
+    margin-bottom:10px; width:100%;
+  }
+  .stat {
+    background: rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    padding:6px 8px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center; gap:4px;
+    font-weight:700; font-size:clamp(0.75rem, 2.8vw, 1rem);
+    white-space:nowrap;
+  }
+  .stat .icon { font-size:clamp(0.9rem, 3vw, 1.3rem); }
+  .stat.hp { border-color:#ff6b6b; color:#ff8a8a; }
+  .stat.gold { border-color:#ffd700; color:#ffe066; }
+  .stat.wave { border-color:#4ecdc4; color:#7ee8dd; }
+  .stat.score { border-color:#a78bfa; color:#c4b5fd; }
+  canvas {
+    border-radius:12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 30px rgba(78,205,196,0.15);
+    background:#0d1b2a;
+    cursor:crosshair;
+    display:block;
+    width:100%;
+    height:auto;
+    touch-action:none;
+  }
+  .tower-select {
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:6px;
+    margin-top:10px; width:100%; max-width:900px;
+  }
+  .tower-btn {
+    background: rgba(255,255,255,0.08);
+    border:2px solid rgba(255,255,255,0.15);
+    color:#fff; padding:8px 4px; border-radius:10px;
+    cursor:pointer; transition:all 0.2s;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    min-height:70px;
+    user-select:none;
+  }
+  .tower-btn:hover, .tower-btn:active { transform:translateY(-2px); border-color:#4ecdc4; }
+  .tower-btn.active { border-color:#ffd700; background:rgba(255,215,0,0.15); }
+  .tower-btn .emoji { font-size:clamp(1.3rem, 5vw, 1.8rem); }
+  .tower-btn .name { font-weight:700; font-size:clamp(0.7rem, 2.5vw, 0.9rem); }
+  .tower-btn .cost { font-size:clamp(0.65rem, 2.2vw, 0.8rem); color:#ffe066; }
+  .tower-btn .desc { font-size:clamp(0.55rem, 1.8vw, 0.7rem); color:#aaa; display:none; }
+  .modal {
+    position:fixed; inset:0; background:rgba(0,0,0,0.75);
+    display:none; align-items:center; justify-content:center;
+    z-index:100; backdrop-filter: blur(8px);
+    padding:15px;
+  }
+  .modal.show { display:flex; animation:fadeIn 0.3s; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  .modal-content {
+    background: linear-gradient(135deg, #1e1e3f, #2a1a4a);
+    border:2px solid #4ecdc4;
+    padding:20px; border-radius:16px;
+    text-align:center; max-width:400px; width:100%;
+    box-shadow: 0 0 60px rgba(78,205,196,0.4);
+    animation: pop 0.3s;
+  }
+  @keyframes pop { from{transform:scale(0.8);} to{transform:scale(1);} }
+  .modal h2 { color:#ffd700; margin-bottom:8px; font-size:clamp(1.1rem, 4vw, 1.4rem); }
+  .modal p { margin-bottom:12px; color:#ccc; font-size:clamp(0.85rem, 3vw, 1rem); }
+  .math-question {
+    font-size:clamp(1.5rem, 6vw, 2.2rem); font-weight:700; color:#fff;
+    margin:12px 0; padding:12px;
+    background: rgba(0,0,0,0.4); border-radius:12px;
+    letter-spacing:2px; word-break:break-word;
+  }
+  .math-input {
+    width:100%; padding:12px; font-size:clamp(1.1rem, 4vw, 1.3rem);
+    background: rgba(255,255,255,0.1);
+    border:2px solid #4ecdc4; border-radius:10px;
+    color:#fff; text-align:center; outline:none;
+    font-family:'Cairo', sans-serif;
+  }
+  .math-input:focus { border-color:#ffd700; }
+  .modal-buttons { display:flex; gap:8px; margin-top:16px; justify-content:center; flex-wrap:wrap; }
+  .btn {
+    padding:12px 20px; border:none; border-radius:10px;
+    font-family:'Cairo', sans-serif; font-weight:700;
+    font-size:clamp(0.9rem, 3vw, 1rem);
+    cursor:pointer; transition:all 0.2s;
+    min-width:100px;
+    user-select:none;
+  }
+  .btn-primary { background:linear-gradient(135deg, #4ecdc4, #44a3aa); color:#fff; }
+  .btn-primary:hover, .btn-primary:active { transform:translateY(-2px); box-shadow:0 6px 20px rgba(78,205,196,0.4); }
+  .btn-secondary { background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); }
+  .btn-secondary:hover, .btn-secondary:active { background:rgba(255,255,255,0.2); }
+  .feedback {
+    margin-top:12px; font-weight:700;
+    font-size:clamp(0.95rem, 3.5vw, 1.1rem);
+    min-height:24px;
+  }
+  .feedback.success { color:#4ecdc4; }
+  .feedback.error { color:#ff6b6b; }
+  .game-over {
+    position:fixed; inset:0; background:rgba(0,0,0,0.9);
+    display:none; align-items:center; justify-content:center;
+    z-index:200; padding:15px;
+  }
+  .game-over.show { display:flex; }
+  .game-over-content {
+    background: linear-gradient(135deg, #3d0a0a, #1a0a1a);
+    border:2px solid #ff6b6b;
+    padding:30px 20px; border-radius:20px; text-align:center;
+    box-shadow: 0 0 80px rgba(255,107,107,0.4);
+    max-width:400px; width:100%;
+  }
+  .game-over h2 { font-size:clamp(1.8rem, 7vw, 2.5rem); color:#ff6b6b; margin-bottom:12px; }
+  .game-over .final-score { font-size:clamp(1.1rem, 4vw, 1.5rem); color:#ffd700; margin-bottom:15px; }
+  .game-over p { font-size:clamp(0.85rem, 3vw, 1rem); }
+
+  @media (max-width: 600px) {
+    body { padding:6px; }
+    .hud { gap:4px; }
+    .stat { padding:5px 4px; }
+    .tower-btn { min-height:60px; padding:6px 2px; }
+    .tower-btn .desc { display:none; }
+  }
+  @media (max-width: 380px) {
+    .stat .label-text { display:none; }
+  }
+  @media (min-width: 700px) {
+    .tower-btn .desc { display:block; }
+  }
+</style>
+</head>
+<body>
+  <h1>🏰 أبراج الرياضيات</h1>
+  <p class="subtitle">حل المسائل الرياضية لبناء الأبراج والدفاع عن قاعدتك!</p>
+  
+  <div class="game-wrap">
+    <div class="hud">
+      <div class="stat hp"><span class="icon">❤️</span><span id="hp">20</span></div>
+      <div class="stat gold"><span class="icon">💰</span><span id="gold">150</span></div>
+      <div class="stat wave"><span class="icon">🌊</span><span id="wave">1</span></div>
+      <div class="stat score"><span class="icon">⭐</span><span id="score">0</span></div>
+    </div>
+    <canvas id="game"></canvas>
+  </div>
+
+  <div class="tower-select">
+    <button class="tower-btn active" data-type="archer">
+      <span class="emoji">🏹</span>
+      <span class="name">رامي</span>
+      <span class="cost">💰 50</span>
+      <span class="desc">سريع، مدى متوسط</span>
+    </button>
+    <button class="tower-btn" data-type="cannon">
+      <span class="emoji">💣</span>
+      <span class="name">مدفع</span>
+      <span class="cost">💰 100</span>
+      <span class="desc">ضرر كبير</span>
+    </button>
+    <button class="tower-btn" data-type="ice">
+      <span class="emoji">❄️</span>
+      <span class="name">جليد</span>
+      <span class="cost">💰 75</span>
+      <span class="desc">يبطئ الأعداء</span>
+    </button>
+    <button class="tower-btn" data-type="magic">
+      <span class="emoji">🔮</span>
+      <span class="name">سحر</span>
+      <span class="cost">💰 150</span>
+      <span class="desc">مدى بعيد</span>
+    </button>
+  </div>
+
+  <div class="modal" id="mathModal">
+    <div class="modal-content">
+      <h2>🧮 تحدي الرياضيات</h2>
+      <p>حل المسألة لبناء البرج!</p>
+      <div class="math-question" id="mathQuestion">5 + 3 = ?</div>
+      <input type="number" inputmode="numeric" pattern="[0-9]*" class="math-input" id="mathInput" placeholder="اكتب الإجابة..." autocomplete="off">
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="submitAnswer">إجابة ✓</button>
+        <button class="btn btn-secondary" id="cancelBuild">إلغاء</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  </div>
+
+  <div class="game-over" id="gameOver">
+    <div class="game-over-content">
+      <h2>💀 انتهت اللعبة</h2>
+      <div class="final-score">النقاط النهائية: <span id="finalScore">0</span></div>
+      <p style="color:#aaa; margin-bottom:20px;">الموجة التي وصلت إليها: <span id="finalWave">1</span></p>
+      <button class="btn btn-primary" onclick="location.reload()">🔄 إعادة اللعب</button>
+    </div>
+  </div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+// Logical game dimensions (fixed)
+const W = 900, H = 560;
+canvas.width = W;
+canvas.height = H;
+
+const CELL = 40;
+const COLS = W/CELL, ROWS = H/CELL;
+
+// Responsive canvas sizing
+function resizeCanvas() {
+  const wrap = document.querySelector('.game-wrap');
+  const maxW = wrap.clientWidth;
+  const scale = maxW / W;
+  canvas.style.width = maxW + 'px';
+  canvas.style.height = (H * scale) + 'px';
+}
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 100));
+resizeCanvas();
+
+// Game state
+let state = {
+  hp: 20, gold: 150, wave: 1, score: 0,
+  towers: [], enemies: [], bullets: [], particles: [],
+  selectedTower: 'archer',
+  pendingBuild: null,
+  waveInProgress: false,
+  enemiesToSpawn: 0,
+  spawnTimer: 0,
+  gameOver: false
+};
+
+// Path definition
+const pathCells = [
+  [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[5,4],[5,5],[5,6],[5,7],
+  [6,7],[7,7],[8,7],[9,7],[10,7],[11,7],[11,6],[11,5],[11,4],[11,3],
+  [12,3],[13,3],[14,3],[15,3],[16,3],[16,4],[16,5],[16,6],[16,7],[16,8],[16,9],
+  [15,9],[14,9],[13,9],[12,9],[11,9],[10,9],[9,9],[8,9],[7,9],[6,9],[5,9],[4,9],[3,9],[2,9],[1,9],[0,9],
+  [0,10],[0,11],[0,12],[1,12],[2,12],[3,12],[4,12],[5,12],[6,12],[7,12],[8,12],[9,12],[10,12],[11,12],[12,12],[13,12],[14,12],[15,12],[16,12],[17,12],[18,12],[19,12],[20,12],[21,12],[22,12]
+];
+
+const pathSet = new Set(pathCells.map(c=>c[0]+','+c[1]));
+const pathWaypoints = pathCells.map(c => ({x: c[0]*CELL + CELL/2, y: c[1]*CELL + CELL/2}));
+
+const TOWER_TYPES = {
+  archer: { cost:50, damage:15, range:130, fireRate:40, color:'#4ecdc4', emoji:'🏹', bulletColor:'#4ecdc4', bulletSize:4 },
+  cannon: { cost:100, damage:45, range:100, fireRate:80, color:'#ff6b6b', emoji:'💣', bulletColor:'#ff6b6b', bulletSize:7 },
+  ice:    { cost:75, damage:8, range:120, fireRate:50, color:'#7ee8dd', emoji:'❄️', bulletColor:'#b8f3ee', bulletSize:5, slow:true },
+  magic:  { cost:150, damage:35, range:180, fireRate:55, color:'#a78bfa', emoji:'🔮', bulletColor:'#c4b5fd', bulletSize:6 }
+};
+
+function createEnemy(type, wave) {
+  const base = {
+    normal: { hp:40, speed:1.0, reward:10, color:'#ff4757', size:14 },
+    fast:   { hp:25, speed:1.8, reward:15, color:'#ffa502', size:11 },
+    tank:   { hp:120, speed:0.6, reward:25, color:'#747d8c', size:18 },
+    boss:   { hp:400, speed:0.5, reward:100, color:'#ff00ff', size:24 }
+  }[type];
+  const hpMult = 1 + (wave-1)*0.3;
+  return {
+    type, x:pathWaypoints[0].x, y:pathWaypoints[0].y,
+    hp: base.hp * hpMult, maxHp: base.hp * hpMult,
+    speed: base.speed, baseSpeed: base.speed,
+    reward: base.reward, color: base.color, size: base.size,
+    pathIndex: 0, slowTimer: 0
+  };
+}
+
+function generateMathProblem(wave) {
+  const difficulty = Math.min(wave, 10);
+  let a, b, op, answer, question;
+  const r = Math.random();
+  
+  if (difficulty <= 2) {
+    a = Math.floor(Math.random()*20)+1;
+    b = Math.floor(Math.random()*20)+1;
+    if (r < 0.5) { op='+'; answer=a+b; }
+    else { if(a<b)[a,b]=[b,a]; op='-'; answer=a-b; }
+    question = `${a} ${op} ${b} = ?`;
+  } else if (difficulty <= 5) {
+    if (r < 0.4) {
+      a = Math.floor(Math.random()*50)+10;
+      b = Math.floor(Math.random()*50)+10;
+      op = Math.random()<0.5?'+':'-';
+      if(op==='-' && a<b)[a,b]=[b,a];
+      answer = op==='+'?a+b:a-b;
+    } else if (r < 0.75) {
+      a = Math.floor(Math.random()*11)+2;
+      b = Math.floor(Math.random()*11)+2;
+      op='×'; answer=a*b;
+    } else {
+      b = Math.floor(Math.random()*10)+2;
+      answer = Math.floor(Math.random()*10)+2;
+      a = b*answer;
+      op='÷';
+    }
+    question = `${a} ${op} ${b} = ?`;
+  } else {
+    const type = Math.floor(Math.random()*4);
+    if (type === 0) {
+      a = Math.floor(Math.random()*12)+2;
+      question = `${a}² = ?`;
+      answer = a*a;
+    } else if (type === 1) {
+      a = Math.floor(Math.random()*100)+20;
+      b = Math.floor(Math.random()*100)+20;
+      const c = Math.floor(Math.random()*50)+10;
+      question = `${a} + ${b} - ${c} = ?`;
+      answer = a+b-c;
+    } else if (type === 2) {
+      a = Math.floor(Math.random()*12)+2;
+      b = Math.floor(Math.random()*12)+2;
+      const c = Math.floor(Math.random()*20)+1;
+      question = `${a} × ${b} + ${c} = ?`;
+      answer = a*b+c;
+    } else {
+      answer = Math.floor(Math.random()*20)+5;
+      a = Math.floor(Math.random()*20)+5;
+      b = answer + a;
+      question = `س + ${a} = ${b}  (س = ?)`;
+    }
+  }
+  return { question, answer };
+}
+
+function updateHUD() {
+  document.getElementById('hp').textContent = state.hp;
+  document.getElementById('gold').textContent = state.gold;
+  document.getElementById('wave').textContent = state.wave;
+  document.getElementById('score').textContent = state.score;
+}
+
+document.querySelectorAll('.tower-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tower-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.selectedTower = btn.dataset.type;
+  });
+});
+
+// Convert screen coords to canvas logical coords
+function getCanvasCoords(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width;
+  const scaleY = H / rect.height;
+  return {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY
+  };
+}
+
+function handleBuildAt(x, y) {
+  if (state.gameOver || state.pendingBuild) return;
+  const col = Math.floor(x/CELL);
+  const row = Math.floor(y/CELL);
+  
+  if (pathSet.has(col+','+row)) return;
+  if (col<0||col>=COLS||row<0||row>=ROWS) return;
+  if (state.towers.some(t=>t.col===col && t.row===row)) return;
+  
+  const type = state.selectedTower;
+  const cost = TOWER_TYPES[type].cost;
+  if (state.gold < cost) {
+    showFloatingText(x, y, '💰 مال غير كافٍ!', '#ff6b6b');
+    return;
+  }
+  
+  state.pendingBuild = { col, row, type, cost };
+  const problem = generateMathProblem(state.wave);
+  state.pendingBuild.problem = problem;
+  
+  document.getElementById('mathQuestion').textContent = problem.question;
+  document.getElementById('mathInput').value = '';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('mathModal').classList.add('show');
+  setTimeout(()=>document.getElementById('mathInput').focus(), 100);
+}
+
+// Mouse events
+canvas.addEventListener('click', (e) => {
+  const {x, y} = getCanvasCoords(e.clientX, e.clientY);
+  handleBuildAt(x, y);
+});
+
+// Touch events for mobile
+let touchStart = null;
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (e.touches.length > 0) {
+    const t = e.touches[0];
+    touchStart = { x: t.clientX, y: t.clientY, time: Date.now() };
+    const {x, y} = getCanvasCoords(t.clientX, t.clientY);
+    canvas.hoverCell = { col:Math.floor(x/CELL), row:Math.floor(y/CELL) };
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (e.touches.length > 0) {
+    const t = e.touches[0];
+    const {x, y} = getCanvasCoords(t.clientX, t.clientY);
+    canvas.hoverCell = { col:Math.floor(x/CELL), row:Math.floor(y/CELL) };
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  if (touchStart && e.changedTouches.length > 0) {
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStart.x;
+    const dy = t.clientY - touchStart.y;
+    const dt = Date.now() - touchStart.time;
+    // Only treat as tap if minimal movement and quick
+    if (Math.abs(dx) < 15 && Math.abs(dy) < 15 && dt < 500) {
+      const {x, y} = getCanvasCoords(t.clientX, t.clientY);
+      handleBuildAt(x, y);
+    }
+  }
+  touchStart = null;
+  setTimeout(()=>{ canvas.hoverCell = null; }, 100);
+}, { passive: false });
+
+canvas.addEventListener('mousemove', (e) => {
+  const {x, y} = getCanvasCoords(e.clientX, e.clientY);
+  canvas.hoverCell = { col:Math.floor(x/CELL), row:Math.floor(y/CELL) };
+});
+canvas.addEventListener('mouseleave', () => { canvas.hoverCell = null; });
+
+document.getElementById('submitAnswer').addEventListener('click', submitAnswer);
+document.getElementById('cancelBuild').addEventListener('click', cancelBuild);
+document.getElementById('mathInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') submitAnswer();
+  if (e.key === 'Escape') cancelBuild();
+});
+
+function submitAnswer() {
+  const input = document.getElementById('mathInput');
+  const val = parseInt(input.value);
+  const feedback = document.getElementById('feedback');
+  
+  if (isNaN(val)) {
+    feedback.textContent = '⚠️ أدخل رقماً صحيحاً';
+    feedback.className = 'feedback error';
+    return;
+  }
+  
+  if (val === state.pendingBuild.problem.answer) {
+    const { col, row, type, cost } = state.pendingBuild;
+    state.gold -= cost;
+    state.towers.push({
+      col, row, type,
+      x: col*CELL + CELL/2,
+      y: row*CELL + CELL/2,
+      cooldown: 0,
+      ...TOWER_TYPES[type]
+    });
+    state.score += 5;
+    feedback.textContent = '✅ إجابة صحيحة! تم بناء البرج';
+    feedback.className = 'feedback success';
+    setTimeout(()=>{
+      document.getElementById('mathModal').classList.remove('show');
+      state.pendingBuild = null;
+      updateHUD();
+    }, 700);
+  } else {
+    feedback.textContent = `❌ خطأ! الإجابة الصحيحة: ${state.pendingBuild.problem.answer}`;
+    feedback.className = 'feedback error';
+    state.gold = Math.max(0, state.gold - 10);
+    setTimeout(()=>{
+      document.getElementById('mathModal').classList.remove('show');
+      state.pendingBuild = null;
+      updateHUD();
+    }, 1500);
+  }
+}
+
+function cancelBuild() {
+  document.getElementById('mathModal').classList.remove('show');
+  state.pendingBuild = null;
+}
+
+let floatingTexts = [];
+function showFloatingText(x, y, text, color) {
+  floatingTexts.push({ x, y, text, color, life:60 });
+}
+
+function startWave() {
+  if (state.waveInProgress) return;
+  state.waveInProgress = true;
+  const count = 5 + state.wave * 2;
+  state.enemiesToSpawn = count;
+  state.spawnTimer = 0;
+}
+
+function spawnEnemy() {
+  const r = Math.random();
+  let type = 'normal';
+  if (state.wave >= 3 && r < 0.2) type = 'fast';
+  if (state.wave >= 5 && r < 0.15) type = 'tank';
+  if (state.wave >= 7 && state.enemiesToSpawn === 1) type = 'boss';
+  state.enemies.push(createEnemy(type, state.wave));
+  state.enemiesToSpawn--;
+}
+
+function update() {
+  if (state.gameOver) return;
+  
+  if (state.waveInProgress && state.enemiesToSpawn > 0) {
+    state.spawnTimer--;
+    if (state.spawnTimer <= 0) {
+      spawnEnemy();
+      state.spawnTimer = 40;
+    }
+  }
+  
+  if (state.waveInProgress && state.enemiesToSpawn === 0 && state.enemies.length === 0) {
+    state.waveInProgress = false;
+    state.wave++;
+    state.gold += 30 + state.wave * 5;
+    state.score += 50;
+    updateHUD();
+    setTimeout(startWave, 2500);
+  }
+  
+  state.enemies.forEach(en => {
+    if (en.slowTimer > 0) {
+      en.speed = en.baseSpeed * 0.4;
+      en.slowTimer--;
+    } else {
+      en.speed = en.baseSpeed;
+    }
+    
+    const target = pathWaypoints[en.pathIndex];
+    if (!target) {
+      state.hp -= (en.type === 'boss' ? 5 : 1);
+      en.dead = true;
+      updateHUD();
+      if (state.hp <= 0) endGame();
+      return;
+    }
+    const dx = target.x - en.x, dy = target.y - en.y;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    if (dist < en.speed*2) {
+      en.pathIndex++;
+    } else {
+      en.x += (dx/dist)*en.speed;
+      en.y += (dy/dist)*en.speed;
+    }
+  });
+  state.enemies = state.enemies.filter(e=>!e.dead);
+  
+  state.towers.forEach(t => {
+    if (t.cooldown > 0) { t.cooldown--; return; }
+    let target = null, minDist = t.range;
+    state.enemies.forEach(en => {
+      const dx = en.x - t.x, dy = en.y - t.y;
+      const d = Math.sqrt(dx*dx+dy*dy);
+      if (d < minDist) { minDist = d; target = en; }
+    });
+    if (target) {
+      state.bullets.push({
+        x:t.x, y:t.y, target,
+        damage:t.damage, speed:7,
+        color:t.bulletColor, size:t.bulletSize,
+        slow: t.slow || false
+      });
+      t.cooldown = t.fireRate;
+    }
+  });
+  
+  state.bullets.forEach(b => {
+    if (!b.target || b.target.dead) { b.dead = true; return; }
+    const dx = b.target.x - b.x, dy = b.target.y - b.y;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    if (dist < b.speed + b.target.size) {
+      b.target.hp -= b.damage;
+      if (b.slow) b.target.slowTimer = 60;
+      for (let i=0;i<5;i++) {
+        state.particles.push({
+          x:b.x, y:b.y,
+          vx:(Math.random()-0.5)*3, vy:(Math.random()-0.5)*3,
+          life:20, color:b.color, size:3
+        });
+      }
+      if (b.target.hp <= 0) {
+        b.target.dead = true;
+        state.gold += b.target.reward;
+        state.score += b.target.reward;
+        updateHUD();
+        for (let i=0;i<15;i++) {
+          state.particles.push({
+            x:b.target.x, y:b.target.y,
+            vx:(Math.random()-0.5)*5, vy:(Math.random()-0.5)*5,
+            life:30, color:b.target.color, size:4
+          });
+        }
+      }
+      b.dead = true;
+    } else {
+      b.x += (dx/dist)*b.speed;
+      b.y += (dy/dist)*b.speed;
+    }
+  });
+  state.bullets = state.bullets.filter(b=>!b.dead);
+  
+  state.particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    p.vx *= 0.95; p.vy *= 0.95;
+    p.life--;
+  });
+  state.particles = state.particles.filter(p=>p.life>0);
+  
+  floatingTexts.forEach(t => { t.y -= 0.8; t.life--; });
+  floatingTexts = floatingTexts.filter(t=>t.life>0);
+}
+
+function draw() {
+  ctx.fillStyle = '#0d1b2a';
+  ctx.fillRect(0,0,W,H);
+  
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let i=0;i<=COLS;i++) {
+    ctx.beginPath(); ctx.moveTo(i*CELL,0); ctx.lineTo(i*CELL,H); ctx.stroke();
+  }
+  for (let i=0;i<=ROWS;i++) {
+    ctx.beginPath(); ctx.moveTo(0,i*CELL); ctx.lineTo(W,i*CELL); ctx.stroke();
+  }
+  
+  pathCells.forEach(([c,r]) => {
+    ctx.fillStyle = '#2d3e50';
+    ctx.fillRect(c*CELL+1, r*CELL+1, CELL-2, CELL-2);
+  });
+  ctx.strokeStyle = 'rgba(78,205,196,0.3)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  pathWaypoints.forEach((p,i) => {
+    if (i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y);
+  });
+  ctx.stroke();
+  
+  const start = pathWaypoints[0];
+  const end = pathWaypoints[pathWaypoints.length-1];
+  ctx.fillStyle = '#4ecdc4';
+  ctx.font = '24px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🚪', start.x, start.y);
+  ctx.fillStyle = '#ff6b6b';
+  ctx.fillText('🏠', end.x, end.y);
+  
+  state.towers.forEach(t => {
+    const grad = ctx.createRadialGradient(t.x, t.y, 5, t.x, t.y, 20);
+    grad.addColorStop(0, t.color);
+    grad.addColorStop(1, 'rgba(0,0,0,0.3)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, 16, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = t.color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.font = '20px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(t.emoji, t.x, t.y);
+  });
+  
+  state.enemies.forEach(en => {
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.beginPath();
+    ctx.ellipse(en.x, en.y+en.size, en.size*0.8, en.size*0.3, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = en.color;
+    ctx.beginPath();
+    ctx.arc(en.x, en.y, en.size, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(en.x-en.size*0.3, en.y-en.size*0.2, en.size*0.2, 0, Math.PI*2);
+    ctx.arc(en.x+en.size*0.3, en.y-en.size*0.2, en.size*0.2, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(en.x-en.size*0.3, en.y-en.size*0.2, en.size*0.1, 0, Math.PI*2);
+    ctx.arc(en.x+en.size*0.3, en.y-en.size*0.2, en.size*0.1, 0, Math.PI*2);
+    ctx.fill();
+    const barW = en.size*2;
+    const barH = 4;
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(en.x-barW/2, en.y-en.size-10, barW, barH);
+    ctx.fillStyle = en.hp/en.maxHp > 0.5 ? '#4ecdc4' : en.hp/en.maxHp > 0.25 ? '#ffa502' : '#ff4757';
+    ctx.fillRect(en.x-barW/2, en.y-en.size-10, barW*(en.hp/en.maxHp), barH);
+    if (en.slowTimer > 0) {
+      ctx.strokeStyle = '#7ee8dd';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(en.x, en.y, en.size+4, 0, Math.PI*2);
+      ctx.stroke();
+    }
+  });
+  
+  state.bullets.forEach(b => {
+    ctx.fillStyle = b.color;
+    ctx.shadowColor = b.color;
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.size, 0, Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  });
+  
+  state.particles.forEach(p => {
+    ctx.globalAlpha = p.life/30;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  });
+  
+  floatingTexts.forEach(t => {
+    ctx.globalAlpha = Math.min(1, t.life/30);
+    ctx.fillStyle = t.color;
+    ctx.font = 'bold 16px Cairo';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(t.text, t.x, t.y);
+    ctx.globalAlpha = 1;
+  });
+  
+  if (canvas.hoverCell && !state.pendingBuild) {
+    const {col,row} = canvas.hoverCell;
+    if (col>=0 && col<COLS && row>=0 && row<ROWS) {
+      const valid = !pathSet.has(col+','+row) && !state.towers.some(t=>t.col===col&&t.row===row);
+      ctx.fillStyle = valid ? 'rgba(78,205,196,0.2)' : 'rgba(255,107,107,0.2)';
+      ctx.fillRect(col*CELL, row*CELL, CELL, CELL);
+      ctx.strokeStyle = valid ? '#4ecdc4' : '#ff6b6b';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(col*CELL, row*CELL, CELL, CELL);
+      if (valid) {
+        const tt = TOWER_TYPES[state.selectedTower];
+        ctx.strokeStyle = 'rgba(78,205,196,0.3)';
+        ctx.beginPath();
+        ctx.arc(col*CELL+CELL/2, row*CELL+CELL/2, tt.range, 0, Math.PI*2);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function endGame() {
+  state.gameOver = true;
+  document.getElementById('finalScore').textContent = state.score;
+  document.getElementById('finalWave').textContent = state.wave;
+  document.getElementById('gameOver').classList.add('show');
+}
+
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+updateHUD();
+setTimeout(startWave, 2000);
+loop();
+</script>
+</body>
+</html>

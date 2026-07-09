@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كتاب الرياضيات التفاعلي</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fontsource-cairo@4.0.0/index.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Cover Page */
+        .cover-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            animation: fadeIn 1s ease;
+        }
+
+        .cover-page h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #f7971e, #ffd200);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cover-page p {
+            font-size: 1.3rem;
+            color: #b8b8d4;
+            margin-bottom: 40px;
+        }
+
+        .cover-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+
+        .btn-start {
+            padding: 15px 50px;
+            font-size: 1.3rem;
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(247, 151, 30, 0.4);
+        }
+
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(247, 151, 30, 0.6);
+        }
+
+        /* Table of Contents */
+        .toc-page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+            padding: 20px 0;
+        }
+
+        .toc-page h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: #ffd200;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .toc-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toc-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+            border-color: rgba(255, 210, 0, 0.5);
+        }
+
+        .toc-item .category-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .toc-item h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #ffd200;
+        }
+
+        .toc-item .q-count {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .toc-item .progress-bar {
+            margin-top: 10px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .toc-item .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #f7971e, #ffd200);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        /* Quiz Page */
+        .quiz-page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .quiz-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .quiz-header .back-btn {
+            background: none;
+            border: none;
+            color: #ffd200;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .quiz-header .score-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .score-display .score-item {
+            text-align: center;
+        }
+
+        .score-display .score-item .num {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ffd200;
+        }
+
+        .score-display .score-item .label {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .progress-container {
+            margin-bottom: 25px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #b8b8d4;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-track .fill {
+            height: 100%;
+            background: linear-gradient(to right, #f7971e, #ffd200);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .question-card .q-type {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(247, 151, 30, 0.2);
+            color: #f7971e;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+
+        .question-card .q-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            color: #e8e8f0;
+        }
+
+        /* MCQ Options */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #e8e8f0;
+            font-size: 1.1rem;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: right;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 210, 0, 0.5);
+        }
+
+        .option-btn.correct {
+            background: rgba(46, 213, 115, 0.2);
+            border-color: #2ed573;
+            color: #2ed573;
+        }
+
+        .option-btn.wrong {
+            background: rgba(255, 71, 87, 0.2);
+            border-color: #ff4757;
+            color: #ff4757;
+        }
+
+        .option-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Numeric Input */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .answer-input {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1.2rem;
+            font-family: 'Cairo', sans-serif;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .answer-input:focus {
+            border-color: #ffd200;
+        }
+
+        .answer-input.correct {
+            border-color: #2ed573;
+            background: rgba(46, 213, 115, 0.1);
+        }
+
+        .answer-input.wrong {
+            border-color: #ff4757;
+            background: rgba(255, 71, 87, 0.1);
+        }
+
+        .check-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(247, 151, 30, 0.4);
+        }
+
+        .check-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Feedback */
+        .feedback {
+            margin-top: 15px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: rgba(46, 213, 115, 0.15);
+            color: #2ed573;
+            border: 1px solid rgba(46, 213, 115, 0.3);
+        }
+
+        .feedback.wrong {
+            background: rgba(255, 71, 87, 0.15);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: #e8e8f0;
+            font-size: 1rem;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.next-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: #fff;
+        }
+
+        /* Results Page */
+        .results-page {
+            display: none;
+            text-align: center;
+            padding: 50px 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .results-page .result-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .results-page h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #ffd200;
+        }
+
+        .results-page .result-score {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+            background: linear-gradient(to right, #f7971e, #ffd200);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color transparent;
+            background-clip: text;
+        }
+
+        .results-page .result-msg {
+            font-size: 1.2rem;
+            color: #b8b8d4;
+            margin-bottom: 30px;
+        }
+
+        .results-page .result-btns {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .result-btn {
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .result-btn.primary {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            color: #1a1a2e;
+        }
+
+        .result-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .result-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item .stat-num {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-item .stat-label {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+        }
+
+        .confetti-piece {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            animation: confettiFall 3s ease-out forwards;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .cover-page h1 {
+                font-size: 2rem;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quiz-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .question-card .q-text {
+                font-size: 1.1rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .check-btn {
+                width: 100%;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 210, 0, 0.3);
+            border-radius: 3px;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .all-questions-btn {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+
+        .all-questions-btn:hover {
+            border-color: rgba(102, 126, 234, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Cover Page -->
+        <div class="cover-page" id="coverPage">
+            <div class="cover-icon">📐</div>
+            <h1>كتاب الرياضيات التفاعلي</h1>
+            <p>تعلّم واختبر معلوماتك في الرياضيات بطريقة ممتعة</p>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #ffd200;">113</div>
+                    <div class="stat-label">سؤال</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #667eea;">30+</div>
+                    <div class="stat-label">موضوع</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #2ed573;">∞</div>
+                    <div class="stat-label">محاولات</div>
+                </div>
+            </div>
+            <button class="btn-start" onclick="showTOC()">ابدأ التعلّم 🚀</button>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="toc-page" id="tocPage">
+            <h2>📚 فهرس المواضيع</h2>
+            <div class="toc-grid" id="tocGrid"></div>
+        </div>
+
+        <!-- Quiz Page -->
+        <div class="quiz-page" id="quizPage">
+            <div class="quiz-header">
+                <button class="back-btn" onclick="showTOC()">→ رجوع للفهرس</button>
+                <div class="score-display">
+                    <div class="score-item">
+                        <div class="num" id="correctCount">0</div>
+                        <div class="label">صحيح ✓</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="num" id="wrongCount">0</div>
+                        <div class="label">خطأ ✗</div>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span id="categoryName">التقريب</span>
+                    <span id="questionNum">1 / 12</span>
+                </div>
+                <div class="progress-track">
+                    <div class="fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="question-card" id="questionCard">
+                <!-- Question content will be injected here -->
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-btn" id="prevBtn" onclick="prevQuestion()">→ السابق</button>
+                <button class="nav-btn next-btn" id="nextBtn" onclick="nextQuestion()">التالي ←</button>
+            </div>
+        </div>
+
+        <!-- Results Page -->
+        <div class="results-page" id="resultsPage">
+            <div class="result-icon" id="resultIcon">🏆</div>
+            <h2 id="resultTitle">أحسنت!</h2>
+            <div class="result-score" id="resultScore">0%</div>
+            <div class="result-msg" id="resultMsg">نتيجة رائعة!</div>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #2ed573;" id="finalCorrect">0</div>
+                    <div class="stat-label">إجابة صحيحة</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #ff4757;" id="finalWrong">0</div>
+                    <div class="stat-label">إجابة خاطئة</div>
+                </div>
+            </div>
+            <div class="result-btns">
+                <button class="result-btn primary" onclick="retryCategory()">إعادة المحاولة 🔄</button>
+                <button class="result-btn secondary" onclick="showTOC()">العودة للفهرس 📚</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions Data
+        const allQuestions = [
+            // MCQ Questions
+            { id: "MCQ-1", type: "mcq", question: "العدد 1390 مقرباً لأقرب مئة هو:", options: ["1400", "1399", "1300"], answer: 0, category: "التقريب" },
+            { id: "MCQ-2", type: "mcq", question: "أي من الأشكال التالية يمثل متوازي الأضلاع؟ (بناءً على الخصائص)", options: ["شكل فيه كل ضلعين متقابلين غير متوازيين", "شكل فيه كل ضلعين متقابلين متوازيين", "شكل فيه ضلعان متقابلان فقط متوازيين", "شكل لا يحتوي على أضلاع متوازية"], answer: 1, category: "الأشكال الرباعية" },
+            { id: "MCQ-3", type: "mcq", question: "أي من الأشكال التالية يمثل معيناً؟ (بناءً على الخصائص)", options: ["شكل فيه أضلاع مختلفة الأطوال", "الشكل الذي تتساوى فيه جميع الأضلاع", "شكل فيه ضلعان متساويان فقط", "شكل رباعي غير منتظم"], answer: 1, category: "الأشكال الرباعية" },
+            { id: "MCQ-4", type: "mcq", question: "العدد 1380 مقرباً لأقرب مئة هو:", options: ["1400", "1300", "1380"], answer: 0, category: "التقريب" },
+            { id: "MCQ-5", type: "mcq", question: "أي من الأعداد التالية يقبل القسمة على 2؟", options: ["5310", "531.001", "153100"], answer: 0, category: "قابلية القسمة" },
+            { id: "MCQ-6", type: "mcq", question: "أي من الأعداد التالية يساوي ناتج 117932 ÷ 10؟", options: ["11793.2", "179321", "117932"], answer: 0, category: "قسمة الأعداد العشرية" },
+            { id: "MCQ-7", type: "mcq", question: "أي من الأعداد التالية يساوي ناتج 1.2 × 100000؟", options: ["120000", "12", "1200000"], answer: 0, category: "ضرب الأعداد العشرية" },
+            { id: "MCQ-8", type: "mcq", question: "ما التقدير الأنسب لكتلة قارورة ماء؟", options: ["2kg", "2g", "2ton"], answer: 0, category: "تقدير الكتل" },
+            { id: "MCQ-9", type: "mcq", question: "ما التقدير الأنسب لكتلة تفاحة؟", options: ["25mg", "25g", "2kg"], answer: 1, category: "تقدير الكتل" },
+            { id: "MCQ-10", type: "mcq", question: "ما التقدير الأنسب لكتلة سيارة؟", options: ["2kg", "2g", "2ton"], answer: 2, category: "تقدير الكتل" },
+            { id: "MCQ-11", type: "mcq", question: "المقارنة الصحيحة بين 8ton و 8000g هي:", options: ["8ton > 8000g", "8ton < 8000g", "8ton = 8000g"], answer: 0, category: "مقارنة الكتل" },
+            { id: "MCQ-12", type: "mcq", question: "المقارنة الصحيحة بين 3ton و 3000kg هي:", options: ["3ton > 3000kg", "3ton < 3000kg", "3ton = 3000kg"], answer: 2, category: "مقارنة الكتل" },
+            // Numeric Questions
+            { id: "AR-1", type: "numeric", question: "أحسب ناتج: 210 + 90", answer: "300", category: "جمع" },
+            { id: "AR-2", type: "numeric", question: "أحسب ناتج: 100 + 45", answer: "145", category: "جمع" },
+            { id: "AR-3", type: "numeric", question: "أحسب ناتج: 25 + 75", answer: "100", category: "جمع" },
+            { id: "AR-4", type: "numeric", question: "أحسب ناتج: 20 + 30", answer: "50", category: "جمع" },
+            { id: "AR-5", type: "numeric", question: "أحسب ناتج: 8 + 10", answer: "18", category: "جمع" },
+            { id: "AR-6", type: "numeric", question: "أحسب ناتج: 5 + 3", answer: "8", category: "جمع" },
+            { id: "AR-7", type: "numeric", question: "أحسب ناتج: 100 - 25", answer: "75", category: "طرح" },
+            { id: "AR-8", type: "numeric", question: "أحسب ناتج: 7 - 2", answer: "5", category: "طرح" },
+            { id: "AR-9", type: "numeric", question: "أحسب ناتج: 80 - 50", answer: "30", category: "طرح" },
+            { id: "AR-10", type: "numeric", question: "أحسب ناتج: 300 - 200", answer: "100", category: "طرح" },
+            { id: "AR-11", type: "numeric", question: "أحسب ناتج: 203565 + 789321", answer: "992886", category: "جمع" },
+            { id: "AR-12", type: "numeric", question: "أحسب ناتج: 122021 + 1344826", answer: "1466847", category: "جمع" },
+            { id: "AR-13", type: "numeric", question: "أحسب ناتج: 1328748 + 3014578 + 78371", answer: "4421697", category: "جمع" },
+            { id: "AR-14", type: "numeric", question: "أحسب ناتج: 2 × 75", answer: "150", category: "ضرب" },
+            { id: "AR-15", type: "numeric", question: "أحسب ناتج: 3 × 5 × 2", answer: "30", category: "ضرب" },
+            { id: "AR-16", type: "numeric", question: "أحسب ناتج: 3 × 320 (سعر 3 أمتار قماش)", answer: "960", category: "ضرب" },
+            { id: "AR-17", type: "numeric", question: "أحسب ناتج: 5.13 × 24", answer: "123.12", category: "ضرب الأعداد العشرية" },
+            { id: "AR-18", type: "numeric", question: "أحسب ناتج: 0.412 × 1000", answer: "412", category: "ضرب الأعداد العشرية" },
+            { id: "AR-19", type: "numeric", question: "أحسب ناتج: 5.12 × 10", answer: "51.2", category: "ضرب الأعداد العشرية" },
+            { id: "AR-20", type: "numeric", question: "أحسب ناتج: 5.12 × 100", answer: "512", category: "ضرب الأعداد العشرية" },
+            { id: "AR-21", type: "numeric", question: "أحسب ناتج: 5.12 × 1000", answer: "5120", category: "ضرب الأعداد العشرية" },
+            { id: "AR-22", type: "numeric", question: "أحسب ناتج القسمة: 56144.15 ÷ 10", answer: "5614.415", category: "قسمة الأعداد العشرية" },
+            { id: "AR-23", type: "numeric", question: "أحسب ناتج القسمة: 47202.3 ÷ 100", answer: "472.023", category: "قسمة الأعداد العشرية" },
+            { id: "AR-24", type: "numeric", question: "أحسب ناتج القسمة: 5734 ÷ 1000", answer: "5.734", category: "قسمة الأعداد العشرية" },
+            { id: "AR-25", type: "numeric", question: "أحسب ناتج القسمة: 78 ÷ 2", answer: "39", category: "قسمة" },
+            { id: "AR-26", type: "numeric", question: "أحسب ناتج القسمة: 78 ÷ 3", answer: "26", category: "قسمة" },
+            { id: "AR-27", type: "numeric", question: "أحسب ناتج القسمة: 78 ÷ 4", answer: "19.5", category: "قسمة" },
+            { id: "AR-28", type: "numeric", question: "أحسب ناتج القسمة: 78 ÷ 5", answer: "15.6", category: "قسمة" },
+            { id: "AR-29", type: "numeric", question: "أحسب قيمة الكسر: 13 ÷ 4", answer: "3.25", category: "قسمة" },
+            { id: "AR-30", type: "numeric", question: "قرب العدد 580 إلى أقرب مئة", answer: "600", category: "التقريب" },
+            { id: "AR-31", type: "numeric", question: "قرب العدد 315 إلى أقرب مئة", answer: "300", category: "التقريب" },
+            { id: "AR-32", type: "numeric", question: "قرب العدد 2137 إلى أقرب ألف", answer: "2000", category: "التقريب" },
+            { id: "AR-33", type: "numeric", question: "قرب العدد 25000 إلى أقرب مئات الألوف", answer: "0", category: "التقريب" },
+            { id: "AR-34", type: "numeric", question: "قرب العدد 1073000 إلى أقرب عشرات الألوف", answer: "1070000", category: "التقريب" },
+            { id: "AR-35", type: "numeric", question: "قرب العدد 445700 إلى أقرب ألف", answer: "446000", category: "التقريب" },
+            { id: "AR-36", type: "numeric", question: "قرب العدد 28500 إلى أقرب عشرات الألوف", answer: "30000", category: "التقريب" },
+            { id: "AR-37", type: "numeric", question: "قرب العدد 1987549 إلى أقرب عشرات الألوف", answer: "1990000", category: "التقريب" },
+            { id: "AR-38", type: "numeric", question: "قرب العدد 765000 إلى أقرب مليون", answer: "1000000", category: "التقريب" },
+            { id: "AR-39", type: "numeric", question: "قرب العدد 185180 إلى أقرب عشرة آلاف (مساحة سورية)", answer: "180000", category: "التقريب" },
+            { id: "AR-40", type: "numeric", question: "قرب العدد 112800 إلى أقرب عشرة آلاف (عدد الأرغفة)", answer: "110000", category: "التقريب" },
+            { id: "AR-41", type: "numeric", question: "قرب العدد 1750000 إلى أقرب مليون (ثمن سيارة)", answer: "2000000", category: "التقريب" },
+            { id: "AR-42", type: "numeric", question: "قرب العدد 4800000 إلى أقرب مليون (تبرع)", answer: "5000000", category: "التقريب" },
+            { id: "AR-43", type: "numeric", question: "قرب العدد 4800000 إلى أقرب عشرة آلاف (تبرع)", answer: "4800000", category: "التقريب" },
+            { id: "AR-44", type: "numeric", question: "أكمل التحويل: 2 km = ........ hm", answer: "20", category: "تحويل الطول" },
+            { id: "AR-45", type: "numeric", question: "أكمل التحويل: 2 km = ........ dam", answer: "200", category: "تحويل الطول" },
+            { id: "AR-46", type: "numeric", question: "أكمل التحويل: 125 m = ........ hm", answer: "1.25", category: "تحويل الطول" },
+            { id: "AR-47", type: "numeric", question: "أكمل التحويل: 125 m = ........ dam", answer: "12.5", category: "تحويل الطول" },
+            { id: "AR-48", type: "numeric", question: "أكمل التحويل: 8 ton = ........ g", answer: "8000000", category: "تحويل الكتلة" },
+            { id: "AR-49", type: "numeric", question: "أكمل التحويل: 150 ton = ........ kg", answer: "150000", category: "تحويل الكتلة" },
+            { id: "AR-50", type: "numeric", question: "أكمل التحويل: 12 kg = ........ g", answer: "12000", category: "تحويل الكتلة" },
+            { id: "AR-51", type: "numeric", question: "أكمل التحويل: 2 mg = ........ g", answer: "0.002", category: "تحويل الكتلة" },
+            { id: "AR-52", type: "numeric", question: "أكمل التحويل: 0.15 m³ = ........ cm³", answer: "150000", category: "تحويل الحجم" },
+            { id: "AR-53", type: "numeric", question: "أكمل التحويل: 0.005 m³ = ........ dm³", answer: "5", category: "تحويل الحجم" },
+            { id: "AR-54", type: "numeric", question: "أكمل التحويل: 7.12 dm³ = ........ cm³", answer: "7120", category: "تحويل الحجم" },
+            { id: "AR-55", type: "numeric", question: "أكمل التحويل: 15 mm³ = ........ cm³", answer: "0.015", category: "تحويل الحجم" },
+            { id: "AR-56", type: "numeric", question: "أكمل التحويل: 7 m = ........ cm", answer: "700", category: "تحويل الطول" },
+            { id: "AR-57", type: "numeric", question: "أكمل التحويل: 90 km = ........ cm", answer: "9000000", category: "تحويل الطول" },
+            { id: "AR-58", type: "numeric", question: "أكمل التحويل: 350 km = ........ m", answer: "350000", category: "تحويل الطول" },
+            { id: "AR-59", type: "numeric", question: "أكمل التحويل: 281.4 m = ........ km", answer: "0.2814", category: "تحويل الطول" },
+            { id: "AR-60", type: "numeric", question: "أكمل التحويل: 200 dam = ........ km", answer: "2", category: "تحويل الطول" },
+            { id: "AR-61", type: "numeric", question: "أكمل التحويل: 7 hm = ........ m", answer: "700", category: "تحويل الطول" },
+            { id: "AR-62", type: "numeric", question: "أكمل التحويل: 0.51 km = ........ dam", answer: "51", category: "تحويل الطول" },
+            { id: "AR-63", type: "numeric", question: "أكمل التحويل: 900 km = ........ m", answer: "900000", category: "تحويل الطول" },
+            { id: "AR-64", type: "numeric", question: "أكمل التحويل: 450 hm = ........ km", answer: "45", category: "تحويل الطول" },
+            { id: "AR-65", type: "numeric", question: "أكمل التحويل: 4.8 hm = ........ dam", answer: "48", category: "تحويل الطول" },
+            { id: "AR-66", type: "numeric", question: "أكمل التحويل: 3000 ton = ........ kg", answer: "3000000", category: "تحويل الكتلة" },
+            { id: "AR-67", type: "numeric", question: "أكمل التحويل: 3000 g = ........ kg", answer: "3", category: "تحويل الكتلة" },
+            { id: "AR-68", type: "numeric", question: "أكمل التحويل: 3 ton = ........ kg", answer: "3000", category: "تحويل الكتلة" },
+            { id: "AR-69", type: "numeric", question: "أكمل التحويل: 2500 kg = ........ ton", answer: "2.5", category: "تحويل الكتلة" },
+            { id: "AR-70", type: "numeric", question: "أكمل التحويل: 8 kg = ........ g", answer: "8000", category: "تحويل الكتلة" },
+            { id: "AR-71", type: "numeric", question: "أكمل التحويل: 432 g = ........ kg", answer: "0.432", category: "تحويل الكتلة" },
+            { id: "AR-72", type: "numeric", question: "أكمل التحويل: 342 mg = ........ g", answer: "0.342", category: "تحويل الكتلة" },
+            { id: "AR-73", type: "numeric", question: "أكمل التحويل: 450 mg = ........ g", answer: "0.45", category: "تحويل الكتلة" },
+            { id: "AR-74", type: "numeric", question: "احسب مساحة مثلث قاعدته 2cm وارتفاعه 3cm", answer: "3", category: "مساحة المثلث" },
+            { id: "AR-75", type: "numeric", question: "احسب حجم متوازي مستطيلات: طوله 6cm وعرضه 5cm وارتفاعه 2cm", answer: "60", category: "حجم متوازي المستطيلات" },
+            { id: "AR-76", type: "numeric", question: "احسب حجم مكعب طول حرفه 4m", answer: "64", category: "حجم المكعب" },
+            { id: "AR-77", type: "numeric", question: "احسب حجم مكعب طول حرفه 4dm", answer: "64", category: "حجم المكعب" },
+            { id: "AR-78", type: "numeric", question: "احسب محيط مستطيل طوله 5cm وعرضه 3cm", answer: "16", category: "محيط المستطيل" },
+            { id: "AR-79", type: "numeric", question: "احسب محيط مربع طول ضلعه 4cm", answer: "16", category: "محيط المربع" },
+            { id: "AR-80", type: "numeric", question: "في الدائرة: إذا كان طول القطر 10cm فما طول نصف القطر؟", answer: "5", category: "الدائرة" },
+            { id: "AR-81", type: "numeric", question: "في الدائرة: إذا كان نصف القطر 7cm فما طول القطر؟", answer: "14", category: "الدائرة" },
+            { id: "AR-82", type: "numeric", question: "اكتب الكسر 7/3 كعدد كسري (كسر مركب)", answer: "2 1/3", category: "الكسور" },
+            { id: "AR-83", type: "numeric", question: "أحسب: 2/5 + 1/4", answer: "13/20", category: "جمع الكسور" },
+            { id: "AR-84", type: "numeric", question: "أحسب: 3/4 + 5/8", answer: "11/8", category: "جمع الكسور" },
+            { id: "AR-85", type: "numeric", question: "أكتب العدد العشري 0.75 على شكل كسر اعتيادي", answer: "3/4", category: "الكسور والأعداد العشرية" },
+            { id: "AR-86", type: "numeric", question: "أكتب الكسر 3/10 على شكل عدد عشري", answer: "0.3", category: "الكسور والأعداد العشرية" },
+            { id: "AR-87", type: "numeric", question: "أحسب: 79.2 × 43", answer: "3405.6", category: "ضرب الأعداد العشرية" },
+            { id: "AR-88", type: "numeric", question: "أحسب: 51.443 + 112.157", answer: "163.6", category: "جمع الأعداد العشرية" },
+            { id: "AR-89", type: "numeric", question: "أحسب: 98.32 × 14", answer: "1376.48", category: "ضرب الأعداد العشرية" },
+            { id: "AR-90", type: "numeric", question: "أحسب: 93.64 + 12.372", answer: "106.012", category: "جمع الأعداد العشرية" },
+            { id: "AR-91", type: "numeric", question: "أحسب: 36.14 × 10", answer: "361.4", category: "ضرب الأعداد العشرية" },
+            { id: "AR-92", type: "numeric", question: "أحسب: 37.12 - 15.713", answer: "21.407", category: "طرح الأعداد العشرية" },
+            { id: "AR-93", type: "numeric", question: "أحسب: 42.712 × 100", answer: "4271.2", category: "ضرب الأعداد العشرية" },
+            { id: "AR-94", type: "numeric", question: "أحسب: 118 - 21.32", answer: "96.68", category: "طرح الأعداد العشرية" },
+            { id: "AR-95", type: "numeric", question: "أحسب: 125.31 × 1000", answer: "125310", category: "ضرب الأعداد العشرية" },
+            { id: "AR-96", type: "numeric", question: "أحسب: 725.14 - 34", answer: "691.14", category: "طرح الأعداد العشرية" },
+            { id: "AR-97", type: "numeric", question: "اجمع الأزمنة: 2س 15د 20ث + 1س 30د 33ث", answer: "3س 45د 53ث", category: "جمع الزمن" },
+            { id: "AR-98", type: "numeric", question: "اجمع الأزمنة: 10س 01د 13ث + 3س 11د 04ث", answer: "13س 12د 17ث", category: "جمع الزمن" },
+            { id: "AR-99", type: "numeric", question: "اجمع الأزمنة: 5س 51د 38ث + 1س 08د 12ث", answer: "6س 59د 50ث", category: "جمع الزمن" },
+            { id: "AR-100", type: "numeric", question: "اطرح الأزمنة: 9س 09د 57ث - 6س 09د 12ث", answer: "3س 00د 45ث", category: "طرح الزمن" },
+            { id: "AR-101", type: "numeric", question: "اطرح الأزمنة: 10س 52د 32ث - 8س 07د 30ث", answer: "2س 45د 02ث", category: "طرح الزمن" },
+            { id: "AR-102", type: "numeric", question: "استغرق سالم 30 دقيقة للرياضيات و 4 دقائق للعلوم، فما مجموع الوقت؟ (بالدقائق)", answer: "34", category: "مسائل لفظية" },
+            { id: "AR-103", type: "numeric", question: "استغرقت لينا 5 دقائق للألبسة و 15 دقيقة للتجميل، فما مجموع الوقت؟ (بالدقائق)", answer: "20", category: "مسائل لفظية" },
+            { id: "AR-104", type: "numeric", question: "اشترى طارق 3.15kg تفاح و 4.6kg موز، فما كتلة مشترياته؟ (kg)", answer: "7.75", category: "مسائل لفظية" },
+            { id: "AR-105", type: "numeric", question: "كتلة دلو مملوء بالماء 7.5kg وفارغاً 1.75kg، فما كتلة الماء؟ (kg)", answer: "5.75", category: "مسائل لفظية" },
+            { id: "AR-106", type: "numeric", question: "نحتاج لتراً من الدهان لطلاء 17.5m²، فما المساحة التي نطلها بـ 7 لترات؟ (m²)", answer: "122.5", category: "مسائل لفظية" },
+            { id: "AR-107", type: "numeric", question: "سعر المتر المربع من القماش 750 ليرة، فما سعر 7.5 متر مربع؟ (ليرة)", answer: "5625", category: "مسائل لفظية" },
+            { id: "AR-108", type: "numeric", question: "زجاجة عصير فيها 1.5 لتر، فما كمية العصير في 12 زجاجة؟ (لتر)", answer: "18", category: "مسائل لفظية" },
+            { id: "AR-109", type: "numeric", question: "قطعت علا 2.15km، ثم 4.72km، ثم 3km، فما المسافة الكلية؟ (km)", answer: "9.87", category: "مسائل لفظية" },
+            { id: "AR-110", type: "numeric", question: "في كل رزمة 100 ورقة من فئة 500 ليرة، كم ليرة في 10 رزم؟", answer: "500000", category: "مسائل لفظية" },
+            { id: "AR-111", type: "numeric", question: "كم رزمة تعادل 5,000,000 ليرة؟ (إذا كانت الرزمة 100 ورقة × 500 ليرة)", answer: "100", category: "مسائل لفظية" },
+            { id: "AR-112", type: "numeric", question: "عدد من 4 خانات الرقم 2 في المنزلتين الأكبر قيمة ومجموع العشرات والآحاد 10، فما هو؟", answer: "2209", category: "مسائل لفظية" },
+            { id: "AR-113", type: "numeric", question: "سلة كتلتها 280g، بها 8kg سكر و 75g قهوة و 1.5kg حلوى، فما الكتلة الكلية؟ (kg)", answer: "9.855", category: "مسائل لفظية" },
+        ];
+
+        // Category icons
+        const categoryIcons = {
+            "التقريب": "🎯",
+            "الأشكال الرباعية": "🔷",
+            "قابلية القسمة": "➗",
+            "قسمة الأعداد العشرية": "🔢",
+            "ضرب الأعداد العشرية": "✖️",
+            "تقدير الكتل": "⚖️",
+            "مقارنة الكتل": "📊",
+            "جمع": "➕",
+            "طرح": "➖",
+            "ضرب": "✖️",
+            "قسمة": "➗",
+            "تحويل الطول": "📏",
+            "تحويل الكتلة": "⚖️",
+            "تحويل الحجم": "🧊",
+            "مساحة المثلث": "📐",
+            "حجم متوازي المستطيلات": "📦",
+            "حجم المكعب": "🎲",
+            "محيط المستطيل": "▭",
+            "محيط المربع": "◻️",
+            "الدائرة": "⭕",
+            "الكسور": "🥧",
+            "جمع الكسور": "🥧",
+            "الكسور والأعداد العشرية": "🔢",
+            "جمع الأعداد العشرية": "➕",
+            "طرح الأعداد العشرية": "➖",
+            "جمع الزمن": "⏰",
+            "طرح الزمن": "⏱️",
+            "مسائل لفظية": "📝"
+        };
+
+        // State
+        let currentCategory = null;
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let correctAnswers = 0;
+        let wrongAnswers = 0;
+        let answeredQuestions = {};
+        let categoryProgress = {};
+
+        // Group questions by category
+        function getCategories() {
+            const cats = {};
+            allQuestions.forEach(q => {
+                if (!cats[q.category]) {
+                    cats[q.category] = [];
+                }
+                cats[q.category].push(q);
+            });
+            return cats;
+        }
+
+        // Show Table of Contents
+        function showTOC() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.getElementById('quizPage').style.display = 'none';
+            document.getElementById('resultsPage').style.display = 'none';
+            document.getElementById('tocPage').style.display = 'block';
+
+            const categories = getCategories();
+            const grid = document.getElementById('tocGrid');
+            grid.innerHTML = '';
+
+            // All questions button
+            const allItem = document.createElement('div');
+            allItem.className = 'toc-item all-questions-btn';
+            allItem.innerHTML = `
+                <div class="category-icon">📚</div>
+                <h3>جميع الأسئلة</h3>
+                <div class="q-count">${allQuestions.length} سؤال</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${getOverallProgress()}%"></div>
+                </div>
+            `;
+            allItem.onclick = () => startQuiz('all');
+            grid.appendChild(allItem);
+
+            Object.keys(categories).forEach(cat => {
+                const item = document.createElement('div');
+                item.className = 'toc-item';
+                const progress = categoryProgress[cat] || 0;
+                const total = categories[cat].length;
+                const progressPercent = (progress / total) * 100;
+
+                item.innerHTML = `
+                    <div class="category-icon">${categoryIcons[cat] || '📖'}</div>
+                    <h3>${cat}</h3>
+                    <div class="q-count">${total} سؤال</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                    </div>
+                `;
+                item.onclick = () => startQuiz(cat);
+                grid.appendChild(item);
+            });
+        }
+
+        function getOverallProgress() {
+            const totalAnswered = Object.keys(answeredQuestions).length;
+            return (totalAnswered / allQuestions.length) * 100;
+        }
+
+        // Start Quiz
+        function startQuiz(category) {
+            currentCategory = category;
+            if (category === 'all') {
+                currentQuestions = [...allQuestions];
+            } else {
+                currentQuestions = allQuestions.filter(q => q.category === category);
+            }
+            currentIndex = 0;
+            correctAnswers = 0;
+            wrongAnswers = 0;
+
+            document.getElementById('tocPage').style.display = 'none';
+            document.getElementById('quizPage').style.display = 'block';
+            document.getElementById('categoryName').textContent = category === 'all' ? 'جميع الأسئلة' : category;
+
+            renderQuestion();
+        }
+
+        // Render Question
+        function renderQuestion() {
+            const q = currentQuestions[currentIndex];
+            const card = document.getElementById('questionCard');
+            const isAnswered = answeredQuestions[q.id] !== undefined;
+
+            document.getElementById('questionNum').textContent = `${currentIndex + 1} / ${currentQuestions.length}`;
+            document.getElementById('progressFill').style.width = `${((currentIndex + 1) / currentQuestions.length) * 100}%`;
+            document.getElementById('correctCount').textContent = correctAnswers;
+            document.getElementById('wrongCount').textContent = wrongAnswers;
+
+            document.getElementById('prevBtn').disabled = currentIndex === 0;
+            document.getElementById('nextBtn').disabled = currentIndex === currentQuestions.length - 1;
+
+            let html = `
+                <span class="q-type">${q.type === 'mcq' ? 'اختيار من متعدد' : 'إدخال رقم'}</span>
+                <span class="category-badge">${q.category}</span>
+                <div class="q-text">${q.question}</div>
+            `;
+
+            if (q.type === 'mcq') {
+                html += '<div class="options-list">';
+                q.options.forEach((opt, idx) => {
+                    let extraClass = '';
+                    if (isAnswered) {
+                        extraClass = 'disabled';
+                        if (idx === q.answer) extraClass += ' correct';
+                        else if (answeredQuestions[q.id] === idx && idx !== q.answer) extraClass += ' wrong';
+                    }
+                    html += `<button class="option-btn ${extraClass}" onclick="selectMCQ(${idx})" ${isAnswered ? 'disabled' : ''}>${opt}</button>`;
+                });
+                html += '</div>';
+            } else {
+                let inputClass = '';
+                if (isAnswered) {
+                    inputClass = answeredQuestions[q.id] ? 'correct' : 'wrong';
+                }
+                html += `
+                    <div class="input-group">
+                        <input type="text" class="answer-input ${inputClass}" id="answerInput" placeholder="اكتب إجابتك هنا..." ${isAnswered ? 'disabled' : ''} value="${isAnswered ? (answeredQuestions[q.id + '_value'] || '') : ''}">
+                        <button class="check-btn" onclick="checkNumeric()" ${isAnswered ? 'disabled' : ''}>تحقق ✓</button>
+                    </div>
+                `;
+            }
+
+            // Feedback
+            if (isAnswered) {
+                const isCorrect = q.type === 'mcq' ? answeredQuestions[q.id] === q.answer : answeredQuestions[q.id];
+                html += `<div class="feedback show ${isCorrect ? 'correct' : 'wrong'}">
+                    ${isCorrect ? '✅ إجابة صحيحة! أحسنت!' : `❌ إجابة خاطئة. الإجابة الصحيحة: ${q.type === 'mcq' ? q.options[q.answer] : q.answer}`}
+                </div>`;
+            }
+
+            card.innerHTML = html;
+
+            // Add enter key listener for numeric input
+            if (q.type === 'numeric' && !isAnswered) {
+                setTimeout(() => {
+                    const input = document.getElementById('answerInput');
+                    if (input) {
+                        input.addEventListener('keypress', (e) => {
+                            if (e.key === 'Enter') checkNumeric();
+                        });
+                        input.focus();
+                    }
+                }, 100);
+            }
+        }
+
+        // MCQ Selection
+        function selectMCQ(idx) {
+            const q = currentQuestions[currentIndex];
+            if (answeredQuestions[q.id] !== undefined) return;
+
+            answeredQuestions[q.id] = idx;
+            if (idx === q.answer) {
+                correctAnswers++;
+                showConfetti();
+            } else {
+                wrongAnswers++;
+            }
+
+            // Update category progress
+            updateCategoryProgress();
+            renderQuestion();
+        }
+
+        // Check Numeric Answer
+        function checkNumeric() {
+            const q = currentQuestions[currentIndex];
+            if (answeredQuestions[q.id] !== undefined) return;
+
+            const input = document.getElementById('answerInput');
+            const userAnswer = input.value.trim();
+
+            if (!userAnswer) return;
+
+            answeredQuestions[q.id + '_value'] = userAnswer;
+
+            // Normalize comparison
+            const normalize = (str) => str.replace(/\s/g, '').replace(/،/g, ',');
+            const isCorrect = normalize(userAnswer) === normalize(q.answer) ||
+                              userAnswer === q.answer;
+
+            answeredQuestions[q.id] = isCorrect;
+
+            if (isCorrect) {
+                correctAnswers++;
+                showConfetti();
+            } else {
+                wrongAnswers++;
+            }
+
+            updateCategoryProgress();
+            renderQuestion();
+        }
+
+        // Update Category Progress
+        function updateCategoryProgress() {
+            if (currentCategory === 'all') return;
+            const answered = currentQuestions.filter(q => answeredQuestions[q.id] !== undefined).length;
+            categoryProgress[currentCategory] = answered;
+        }
+
+        // Navigation
+        function nextQuestion() {
+            if (currentIndex < currentQuestions.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        // Show Results
+        function showResults() {
+            const total = correctAnswers + wrongAnswers;
+            const percentage = total > 0 ? Math.round((correctAnswers / total) * 100) : 0;
+
+            document.getElementById('quizPage').style.display = 'none';
+            document.getElementById('resultsPage').style.display = 'block';
+
+            document.getElementById('resultScore').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctAnswers;
+            document.getElementById('finalWrong').textContent = wrongAnswers;
+
+            if (percentage >= 90) {
+                document.getElementById('resultIcon').textContent = '🏆';
+                document.getElementById('resultTitle').textContent = 'ممتاز!';
+                document.getElementById('resultMsg').textContent = 'أداء رائع! أنت متميز في هذا الموضوع!';
+                showConfetti();
+            } else if (percentage >= 70) {
+                document.getElementById('resultIcon').textContent = '🌟';
+                document.getElementById('resultTitle').textContent = 'جيد جداً!';
+                document.getElementById('resultMsg').textContent = 'أداء جيد! يمكنك تحسينه أكثر!';
+            } else if (percentage >= 50) {
+                document.getElementById('resultIcon').textContent = '💪';
+                document.getElementById('resultTitle').textContent = 'لا بأس!';
+                document.getElementById('resultMsg').textContent = 'حاول مرة أخرى لتحسين نتيجتك!';
+            } else {
+                document.getElementById('resultIcon').textContent = '📚';
+                document.getElementById('resultTitle').textContent = 'تحتاج مراجعة';
+                document.getElementById('resultMsg').textContent = 'راجع الدرس وحاول مرة أخرى!';
+            }
+        }
+
+        // Retry Category
+        function retryCategory() {
+            // Clear answered for current category questions
+            currentQuestions.forEach(q => {
+                delete answeredQuestions[q.id];
+                delete answeredQuestions[q.id + '_value'];
+            });
+            if (currentCategory !== 'all') {
+                categoryProgress[currentCategory] = 0;
+            }
+            startQuiz(currentCategory);
+        }
+
+        // Confetti Effect
+        function showConfetti() {
+            const colors = ['#ffd200', '#f7971e', '#2ed573', '#667eea', '#ff4757', '#1e90ff'];
+            for (let i = 0; i < 30; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + 'vw';
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDelay = Math.random() * 0.5 + 's';
+                piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+                document.body.appendChild(piece);
+                setTimeout(() => piece.remove(), 4000);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Preload
+        });
+    </script>
+</body>
+</html>

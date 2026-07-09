@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎤 Speak & Learn - Listening Game</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/baloo-2@5.0.0/index.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/quicksand@5.0.0/index.min.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 20px 0;
+  width: 100%;
+}
+
+.header h1 {
+  font-family: 'Baloo 2', cursive;
+  font-size: 2.5rem;
+  color: #fff;
+  text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+  margin-bottom: 5px;
+}
+
+.header p {
+  color: rgba(255,255,255,0.85);
+  font-size: 1.1rem;
+}
+
+/* Stats Bar */
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  margin: 10px 0 20px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 12px 24px;
+  color: #fff;
+  text-align: center;
+  min-width: 120px;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.stat-card .stat-value {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.stat-card .stat-label {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+/* Level Selector */
+.level-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.level-btn {
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.4);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.3s;
+}
+
+.level-btn:hover, .level-btn.active {
+  background: #fff;
+  color: #764ba2;
+  transform: scale(1.05);
+}
+
+.level-btn.completed {
+  background: rgba(72, 199, 142, 0.4);
+  border-color: #48c78e;
+}
+
+/* Game Card */
+.game-card {
+  background: #fff;
+  border-radius: 30px;
+  padding: 40px 30px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.game-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c, #fda085);
+}
+
+/* Progress */
+.progress-container {
+  margin-bottom: 25px;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 10px;
+  background: #e8e8e8;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.progress-text {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 6px;
+}
+
+/* Sentence Display */
+.sentence-container {
+  margin: 20px 0 30px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sentence-text {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.7rem;
+  color: #333;
+  line-height: 1.6;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 20px;
+  width: 100%;
+  position: relative;
+}
+
+.sentence-text .word {
+  display: inline-block;
+  transition: all 0.3s;
+  padding: 2px 3px;
+  border-radius: 6px;
+}
+
+.sentence-text .word.correct {
+  background: #d4edda;
+  color: #155724;
+}
+
+.sentence-text .word.wrong {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.sentence-text .word.missed {
+  background: #fff3cd;
+  color: #856404;
+}
+
+/* Listen Button */
+.listen-btn {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.listen-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Mic Button */
+.mic-area {
+  margin: 20px 0;
+}
+
+.mic-btn {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 2.5rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+  position: relative;
+}
+
+.mic-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5);
+}
+
+.mic-btn:active {
+  transform: scale(0.95);
+}
+
+.mic-btn.recording {
+  background: linear-gradient(135deg, #f5576c 0%, #ff6b6b 100%);
+  box-shadow: 0 8px 30px rgba(245, 87, 108, 0.5);
+  animation: pulse-recording 1.5s infinite;
+}
+
+@keyframes pulse-recording {
+  0% { box-shadow: 0 0 0 0 rgba(245, 87, 108, 0.5); }
+  70% { box-shadow: 0 0 0 25px rgba(245, 87, 108, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 87, 108, 0); }
+}
+
+.mic-hint {
+  color: #888;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+/* Result Display */
+.result-area {
+  margin-top: 20px;
+  min-height: 60px;
+}
+
+.result-text {
+  font-size: 1rem;
+  padding: 15px 20px;
+  border-radius: 15px;
+  margin: 10px 0;
+  animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-text.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.result-text.partial {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.result-text.fail {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.heard-text {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* Stars */
+.stars-display {
+  font-size: 2.5rem;
+  margin: 10px 0;
+  animation: bounceIn 0.6s ease;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Score Badge */
+.score-badge {
+  display: inline-block;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 5px 0;
+}
+
+.score-badge.high { background: #d4edda; color: #155724; }
+.score-badge.medium { background: #fff3cd; color: #856404; }
+.score-badge.low { background: #f8d7da; color: #721c24; }
+
+/* Next Button */
+.next-btn {
+  background: linear-gradient(135deg, #48c78e 0%, #3ec487 100%);
+  color: #fff;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s;
+  box-shadow: 0 6px 20px rgba(72, 199, 142, 0.4);
+  display: none;
+}
+
+.next-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(72, 199, 142, 0.5);
+}
+
+.next-btn.visible {
+  display: inline-block;
+  animation: fadeInUp 0.4s ease;
+}
+
+/* Welcome Screen */
+.welcome-screen {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.welcome-screen h2 {
+  font-family: 'Baloo 2', cursive;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.welcome-screen p {
+  color: #666;
+  font-size: 1.05rem;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.welcome-screen .emoji-row {
+  font-size: 3rem;
+  margin: 20px 0;
+}
+
+.start-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  padding: 16px 50px;
+  border-radius: 30px;
+  font-size: 1.2rem;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+}
+
+.start-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+}
+
+/* Completion Screen */
+.completion-screen {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.completion-screen h2 {
+  font-family: 'Baloo 2', cursive;
+  font-size: 2.2rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.trophy { font-size: 4rem; animation: bounceIn 0.8s ease; }
+
+.final-score {
+  font-size: 1.3rem;
+  color: #555;
+  margin: 15px 0;
+}
+
+.final-score span {
+  font-weight: 700;
+  color: #764ba2;
+  font-size: 1.6rem;
+}
+
+/* Confetti */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+  to {
+    top: 110vh;
+    transform: rotate(720deg);
+  }
+}
+
+/* Not supported message */
+.not-supported {
+  background: #fff3cd;
+  color: #856404;
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid #ffeeba;
+  margin: 20px 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .header h1 { font-size: 1.8rem; }
+  .sentence-text { font-size: 1.3rem; padding: 15px; }
+  .game-card { padding: 25px 18px; border-radius: 22px; }
+  .mic-btn { width: 85px; height: 85px; font-size: 2rem; }
+  .stats-bar { gap: 10px; }
+  .stat-card { padding: 10px 16px; min-width: 90px; }
+  .stat-card .stat-value { font-size: 1.4rem; }
+  .level-btn { padding: 6px 12px; font-size: 0.78rem; }
+}
+
+/* Waveform animation */
+.waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 40px;
+  margin: 10px 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.waveform.active { opacity: 1; }
+
+.waveform .bar {
+  width: 4px;
+  background: linear-gradient(to top, #667eea, #764ba2);
+  border-radius: 4px;
+  animation: wave 0.8s ease-in-out infinite;
+}
+
+.waveform .bar:nth-child(1) { animation-delay: 0s; height: 10px; }
+.waveform .bar:nth-child(2) { animation-delay: 0.1s; height: 20px; }
+.waveform .bar:nth-child(3) { animation-delay: 0.2s; height: 30px; }
+.waveform .bar:nth-child(4) { animation-delay: 0.3s; height: 20px; }
+.waveform .bar:nth-child(5) { animation-delay: 0.4s; height: 35px; }
+.waveform .bar:nth-child(6) { animation-delay: 0.2s; height: 15px; }
+.waveform .bar:nth-child(7) { animation-delay: 0.1s; height: 25px; }
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.5); }
+  50% { transform: scaleY(1.5); }
+}
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="header">
+    <h1>🎤 Speak & Learn</h1>
+    <p>Read the sentence aloud and let the game check your pronunciation!</p>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-value" id="scoreDisplay">0</div>
+      <div class="stat-label">⭐ Score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="streakDisplay">0</div>
+      <div class="stat-label">🔥 Streak</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="accuracyDisplay">0%</div>
+      <div class="stat-label">🎯 Accuracy</div>
+    </div>
+  </div>
+
+  <div class="level-selector" id="levelSelector"></div>
+
+  <div class="game-card" id="gameCard">
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="welcome-screen">
+      <div class="emoji-row">🗣️ 🎧 📖</div>
+      <h2>Welcome to Speak & Learn!</h2>
+      <p>
+        In this game, a sentence will appear on the screen.<br>
+        Press the <strong>microphone button</strong> and read the sentence out loud.<br>
+        The game will check how well you pronounced it! 🌟
+      </p>
+      <p style="font-size:0.9rem; color:#999;">
+        ⚠️ This game uses your browser's Speech Recognition.<br>
+        Please use <strong>Chrome</strong> or <strong>Edge</strong> for the best experience.
+      </p>
+      <button class="start-btn" id="startBtn" onclick="startGame()">Let's Start! 🚀</button>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen" class="hidden">
+      <div class="progress-container">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+        </div>
+        <div class="progress-text" id="progressText">Sentence 1 of 5</div>
+      </div>
+
+      <div class="sentence-container">
+        <div class="sentence-text" id="sentenceDisplay"></div>
+      </div>
+
+      <button class="listen-btn" onclick="speakSentence()" title="Listen to the sentence">🔊</button>
+
+      <div class="mic-area">
+        <div class="waveform" id="waveform">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+        <button class="mic-btn" id="micBtn" onclick="toggleRecording()">🎤</button>
+        <div class="mic-hint" id="micHint">Tap to speak</div>
+      </div>
+
+      <div class="result-area" id="resultArea"></div>
+      <button class="next-btn" id="nextBtn" onclick="nextSentence()">Next Sentence ➡️</button>
+    </div>
+
+    <!-- Completion Screen -->
+    <div id="completionScreen" class="hidden completion-screen">
+      <div class="trophy">🏆</div>
+      <h2>Level Complete!</h2>
+      <div class="final-score">
+        Your Score: <span id="finalScore">0</span>
+      </div>
+      <div id="finalStars" class="stars-display"></div>
+      <p id="finalMessage" style="color:#666; margin:15px 0;"></p>
+      <button class="start-btn" onclick="restartLevel()" style="margin:5px;">Try Again 🔄</button>
+      <button class="start-btn" onclick="nextLevel()" style="margin:5px; background: linear-gradient(135deg, #48c78e 0%, #3ec487 100%);">Next Level ➡️</button>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+// ==================== DATA ====================
+const passages = [
+  {
+    title: "My Friends",
+    emoji: "👫",
+    sentences: [
+      "Hello! I'm Sam and these are my friends.",
+      "My best friend's name is Alex.",
+      "He is very clever.",
+      "My friend Emma is kind and helpful.",
+      "I've got a friend called Lily.",
+      "She is funny and makes us laugh.",
+      "My friend Tom is tall and strong.",
+      "He plays basketball.",
+      "My friend Mia has got long brown hair.",
+      "She loves reading books.",
+      "My friend Jack is small but fast.",
+      "He likes running."
+    ]
+  },
+  {
+    title: "My Day",
+    emoji: "🌅",
+    sentences: [
+      "Hi, I am Layla.",
+      "My dad always wakes me up at seven o'clock.",
+      "I get up quickly and have breakfast.",
+      "I leave home to school at half past seven.",
+      "I usually come back home at half past three.",
+      "In the afternoon, I do my homework and I often read stories.",
+      "In the evening, my family watches TV together.",
+      "I sometimes help my mum with dinner.",
+      "I go to bed at ten o'clock."
+    ]
+  },
+  {
+    title: "My Senses",
+    emoji: "👀",
+    sentences: [
+      "My bag is blue.",
+      "Lemons taste sour.",
+      "Ali doesn't like fast music.",
+      "Do you smell the flowers?",
+      "The cat's fur feels soft."
+    ]
+  },
+  {
+    title: "Clothes",
+    emoji: "👗",
+    sentences: [
+      "Kate is wearing a red dress and white shoes.",
+      "Mike is wearing a blue shirt and black trousers.",
+      "Anna is wearing a yellow sweater, blue jeans and brown shoes.",
+      "Tom is wearing a green T-shirt and grey shorts.",
+      "Emma is wearing a pink skirt, white blouse and black shoes."
+    ]
+  },
+  {
+    title: "Healthy Life",
+    emoji: "🥗",
+    sentences: [
+      "Living a healthy life is easy!",
+      "Eat good food.",
+      "Eat vegetables and fruit every day.",
+      "Drink milk and water.",
+      "Play outside and do sports.",
+      "Running and jumping are good for you.",
+      "Sleep well.",
+      "You should go to bed early.",
+      "You shouldn't watch TV late at night."
+    ]
+  },
+  {
+    title: "My Hobby",
+    emoji: "⚽",
+    sentences: [
+      "I like playing football.",
+      "I like the Syrian team.",
+      "I play after school and on weekends.",
+      "Football is my favourite hobby.",
+      "I watch football matches."
+    ]
+  },
+  {
+    title: "Inventors",
+    emoji: "💡",
+    sentences: [
+      "Alexander Graham Bell invented the telephone.",
+      "The Wright brothers invented the airplane.",
+      "People remember Ibn Sina for his medical books.",
+      "Al-Jazari invented many machines.",
+      "Ibn Al-Haytham discovered how light works."
+    ]
+  },
+  {
+    title: "Music",
+    emoji: "🎵",
+    sentences: [
+      "Today we will talk about music.",
+      "I will play the guitar.",
+      "I will play the keyboard.",
+      "I will play the drums.",
+      "Nada will play the trumpet."
+    ]
+  },
+  {
+    title: "Technology",
+    emoji: "📱",
+    sentences: [
+      "I've got a tablet.",
+      "I use it for homework.",
+      "I can read books on it.",
+      "I like to play games on my mobile phone.",
+      "I also watch videos.",
+      "I have a camera.",
+      "I take photos of my friends and family.",
+      "I make albums and share them."
+    ]
+  },
+  {
+    title: "Travel",
+    emoji: "✈️",
+    sentences: [
+      "Next week, we will travel to Paris to see the Eiffel Tower.",
+      "They will go to Egypt to see the Pyramids.",
+      "Sam will visit the Colosseum in Italy, next month.",
+      "My family will come to Syria to visit Damascus."
+    ]
+  },
+  {
+    title: "By Train",
+    emoji: "🚂",
+    sentences: [
+      "Omar is going to travel by train.",
+      "First, buy our tickets at the ticket office.",
+      "Then, go to the platform and find our train.",
+      "After that, find our seats.",
+      "Finally, wait until the train leaves."
+    ]
+  },
+  {
+    title: "Apples",
+    emoji: "🍎",
+    sentences: [
+      "We're collecting some apples.",
+      "We're collecting them to eat them.",
+      "Apples are good for you.",
+      "We will not take too many."
+    ]
+  }
+];
+
+// ==================== STATE ====================
+let currentLevel = 0;
+let currentIndex = 0;
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let totalAttempts = 0;
+let totalCorrect = 0;
+let isRecording = false;
+let recognition = null;
+let levelScores = [];
+let sentences = [];
+
+// ==================== INIT ====================
+function init() {
+  // Check speech recognition support
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('welcomeScreen').innerHTML = `
+      <div class="not-supported">
+        <h2>⚠️ Browser Not Supported</h2>
+        <p style="margin-top:10px;">
+          Your browser doesn't support Speech Recognition.<br>
+          Please use <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong> to play this game.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 3;
+  recognition.continuous = false;
+
+  recognition.onresult = handleSpeechResult;
+  recognition.onerror = handleSpeechError;
+  recognition.onend = handleSpeechEnd;
+
+  buildLevelSelector();
+}
+
+function buildLevelSelector() {
+  const container = document.getElementById('levelSelector');
+  container.innerHTML = '';
+  passages.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'level-btn' + (i === currentLevel ? ' active' : '');
+    btn.textContent = `${p.emoji} ${p.title}`;
+    btn.onclick = () => selectLevel(i);
+    container.appendChild(btn);
+  });
+}
+
+function selectLevel(index) {
+  currentLevel = index;
+  buildLevelSelector();
+  loadLevel();
+}
+
+// ==================== GAME FLOW ====================
+function startGame() {
+  document.getElementById('welcomeScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+  loadLevel();
+}
+
+function loadLevel() {
+  sentences = passages[currentLevel].sentences;
+  currentIndex = 0;
+  levelScores = [];
+  showSentence();
+}
+
+function showSentence() {
+  if (currentIndex >= sentences.length) {
+    showCompletion();
+    return;
+  }
+
+  const sentence = sentences[currentIndex];
+  const display = document.getElementById('sentenceDisplay');
+
+  // Render words as spans
+  const words = sentence.split(/(\s+)/);
+  display.innerHTML = words.map((w, i) => {
+    if (w.trim() === '') return w;
+    return `<span class="word" id="word-${i}">${w}</span>`;
+  }).join('');
+
+  // Update progress
+  const progress = ((currentIndex) / sentences.length) * 100;
+  document.getElementById('progressBar').style.width = progress + '%';
+  document.getElementById('progressText').textContent = 
+    `Sentence ${currentIndex + 1} of ${sentences.length} — ${passages[currentLevel].emoji} ${passages[currentLevel].title}`;
+
+  // Reset UI
+  document.getElementById('resultArea').innerHTML = '';
+  document.getElementById('nextBtn').classList.remove('visible');
+  document.getElementById('micBtn').classList.remove('recording');
+  document.getElementById('micHint').textContent = 'Tap to speak';
+  document.getElementById('waveform').classList.remove('active');
+}
+
+function nextSentence() {
+  currentIndex++;
+  showSentence();
+}
+
+// ==================== SPEECH RECOGNITION ====================
+function toggleRecording() {
+  if (isRecording) {
+    recognition.stop();
+    return;
+  }
+
+  // Clear previous results
+  document.getElementById('resultArea').innerHTML = '';
+  document.getElementById('nextBtn').classList.remove('visible');
+
+  // Reset word highlights
+  document.querySelectorAll('.word').forEach(w => {
+    w.className = 'word';
+  });
+
+  try {
+    recognition.start();
+    isRecording = true;
+    document.getElementById('micBtn').classList.add('recording');
+    document.getElementById('micHint').textContent = '🔴 Listening... Speak now!';
+    document.getElementById('waveform').classList.add('active');
+  } catch(e) {
+    // Already started, stop and restart
+    recognition.stop();
+    setTimeout(() => {
+      recognition.start();
+      isRecording = true;
+      document.getElementById('micBtn').classList.add('recording');
+      document.getElementById('micHint').textContent = '🔴 Listening... Speak now!';
+      document.getElementById('waveform').classList.add('active');
+    }, 200);
+  }
+}
+
+function handleSpeechResult(event) {
+  const results = event.results[0];
+  let bestTranscript = '';
+  let bestScore = 0;
+
+  // Check all alternatives
+  for (let i = 0; i < results.length; i++) {
+    const transcript = results[i].transcript.trim();
+    const sim = calculateSimilarity(transcript, sentences[currentIndex]);
+    if (sim > bestScore) {
+      bestScore = sim;
+      bestTranscript = transcript;
+    }
+  }
+
+  processResult(bestTranscript, bestScore);
+}
+
+function handleSpeechError(event) {
+  console.log('Speech error:', event.error);
+  isRecording = false;
+  document.getElementById('micBtn').classList.remove('recording');
+  document.getElementById('waveform').classList.remove('active');
+
+  if (event.error === 'no-speech') {
+    document.getElementById('micHint').textContent = '🤷 No speech detected. Try again!';
+  } else if (event.error === 'not-allowed') {
+    document.getElementById('micHint').textContent = '🚫 Microphone access denied. Please allow it.';
+  } else {
+    document.getElementById('micHint').textContent = '❌ Error: ' + event.error + '. Try again!';
+  }
+}
+
+function handleSpeechEnd() {
+  isRecording = false;
+  document.getElementById('micBtn').classList.remove('recording');
+  document.getElementById('micHint').textContent = 'Tap to speak';
+  document.getElementById('waveform').classList.remove('active');
+}
+
+// ==================== COMPARISON ====================
+function normalizeText(text) {
+  return text.toLowerCase()
+    .replace(/[^\w\s']/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function calculateSimilarity(spoken, target) {
+  const normSpoken = normalizeText(spoken);
+  const normTarget = normalizeText(target);
+
+  if (normSpoken === normTarget) return 1.0;
+
+  const spokenWords = normSpoken.split(' ');
+  const targetWords = normTarget.split(' ');
+
+  let matches = 0;
+  const targetUsed = new Array(targetWords.length).fill(false);
+
+  spokenWords.forEach(sw => {
+    for (let i = 0; i < targetWords.length; i++) {
+      if (!targetUsed[i] && (targetWords[i] === sw || fuzzyMatch(targetWords[i], sw))) {
+        matches++;
+        targetUsed[i] = true;
+        break;
+      }
+    }
+  });
+
+  return matches / targetWords.length;
+}
+
+function fuzzyMatch(a, b) {
+  if (a === b) return true;
+  // Remove common suffixes
+  const cleanA = a.replace(/['s]/g, '').replace(/[.,!?]/g, '');
+  const cleanB = b.replace(/['s]/g, '').replace(/[.,!?]/g, '');
+  if (cleanA === cleanB) return true;
+  // Levenshtein distance for short words
+  if (Math.abs(cleanA.length - cleanB.length) <= 1 && cleanA.length > 2) {
+    return levenshtein(cleanA, cleanB) <= 1;
+  }
+  return false;
+}
+
+function levenshtein(a, b) {
+  const matrix = [];
+  for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+// ==================== RESULT PROCESSING ====================
+function processResult(spokenText, similarity) {
+  totalAttempts++;
+  const percentage = Math.round(similarity * 100);
+
+  // Highlight words
+  highlightWords(spokenText);
+
+  let resultHTML = '';
+  let stars = 0;
+  let badgeClass = '';
+  let resultClass = '';
+
+  if (percentage >= 80) {
+    stars = percentage >= 95 ? 3 : (percentage >= 85 ? 2 : 2);
+    score += percentage >= 95 ? 100 : (percentage >= 85 ? 75 : 50);
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    totalCorrect++;
+    badgeClass = 'high';
+    resultClass = 'success';
+    resultHTML = `
+      <div class="stars-display">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+      <div class="result-text ${resultClass}">
+        🎉 Excellent! ${percentage >= 95 ? 'Perfect pronunciation!' : 'Great job!'}
+      </div>
+      <div class="score-badge ${badgeClass}">${percentage}% Match</div>
+      <div class="heard-text">I heard: "${spokenText}"</div>
+    `;
+    if (percentage >= 90) launchConfetti();
+  } else if (percentage >= 50) {
+    stars = 1;
+    score += 25;
+    streak = 0;
+    totalCorrect += 0.5;
+    badgeClass = 'medium';
+    resultClass = 'partial';
+    resultHTML = `
+      <div class="stars-display">⭐☆☆</div>
+      <div class="result-text ${resultClass}">
+        👍 Good try! Keep practicing!
+      </div>
+      <div class="score-badge ${badgeClass}">${percentage}% Match</div>
+      <div class="heard-text">I heard: "${spokenText}"</div>
+    `;
+  } else {
+    stars = 0;
+    streak = 0;
+    badgeClass = 'low';
+    resultClass = 'fail';
+    resultHTML = `
+      <div class="stars-display">☆☆☆</div>
+      <div class="result-text ${resultClass}">
+        💪 Don't give up! Try again!
+      </div>
+      <div class="score-badge ${badgeClass}">${percentage}% Match</div>
+      <div class="heard-text">I heard: "${spokenText}"</div>
+    `;
+  }
+
+  levelScores.push({ sentence: sentences[currentIndex], score: percentage, stars });
+
+  document.getElementById('resultArea').innerHTML = resultHTML;
+  document.getElementById('nextBtn').classList.add('visible');
+
+  updateStats();
+}
+
+function highlightWords(spokenText) {
+  const target = sentences[currentIndex];
+  const targetWords = target.split(/(\s+)/);
+  const normSpoken = normalizeText(spokenText).split(' ');
+
+  let spokenIdx = 0;
+  targetWords.forEach((w, i) => {
+    if (w.trim() === '') return;
+    const el = document.getElementById(`word-${i}`);
+    if (!el) return;
+
+    const cleanTarget = normalizeText(w);
+    if (spokenIdx < normSpoken.length) {
+      const spokenWord = normSpoken[spokenIdx];
+      if (cleanTarget === spokenWord || fuzzyMatch(cleanTarget, spokenWord)) {
+        el.classList.add('correct');
+        spokenIdx++;
+      } else {
+        el.classList.add('missed');
+      }
+    } else {
+      el.classList.add('missed');
+    }
+  });
+}
+
+function updateStats() {
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('streakDisplay').textContent = streak;
+  const accuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+  document.getElementById('accuracyDisplay').textContent = accuracy + '%';
+}
+
+// ==================== TEXT TO SPEECH ====================
+function speakSentence() {
+  const utterance = new SpeechSynthesisUtterance(sentences[currentIndex]);
+  utterance.lang = 'en-US';
+  utterance.rate = 0.85;
+  utterance.pitch = 1.1;
+
+  // Try to find a good English voice
+  const voices = speechSynthesis.getVoices();
+  const englishVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Female')) 
+    || voices.find(v => v.lang.startsWith('en-US'))
+    || voices.find(v => v.lang.startsWith('en'));
+  if (englishVoice) utterance.voice = englishVoice;
+
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utterance);
+}
+
+// Preload voices
+if (speechSynthesis) {
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+
+// ==================== COMPLETION ====================
+function showCompletion() {
+  document.getElementById('gameScreen').classList.add('hidden');
+  document.getElementById('completionScreen').classList.remove('hidden');
+
+  const avgScore = levelScores.length > 0 
+    ? Math.round(levelScores.reduce((a, b) => a + b.score, 0) / levelScores.length) 
+    : 0;
+  const totalStars = levelScores.reduce((a, b) => a + b.stars, 0);
+  const maxStars = levelScores.length * 3;
+
+  document.getElementById('finalScore').textContent = score + ' points';
+  document.getElementById('finalStars').textContent = 
+    '⭐'.repeat(totalStars) + '☆'.repeat(maxStars - totalStars);
+
+  let message = '';
+  if (avgScore >= 90) message = "🌟 Outstanding! You're a pronunciation master!";
+  else if (avgScore >= 70) message = "😊 Great work! You're doing really well!";
+  else if (avgScore >= 50) message = "💪 Good effort! Practice makes perfect!";
+  else message = "📚 Keep practicing! You'll get better!";
+
+  document.getElementById('finalMessage').textContent = message;
+
+  launchConfetti();
+}
+
+function restartLevel() {
+  document.getElementById('completionScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+  loadLevel();
+}
+
+function nextLevel() {
+  currentLevel = (currentLevel + 1) % passages.length;
+  buildLevelSelector();
+  document.getElementById('completionScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+  loadLevel();
+}
+
+// ==================== CONFETTI ====================
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#fda085', '#48c78e', '#ffd700', '#00d2ff'];
+
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (Math.random() * 8 + 5) + 'px';
+    piece.style.height = (Math.random() * 8 + 5) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    piece.style.animationDelay = (Math.random() * 1) + 's';
+    container.appendChild(piece);
+  }
+
+  setTimeout(() => {
+    container.innerHTML = '';
+  }, 4000);
+}
+
+// ==================== START ====================
+init();
+</script>
+</body>
+</html>
