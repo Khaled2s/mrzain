@@ -4,9 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Interactive English Book</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cairo@4.5.10/index.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@4.5.10/index.min.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https:
+    <link rel="preconnect" href="https:
+    <link href="https:
+    <link rel="stylesheet" href="styles.css">
+<script src="https:
+<link rel="stylesheet" href="https:
+<link rel="stylesheet" href="https:
 <style>
   * { font-family: 'Cairo', sans-serif; }
   .book-font { font-family: 'Playfair Display', serif; }
@@ -334,11 +339,33 @@
 </style>
 </head>
 <body>
+<div class="game-page-wrapper">
+  <header id="header">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">Z</div>
+        MrZain
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">الرئيسية</a></li>
+        <li><a href="index.html#services">خدماتنا</a></li>
+        <li><a href="index.html#portfolio">أعمالنا</a></li>
+        <li><a href="index.html#contact">تواصل معنا</a></li>
+      </ul>
+      <div class="menu-toggle" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </header>
 
+  <div class="game-content">
+    <a href="index.html" class="back-btn">← العودة للرئيسية</a>
 <div id="app"></div>
 
 <script>
-// ============ Data ============
+
 const units = [
   {
     id: 1, title: "Countries", icon: "🌍",
@@ -624,7 +651,7 @@ const units = [
   }
 ];
 
-// ============ State ============
+
 let state = {
   currentPage: 'cover',
   currentUnit: 0,
@@ -634,7 +661,7 @@ let state = {
   totalAnswered: 0
 };
 
-// ============ Statistics ============
+
 function getStats() {
   let totalQuestions = 0;
   units.forEach(u => totalQuestions += u.exercises.length);
@@ -643,7 +670,7 @@ function getStats() {
   return { total: totalQuestions, answered, correct };
 }
 
-// ============ Render ============
+
 function render() {
   const app = document.getElementById('app');
   const stats = getStats();
@@ -912,9 +939,9 @@ function renderExercise(unitId, ex, exIdx) {
   `;
 }
 
-// ============ Events ============
+
 function attachEvents() {
-  // Nothing needed for now
+  
 }
 
 function goToCover() {
@@ -971,9 +998,73 @@ function checkTextAnswer(key, correctAnswer) {
   render();
 }
 
-// ============ Start ============
+
 render();
 </script>
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
 
+        // Mobile menu toggle
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        // Close menu on link click
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navLinks').classList.remove('active');
+            });
+        });
+
+  </div> <!-- End game-content -->
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">Z</div>
+          MrZain
+        </a>
+        <p>نحول المحتوى التعليمي إلى تجارب تفاعلية ممتعة تلهم الأطفال وتساعدهم على التعلم بأسلوب عصري ومبتكر.</p>
+      </div>
+      <div class="footer-links">
+        <h4>روابط سريعة</h4>
+        <ul>
+          <li><a href="index.html">الرئيسية</a></li>
+          <li><a href="index.html#services">خدماتنا</a></li>
+          <li><a href="index.html#portfolio">أعمالنا</a></li>
+          <li><a href="index.html#contact">تواصل معنا</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>خدماتنا</h4>
+        <ul>
+          <li><a href="index.html#services">كتب أطفال تفاعلية</a></li>
+          <li><a href="index.html#services">ألعاب تعليمية</a></li>
+          <li><a href="index.html#services">كتب استماع</a></li>
+          <li><a href="index.html#services">تدريب لغات</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>تواصل معنا</h4>
+        <ul>
+          <li><a href="mailto:info@mrzain.com">📧 info@mrzain.com</a></li>
+          <li><a href="https://mrzain.com">🌐 MrZain.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 <a href="https://mrzain.com">MrZain</a> - جميع الحقوق محفوظة | صُنع بـ ❤️ لتعليم أفضل</p>
+    </div>
+  </footer>
+
+</div> <!-- End game-page-wrapper -->
 </body>
 </html>

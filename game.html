@@ -3,19 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>أبراج الرياضيات - Tower Defence</title>
+<title>أبراج الرياضيات - Tower Defence | MrZain</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/cairo@latest/arabic-400-normal.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/cairo@latest/arabic-700-normal.css">
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; font-family:'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
   html, body {
     background: radial-gradient(circle at center, #1a1a3e 0%, #0a0a1f 100%);
     color:#fff; min-height:100vh; min-height:100dvh;
     overflow-x:hidden; touch-action:manipulation;
   }
-  body {
-    display:flex; flex-direction:column; align-items:center;
-    padding:10px; padding-bottom:env(safe-area-inset-bottom);
+  .game-page-wrapper {
+    padding-top: 70px;
+  }
+  .game-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px;
+    padding-bottom:env(safe-area-inset-bottom);
   }
   h1 {
     font-size:clamp(1.3rem, 5vw, 2.2rem); margin-bottom:6px;
@@ -142,7 +151,7 @@
   .game-over p { font-size:clamp(0.85rem, 3vw, 1rem); }
 
   @media (max-width: 600px) {
-    body { padding:6px; }
+    .game-container { padding:6px; }
     .hud { gap:4px; }
     .stat { padding:5px 4px; }
     .tower-btn { min-height:60px; padding:6px 2px; }
@@ -157,8 +166,31 @@
 </style>
 </head>
 <body>
-  <h1>🏰 أبراج الرياضيات</h1>
-  <p class="subtitle">حل المسائل الرياضية لبناء الأبراج والدفاع عن قاعدتك!</p>
+<div class="game-page-wrapper">
+  <header id="header">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">Z</div>
+        MrZain
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">الرئيسية</a></li>
+        <li><a href="index.html#services">خدماتنا</a></li>
+        <li><a href="index.html#portfolio">أعمالنا</a></li>
+        <li><a href="index.html#contact">تواصل معنا</a></li>
+      </ul>
+      <div class="menu-toggle" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <a href="index.html" class="back-btn">← العودة للرئيسية</a>
+    <h1>🏰 أبراج الرياضيات</h1>
+    <p class="subtitle">حل المسائل الرياضية لبناء الأبراج والدفاع عن قاعدتك!</p>
   
   <div class="game-wrap">
     <div class="hud">
@@ -794,6 +826,72 @@ function loop() {
 updateHUD();
 setTimeout(startWave, 2000);
 loop();
+
+// Header scroll effect
+window.addEventListener('scroll', () => {
+    const header = document.getElementById('header');
+    if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
+    }
+});
+
+// Mobile menu toggle
+function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('active');
+}
+
+// Close menu on link click
+document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+        document.getElementById('navLinks').classList.remove('active');
+    });
+});
 </script>
+
+  </div> <!-- End game-container -->
+  
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">Z</div>
+          MrZain
+        </a>
+        <p>نحول المحتوى التعليمي إلى تجارب تفاعلية ممتعة تلهم الأطفال وتساعدهم على التعلم بأسلوب عصري ومبتكر.</p>
+      </div>
+      <div class="footer-links">
+        <h4>روابط سريعة</h4>
+        <ul>
+          <li><a href="index.html">الرئيسية</a></li>
+          <li><a href="index.html#services">خدماتنا</a></li>
+          <li><a href="index.html#portfolio">أعمالنا</a></li>
+          <li><a href="index.html#contact">تواصل معنا</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>خدماتنا</h4>
+        <ul>
+          <li><a href="index.html#services">كتب أطفال تفاعلية</a></li>
+          <li><a href="index.html#services">ألعاب تعليمية</a></li>
+          <li><a href="index.html#services">كتب استماع</a></li>
+          <li><a href="index.html#services">تدريب لغات</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>تواصل معنا</h4>
+        <ul>
+          <li><a href="mailto:info@mrzain.com">📧 info@mrzain.com</a></li>
+          <li><a href="https://mrzain.com">🌐 MrZain.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 <a href="https://mrzain.com">MrZain</a> - جميع الحقوق محفوظة | صُنع بـ ❤️ لتعليم أفضل</p>
+    </div>
+  </footer>
+  
+</div> <!-- End game-page-wrapper -->
 </body>
 </html>
