@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Interactive Listening Book for Kids</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="preconnect" href="https:
-    <link rel="preconnect" href="https:
-    <link href="https:
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-<script src="https:
-<link rel="stylesheet" href="https:
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   * { 
     font-family: 'Poppins', sans-serif; 
@@ -453,7 +453,7 @@ const passagesData = [
     id: 1,
     title: "My Friends",
     emoji: "👫",
-    image: "https:
+    image: null, // placeholder
     text: "Hello! I'm Sam and these are my friends. My best friend's name is Alex. He is very clever. My friend Emma is kind and helpful. I've got a friend called Lily. She is funny and makes us laugh. My friend Tom is tall and strong. He plays basketball. My friend Mia has got long brown hair. She loves reading books. My friend Jack is small but fast. He likes running.",
     questions: [
       { q: "Who is Sam's best friend?", options: ["Alex", "Emma", "Lily", "Tom"], correct: 0 },
@@ -467,7 +467,7 @@ const passagesData = [
     id: 2,
     title: "Layla's Day",
     emoji: "⏰",
-    image: "https:
+    image: null, // placeholder
     text: "Hi, I am Layla. My dad always wakes me up at seven o'clock. I get up quickly and have breakfast. I leave home to school at half past seven. I usually come back home at half past three. In the afternoon, I do my homework and I often read stories. In the evening, my family watches TV together. I sometimes help my mum with dinner. I go to bed at ten o'clock.",
     questions: [
       { q: "What time does Layla wake up?", options: ["Six o'clock", "Seven o'clock", "Eight o'clock", "Nine o'clock"], correct: 1 },
@@ -481,7 +481,7 @@ const passagesData = [
     id: 3,
     title: "Our Five Senses",
     emoji: "🎒",
-    image: "https:
+    image: null, // placeholder
     text: "My bag is blue. Lemons taste sour. Ali doesn't like fast music. Do you smell the flowers? The cat's fur feels soft.",
     questions: [
       { q: "What colour is the bag?", options: ["Red", "Blue", "Green", "Yellow"], correct: 1 },
@@ -495,7 +495,7 @@ const passagesData = [
     id: 4,
     title: "Our Clothes",
     emoji: "👗",
-    image: "https:
+    image: null, // placeholder
     text: "Kate is wearing a red dress and white shoes. Mike is wearing a blue shirt and black trousers. Anna is wearing a yellow sweater, blue jeans and brown shoes. Tom is wearing a green T-shirt and grey shorts. Emma is wearing a pink skirt, white blouse and black shoes.",
     questions: [
       { q: "What is Kate wearing?", options: ["A blue shirt", "A red dress", "A yellow sweater", "A pink skirt"], correct: 1 },
@@ -509,7 +509,7 @@ const passagesData = [
     id: 5,
     title: "Healthy Life",
     emoji: "🥗",
-    image: "https:
+    image: null, // placeholder
     text: "Living a healthy life is easy! Follow these tips: Eat good food. Eat vegetables and fruit every day. Drink milk and water. Play outside and do sports. Running and jumping are good for you. Sleep well. You should go to bed early. You shouldn't watch TV late at night.",
     questions: [
       { q: "What should you eat every day?", options: ["Meat and rice", "Fruit and vegetables", "Bread and cheese", "Sweets and candy"], correct: 1 },
@@ -523,7 +523,7 @@ const passagesData = [
     id: 6,
     title: "Faris's Hobby",
     emoji: "⚽",
-    image: "https:
+    image: null, // placeholder
     text: "Interviewer: What is your favourite hobby? Faris: I like playing football. Interviewer: Do you have a favourite team? Faris: Yes, I like the Syrian team. Interviewer: When do you play? Faris: I play after school and on weekends.",
     questions: [
       { q: "What is Faris's favourite hobby?", options: ["Swimming", "Football", "Basketball", "Reading"], correct: 1 },
@@ -537,7 +537,7 @@ const passagesData = [
     id: 7,
     title: "Great Inventors",
     emoji: "💡",
-    image: "https:
+    image: null, // placeholder
     text: "Alexander Graham Bell invented the telephone. The Wright brothers invented the airplane. People remember Ibn Sina for his medical books. Al-Jazari invented many machines. Ibn Al-Haytham discovered how light works.",
     questions: [
       { q: "Who invented the telephone?", options: ["Wright brothers", "Alexander Graham Bell", "Ibn Sina", "Al-Jazari"], correct: 1 },
@@ -551,7 +551,7 @@ const passagesData = [
     id: 8,
     title: "Music Class",
     emoji: "🎸",
-    image: "https:
+    image: null, // placeholder
     text: "Teacher: Today we will talk about music. Mona, what will you play? Mona: I will play the guitar. What about you, Sam? Sam: I will play the keyboard. Will you play the drums, Ali? Ali: I will play the drum. Great! And there is a trumpet there! Mona: Yes, Nada will play it.",
     questions: [
       { q: "What will Mona play?", options: ["Piano", "Guitar", "Drums", "Trumpet"], correct: 1 },
@@ -565,7 +565,7 @@ const passagesData = [
     id: 9,
     title: "My Devices",
     emoji: "📱",
-    image: "https:
+    image: null, // placeholder
     text: "I've got a tablet. I use it for homework. I can read books on it. I like to play games on my mobile phone. I also watch videos. I have a camera. I take photos of my friends and family. I make albums and share them.",
     questions: [
       { q: "What does Huda use her tablet for?", options: ["Games", "Homework", "Photos", "Videos"], correct: 1 },
@@ -579,7 +579,7 @@ const passagesData = [
     id: 10,
     title: "Travel Around the World",
     emoji: "✈️",
-    image: "https:
+    image: null, // placeholder
     text: "Next week, we will travel to Paris to see the Eiffel Tower. They will go to Egypt to see the Pyramids. Sam will visit the Colosseum in Italy, next month. My family will come to Syria to visit Damascus.",
     questions: [
       { q: "Where will they travel to see the Eiffel Tower?", options: ["Egypt", "Italy", "Paris", "Syria"], correct: 2 },
@@ -593,7 +593,7 @@ const passagesData = [
     id: 11,
     title: "Train Journey",
     emoji: "🚂",
-    image: "https:
+    image: null, // placeholder
     text: "Omar is going to travel by train. First: Buy our tickets at the ticket office. Then: Go to the platform and find our train. After that: Find our seats. Finally: Wait until the train leaves.",
     questions: [
       { q: "What is the first step?", options: ["Find seats", "Go to platform", "Buy tickets", "Wait for train"], correct: 2 },
@@ -607,7 +607,7 @@ const passagesData = [
     id: 12,
     title: "Apple Picking",
     emoji: "🍎",
-    image: "https:
+    image: null, // placeholder
     text: "We're collecting some apples. Why are you collecting them? We're collecting them to eat them. Do you know that apples are good for you? You are right, sir. We're sorry. We will not take too many.",
     questions: [
       { q: "What are they collecting?", options: ["Flowers", "Apples", "Oranges", "Bananas"], correct: 1 },
@@ -621,7 +621,7 @@ const passagesData = [
     id: 13,
     title: "At the Park",
     emoji: "🌳",
-    image: "https:
+    image: null, // placeholder
     text: "Hello, I'm Hala. Yesterday at 3 o'clock, I went to the park. My friends were doing different sports. Sami and Rami were watching a football match. Lina was skipping. Omar was playing tennis. Nada and Sara were playing volleyball. Ali and Khalid were playing basketball. Mr. Hassan was riding his bike.",
     questions: [
       { q: "What were Sami and Rami doing?", options: ["Watching football", "Playing tennis", "Playing basketball", "Riding bikes"], correct: 0 },
@@ -635,7 +635,7 @@ const passagesData = [
     id: 14,
     title: "Sports",
     emoji: "⚽",
-    image: "https:
+    image: null, // placeholder
     text: "In a game of football you usually play outside. You can play it with two teams. You kick the ball into a goal. In a game of tennis you usually play outside. You can play it with two or four players. You hit the ball with a racket.",
     questions: [
       { q: "Where do you play football?", options: ["Inside", "Outside", "In the gym", "In the pool"], correct: 1 },
@@ -649,7 +649,7 @@ const passagesData = [
     id: 15,
     title: "Sports Equipment",
     emoji: "🎾",
-    image: "https:
+    image: null, // placeholder
     text: "Hassan: Ali, is this ball yours? Ali: No, I play tennis. This racket is mine. Hassan: So, this ball is Sami's. Ali: Yes, he plays football. This ball is his. Nada: Whose shoes are these? Lina: I think Rana has a match. They are hers. Nada: Are these gloves Rana's too? Lina: No, they are mine. I do boxing.",
     questions: [
       { q: "Whose racket is it?", options: ["Hassan's", "Ali's", "Sami's", "Rana's"], correct: 1 },
@@ -663,7 +663,7 @@ const passagesData = [
     id: 16,
     title: "Cooking Steps",
     emoji: "🍝",
-    image: "https:
+    image: null, // placeholder
     text: "Chop the onions. Boil the pasta. Slice the bread. Mix the ingredients. Bake the cake.",
     questions: [
       { q: "What is the first step?", options: ["Boil the pasta", "Chop the onions", "Slice the bread", "Mix the ingredients"], correct: 1 },
@@ -677,7 +677,7 @@ const passagesData = [
     id: 17,
     title: "Fruit Salad",
     emoji: "🍓",
-    image: "https:
+    image: null, // placeholder
     text: "Wash the fruit. Cut the apples and bananas. Add sugar and milk. Mix the fruit together.",
     questions: [
       { q: "What is the first step?", options: ["Cut the fruit", "Add sugar", "Wash the fruit", "Mix the fruit"], correct: 2 },
@@ -691,7 +691,7 @@ const passagesData = [
     id: 18,
     title: "The Farm Visit",
     emoji: "🐄",
-    image: "https:
+    image: null, // placeholder
     text: "One day, a boy went to the farm to see the animals. While he was walking, he saw some cows in the field. He went to the cows to get some milk. When he tried to milk the cow, it kicked him. He quickly ran away saying: \"I'm not going to do that again!\"",
     questions: [
       { q: "Where did the boy go?", options: ["To the park", "To the farm", "To the zoo", "To the market"], correct: 1 },
@@ -705,7 +705,7 @@ const passagesData = [
     id: 19,
     title: "At the Train Station",
     emoji: "🚉",
-    image: "https:
+    image: null, // placeholder
     text: "Omar: Wow! Is this the train station dad? It's very big. Dad: Yes son! Dad: Did you bring our bags from the car, Ali? Ali: Yes, Here they are. Omar: Look dad! Is that the train driver? Dad: Yes, and next to him is the guard. Omar: I can't wait to be on the train. I want to sit by the window. Dad: You will son, but we need to do some things first.",
     questions: [
       { q: "Where is Omar?", options: ["At the airport", "At the train station", "At the bus stop", "At the port"], correct: 1 },
@@ -719,7 +719,7 @@ const passagesData = [
     id: 20,
     title: "Celebration",
     emoji: "🎊",
-    image: "https:
+    image: null, // placeholder
     text: "Mona: Mum, the celebration is tomorrow. I'm so excited! Mother: Me too! Let's go shopping for what we need! Mona: Mum, why don't you order online? It's faster and easier. Mother: Wow! Life is different now. In the past, we bought decorations from shops. We spent hours decorating the house. That was fun! Mona: Now, we can watch everything on our phones. It's great! Mother: In the past, people sang traditional songs in the streets. Mona: Now, we can watch it on TV. Mother: In the past, we took photos with our cameras. Mona: Now, we can download videos from the Internet.",
     questions: [
       { q: "When is the celebration?", options: ["Today", "Tomorrow", "Next week", "Next month"], correct: 1 },
@@ -733,7 +733,7 @@ const passagesData = [
     id: 21,
     title: "World Festivals",
     emoji: "🎉",
-    image: "https:
+    image: null, // placeholder
     text: "The Carnival in Brazil is in February. People wear colourful clothes, dance and play in the streets. The Lantern Festival in China is in February. People make beautiful lanterns. The Tulip Festival in Turkey is in April. People see beautiful flowers of all colours.",
     questions: [
       { q: "When is the Carnival in Brazil?", options: ["January", "February", "March", "April"], correct: 1 },
@@ -747,7 +747,7 @@ const passagesData = [
     id: 22,
     title: "Travel Plans",
     emoji: "🗼",
-    image: "https:
+    image: null, // placeholder
     text: "Next week, we will travel to Paris to see the Eiffel Tower. They will go to Egypt to see the Pyramids. Sam will visit the Colosseum in Italy, next month. My family will come to Syria to visit Damascus.",
     questions: [
       { q: "Where will they travel to see the Eiffel Tower?", options: ["Egypt", "Italy", "Paris", "Syria"], correct: 2 },
@@ -761,7 +761,7 @@ const passagesData = [
     id: 23,
     title: "New Students",
     emoji: "🏛️",
-    image: "https:
+    image: null, // placeholder
     text: "These new students, Emma and Lucas, come from different countries. Emma is from London. We will visit Big Ben. We will walk in parks. Lucas is from France. I will take you to see the Eiffel Tower. And we will travel to Damascus to visit the Umayyad Mosque.",
     questions: [
       { q: "Where is Emma from?", options: ["France", "Egypt", "London", "Syria"], correct: 2 },
@@ -911,7 +911,7 @@ function renderPassage() {
       
       <!-- Image -->
       <div class="mb-6 flex justify-center">
-        <img src="${p.image}" alt="${p.title}" class="passage-image max-h-64 md:max-h-96 object-cover">
+        ${p.image ? `<img src="${p.image}" alt="${p.title}" class="passage-image max-h-64 md:max-h-96 object-cover">` : ''}
       </div>
       
       <!-- Text with TTS Controls -->
