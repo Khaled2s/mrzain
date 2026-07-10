@@ -4,13 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌍 لعبة البلدان للأطفال</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Cairo', sans-serif; box-sizing: border-box; }
         
@@ -118,7 +113,7 @@
             100% { transform: translateY(0); opacity: 1; }
         }
 
-        
+        /* Preloader */
         .preloader-overlay {
             position: absolute;
             inset: 0;
@@ -148,12 +143,12 @@
             100% { transform: rotate(360deg); }
         }
 
-        
+        /* Timer */
         .timer-ring {
             transition: stroke-dashoffset 1s linear;
         }
 
-        
+        /* Badge */
         .badge {
             animation: badgePop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
@@ -210,30 +205,6 @@
     </style>
 </head>
 <body class="flex items-center justify-center p-4">
-<div class="game-page-wrapper">
-  <header id="header">
-    <div class="nav-container">
-      <a href="index.html" class="logo">
-        <div class="logo-icon">Z</div>
-        MrZain
-      </a>
-      <ul class="nav-links" id="navLinks">
-        <li><a href="index.html">الرئيسية</a></li>
-        <li><a href="index.html#services">خدماتنا</a></li>
-        <li><a href="index.html#portfolio">أعمالنا</a></li>
-        <li><a href="index.html#contact">تواصل معنا</a></li>
-      </ul>
-      <div class="menu-toggle" onclick="toggleMenu()">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </div>
-  </header>
-
-  <div class="game-content">
-    <a href="index.html" class="back-btn">← العودة للرئيسية</a>
-
 
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="cloud" style="width:120px;height:40px;top:10%;animation-duration:25s;"></div>
@@ -428,7 +399,7 @@
     </div>
 
     <script>
-        
+        // ============ DATA ============
         const countries = [
             {
                 name: 'مصر',
@@ -438,7 +409,7 @@
                 famous: 'الأهرامات ونهر النيل',
                 famousEmoji: '🏛️',
                 flag: '🇪🇬',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1e861590f-ecb9-47eb-b197-2fea7efa7efe.png',
                 fact: 'مصر بها أقدم حضارة في العالم، وأهرامات الجيزة هي الأعجوبة الوحيدة الباقية من عجائب الدنيا السبع القديمة!',
                 hint: 'بلد الأهرامات والنيل ️'
             },
@@ -450,7 +421,7 @@
                 famous: 'الحرمين الشريفين والكعبة',
                 famousEmoji: '🕌',
                 flag: '🇸🇦',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1a4c2cddf-4029-45c8-89fc-47ff3f31dd3f.png',
                 fact: 'السعودية هي أكبر دولة في الشرق الأوسط، وفيها أطول برج في العالم: برج جدة الذي سيصل ارتفاعه لأكثر من 1000 متر!',
                 hint: 'بلد الحرمين الشريفين '
             },
@@ -462,7 +433,7 @@
                 famous: 'برج خليفة وجزر النخيل',
                 famousEmoji: '🏙️',
                 flag: '🇦🇪',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/16a5c23ad-2a00-4952-824a-b6e12911f717.png',
                 fact: 'برج خليفة في دبي هو أطول مبنى في العالم بارتفاع 828 متراً، ويمكن رؤيته من على بعد 95 كيلومتراً!',
                 hint: 'بلد برج خليفة 🏙️'
             },
@@ -474,7 +445,7 @@
                 famous: 'جبال الأطلس والصحراء',
                 famousEmoji: '️',
                 flag: '🇲🇦',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1cb0840f9-acde-4be2-a218-6706bf1c9d38.png',
                 fact: 'المغرب هو البلد الوحيد في أفريقيا الذي يطل على البحر الأبيض المتوسط والمحيط الأطلسي معاً!',
                 hint: 'بلد جبال الأطلس ️'
             },
@@ -486,7 +457,7 @@
                 famous: 'برج إيفل وقصر فرساي',
                 famousEmoji: '🗼',
                 flag: '🇫🇷',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/19163c507-02eb-46b5-9d13-879cfbd83dbb.png',
                 fact: 'برج إيفل في باريس يتوسع في الصيف بسبب الحرارة ويزداد طوله حوالي 15 سنتيمتراً!',
                 hint: 'بلد برج إيفل '
             },
@@ -498,7 +469,7 @@
                 famous: 'الكولوسيوم والبيتزا',
                 famousEmoji: '🍕',
                 flag: '🇮🇹',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/14c2bae24-50f6-402c-b8b7-f88c7e90b594.png',
                 fact: 'إيطاليا بها أكثر مواقع التراث العالمي في العالم (58 موقعاً)، وشكلها يشبه الحذاء!',
                 hint: 'بلد البيتزا والمعكرونة 🍕'
             },
@@ -510,7 +481,7 @@
                 famous: 'جبل فوجي والكرز',
                 famousEmoji: '🗻',
                 flag: '🇯🇵',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/165208c42-ccc3-4277-8766-e3af82bb8a87.png',
                 fact: 'اليابان تتكون من 6852 جزيرة! وفيها قطارات فائقة السرعة تصل سرعتها إلى 320 كم/ساعة!',
                 hint: 'بلد الساموراي والكرز '
             },
@@ -522,7 +493,7 @@
                 famous: 'الكرنفال وكرة القدم',
                 famousEmoji: '⚽',
                 flag: '🇧🇷',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/131476f1c-1948-4db9-ade5-700105ed5661.png',
                 fact: 'البرازيل هي أكبر دولة في أمريكا الجنوبية، وفيها أكبر غابة استوائية في العالم: غابة الأمازون!',
                 hint: 'بلد الكرنفال وكرة القدم ⚽'
             },
@@ -534,7 +505,7 @@
                 famous: 'الكنغر ودار الأوبرا',
                 famousEmoji: '',
                 flag: '🇦',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/14974fe7d-fe5d-4f14-ae82-a547879a4774.png',
                 fact: 'أستراليا هي أكبر جزيرة وأصغر قارة في العالم، وفيها حيوانات لا توجد في أي مكان آخر مثل الكنغر والكوالا!',
                 hint: 'بلد الكنغر 🦘'
             },
@@ -546,7 +517,7 @@
                 famous: 'تاج محل والفيلة',
                 famousEmoji: '',
                 flag: '🇮🇳',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1bea3a328-1b9c-42f0-b190-aa97a2ae2425.png',
                 fact: 'الهند هي ثاني أكبر دولة في العالم من حيث عدد السكان، وفيها أكثر من 22 لغة رسمية!',
                 hint: 'بلد التاج محل 🕌'
             },
@@ -558,7 +529,7 @@
                 famous: 'آيا صوفيا والبازار الكبير',
                 famousEmoji: '🕌',
                 flag: '🇹🇷',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1390bc833-660e-4117-8d29-4dd31fb8233a.png',
                 fact: 'تركيا تقع في قارتين: آسيا وأوروبا! ومضيق البوسفور يفصل بينهما في مدينة إسطنبول!',
                 hint: 'بلد آيا صوفيا 🕌'
             },
@@ -570,7 +541,7 @@
                 famous: 'بوابة براندنبورغ والسيارات',
                 famousEmoji: '🚗',
                 flag: '🇩🇪',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/171be7090-d6fb-4fa4-9a7e-d718318b3a46.png',
                 fact: 'ألمانيا هي أكبر اقتصاد في أوروبا، وفيها أكثر من 1500 نوع من البيرة و25000 قلعة!',
                 hint: 'بلد السيارات الفاخرة 🚗'
             },
@@ -582,7 +553,7 @@
                 famous: 'الفلامنكو ومصارعة الثيران',
                 famousEmoji: '💃',
                 flag: '🇸',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1a43e2a4c-0ec9-4451-a3ff-9e2cf476b05a.png',
                 fact: 'إسبانيا هي البلد الوحيد في أوروبا الذي يطل على البحر الأبيض المتوسط والمحيط الأطلسي!',
                 hint: 'بلد الفلامنكو 💃'
             },
@@ -594,7 +565,7 @@
                 famous: 'الكرملين ومساحة شاسعة',
                 famousEmoji: '',
                 flag: '🇷',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1c8a19dfd-8a88-4ddb-8509-55715563822c.png',
                 fact: 'روسيا هي أكبر دولة في العالم مساحةً، وتمتد عبر 11 منطقة زمنية مختلفة!',
                 hint: 'أكبر دولة في العالم 🏰'
             },
@@ -606,7 +577,7 @@
                 famous: 'شلالات نياغارا وشراب القيقب',
                 famousEmoji: '',
                 flag: '🇨🇦',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1c912675a-b588-4479-9ae8-fffa4afeb5fa.png',
                 fact: 'كندا بها أكثر من 2 مليون بحيرة! أي أكثر من جميع بحيرات العالم مجتمعة!',
                 hint: 'بلد شراب القيقب 🍁'
             },
@@ -618,7 +589,7 @@
                 famous: 'حضارة المايا والتاكو',
                 famousEmoji: '🌮',
                 flag: '🇲🇽',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1bbf6c3d1-53ec-46e7-8d7c-e1ca4a7c2a32.png',
                 fact: 'المكسيك بها أكثر من 60 لغة مختلفة، وهي بلد التاكو والشوكولاتة!',
                 hint: 'بلد التاكو وحضارة المايا 🌮'
             },
@@ -630,7 +601,7 @@
                 famous: 'التانغو وكرة القدم',
                 famousEmoji: '💃',
                 flag: '🇦🇷',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/19662cd23-bb40-4d55-888a-9cebf2c8d7d0.png',
                 fact: 'الأرجنتين هي بلد ميسي ومارادونا، وفيها أطول شارع في العالم: شارع 9 يوليو في بوينس آيرس!',
                 hint: 'بلد التانغو وكرة القدم 💃'
             },
@@ -642,7 +613,7 @@
                 famous: 'بيغ بن والقصر الملكي',
                 famousEmoji: '🏰',
                 flag: '🇬🇧',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/14e35c5e8-1238-4601-a0d2-5511e85e3c6e.png',
                 fact: 'بريطانيا تتكون من 4 دول: إنجلترا واسكتلندا وويلز وأيرلندا الشمالية! وفيها أقدم مترو في العالم!',
                 hint: 'بلد بيغ بن والملكية 🏰'
             },
@@ -654,13 +625,13 @@
                 famous: 'السفاري ونيلسون مانديلا',
                 famousEmoji: '🦁',
                 flag: '🇿🇦',
-                image: null,
+                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1eb29fc13-f786-43c7-923c-7736be549326.png',
                 fact: 'جنوب أفريقيا هي البلد الوحيد في العالم الذي له 3 عواصم! وفيها حديقة كروجر الوطنية الشهيرة!',
                 hint: 'بلد السفاري والأسود 🦁'
             }
         ];
 
-        
+        // ============ GAME STATE ============
         let currentQuestion = 0;
         let score = 0;
         let lives = 3;
@@ -674,7 +645,7 @@
         let badges = [];
         let startTime = null;
 
-        
+        // ============ AUDIO ============
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
 
@@ -748,7 +719,7 @@
             } catch(e) {}
         }
 
-        
+        // ============ UTILITIES ============
         function shuffleArray(array) {
             const arr = [...array];
             for (let i = arr.length - 1; i > 0; i--) {
@@ -767,7 +738,7 @@
             document.getElementById('level' + level.charAt(0).toUpperCase() + level.slice(1)).classList.add('ring-4', 'ring-white', 'scale-105');
         }
 
-        
+        // ============ QUESTION GENERATION ============
         function generateQuestions() {
             const shuffled = shuffleArray(countries);
             const qList = [];
@@ -872,7 +843,7 @@
             }
         }
 
-        
+        // ============ GAME FLOW ============
         function startGame() {
             playSound('click');
             questions = generateQuestions();
@@ -906,7 +877,7 @@
             document.getElementById('questionSubtitle').textContent = q.subtitle;
             document.getElementById('questionTypeBadge').innerHTML = `<span class="inline-block bg-white/90 backdrop-blur-sm rounded-full px-6 py-2 shadow-lg text-lg font-black text-purple-600">${q.badge}</span>`;
             
-            
+            // Reset preloader and image
             const preloader = document.getElementById('preloader');
             const mapImage = document.getElementById('mapImage');
             const emojiDisplay = document.getElementById('emojiDisplay');
@@ -916,41 +887,37 @@
             mapImage.classList.add('hidden');
             emojiDisplay.classList.add('hidden');
             
-            
+            // Reset animation
             mapContainer.classList.remove('map-container');
             void mapContainer.offsetWidth;
             mapContainer.classList.add('map-container');
             
-                if (q.isImage) {
-                    mapImage.style.display = 'none';
-                    emojiDisplay.style.display = 'none';
-                    
-                    if (q.image && q.image !== null) {
-                        mapImage.style.display = '';
-                        const img = new Image();
-                        img.onload = () => {
-                            mapImage.src = q.image;
-                            mapImage.classList.remove('hidden');
-                            preloader.classList.add('hidden-preloader');
-                        };
-                        img.onerror = () => {
-                            document.getElementById('questionEmoji').textContent = q.country.flag;
-                            emojiDisplay.classList.remove('hidden');
-                            preloader.classList.add('hidden-preloader');
-                        };
-                        img.src = q.image;
-                    } else {
-                        document.getElementById('questionEmoji').textContent = q.country.flag;
-                        emojiDisplay.classList.remove('hidden');
-                        preloader.classList.add('hidden-preloader');
-                    }
+            if (q.isImage) {
+                mapImage.style.display = 'none';
+                emojiDisplay.style.display = 'none';
+                mapImage.style.display = '';
+                
+                // Load image with preloader
+                const img = new Image();
+                img.onload = () => {
+                    mapImage.src = q.image;
+                    mapImage.classList.remove('hidden');
+                    preloader.classList.add('hidden-preloader');
+                };
+                img.onerror = () => {
+                    // Fallback to emoji
+                    document.getElementById('questionEmoji').textContent = q.country.flag;
+                    emojiDisplay.classList.remove('hidden');
+                    preloader.classList.add('hidden-preloader');
+                };
+                img.src = q.image;
             } else {
                 document.getElementById('questionEmoji').textContent = q.emoji;
                 emojiDisplay.classList.remove('hidden');
                 preloader.classList.add('hidden-preloader');
             }
             
-            
+            // Generate options
             const optionsContainer = document.getElementById('optionsContainer');
             optionsContainer.innerHTML = '';
             
@@ -970,12 +937,12 @@
                 optionsContainer.appendChild(btn);
             });
             
-            
+            // Hide feedback, fact, next button
             document.getElementById('feedbackContainer').classList.add('hidden');
             document.getElementById('factContainer').classList.add('hidden');
             document.getElementById('nextBtnContainer').classList.add('hidden');
             
-            
+            // Update hint button
             const hintBtn = document.getElementById('hintBtn');
             hintBtn.style.display = hints > 0 ? 'inline-block' : 'none';
             
@@ -1011,7 +978,7 @@
                 showFeedback(true, q);
                 createConfetti();
                 
-                
+                // Check badges
                 checkBadges();
             } else {
                 btn.classList.add('wrong');
@@ -1030,7 +997,7 @@
             updateScore();
             updateProgress();
             
-            
+            // Show fun fact
             setTimeout(() => {
                 document.getElementById('factText').textContent = q.fact;
                 document.getElementById('factContainer').classList.remove('hidden');
@@ -1192,7 +1159,7 @@
             document.getElementById('finalScore').textContent = score;
             document.getElementById('finalTotal').textContent = total;
             
-            
+            // Save best score
             const bestScore = parseInt(localStorage.getItem('bestScore') || '0');
             if (score > bestScore) {
                 localStorage.setItem('bestScore', score);
@@ -1227,7 +1194,7 @@
             document.getElementById('resultMessage').textContent = message;
             document.getElementById('starsDisplay').textContent = stars;
             
-            
+            // Show badges
             const badgesContainer = document.getElementById('badgesContainer');
             const badgesList = document.getElementById('badgesList');
             if (badges.length > 0) {
@@ -1297,82 +1264,15 @@
             }
         }
 
-        
+        // Preload images
         countries.forEach(country => {
-            if (country.image && country.image !== null) {
-                const img = new Image();
-                img.src = country.image;
-            }
+            const img = new Image();
+            img.src = country.image;
         });
 
-        
+        // Init
         loadBestScore();
         selectLevel('easy');
-
-        // Header scroll effect
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('header');
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-
-        // Mobile menu toggle
-        function toggleMenu() {
-            document.getElementById('navLinks').classList.toggle('active');
-        }
-
-        // Close menu on link click
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                document.getElementById('navLinks').classList.remove('active');
-            });
-        });
     </script>
-  </div> <!-- End game-content -->
-
-  <footer>
-    <div class="footer-content">
-      <div class="footer-brand">
-        <a href="index.html" class="logo">
-          <div class="logo-icon">Z</div>
-          MrZain
-        </a>
-        <p>نحول المحتوى التعليمي إلى تجارب تفاعلية ممتعة تلهم الأطفال وتساعدهم على التعلم بأسلوب عصري ومبتكر.</p>
-      </div>
-      <div class="footer-links">
-        <h4>روابط سريعة</h4>
-        <ul>
-          <li><a href="index.html">الرئيسية</a></li>
-          <li><a href="index.html#services">خدماتنا</a></li>
-          <li><a href="index.html#portfolio">أعمالنا</a></li>
-          <li><a href="index.html#contact">تواصل معنا</a></li>
-        </ul>
-      </div>
-      <div class="footer-links">
-        <h4>خدماتنا</h4>
-        <ul>
-          <li><a href="index.html#services">كتب أطفال تفاعلية</a></li>
-          <li><a href="index.html#services">ألعاب تعليمية</a></li>
-          <li><a href="index.html#services">كتب استماع</a></li>
-          <li><a href="index.html#services">تدريب لغات</a></li>
-        </ul>
-      </div>
-      <div class="footer-links">
-        <h4>تواصل معنا</h4>
-        <ul>
-          <li><a href="mailto:info@mrzain.com">📧 info@mrzain.com</a></li>
-          <li><a href="https://mrzain.com">🌐 MrZain.com</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2026 <a href="https://mrzain.com">MrZain</a> - جميع الحقوق محفوظة | صُنع بـ ❤️ لتعليم أفضل</p>
-    </div>
-  </footer>
-
-</div> <!-- End game-page-wrapper -->
 </body>
 </html>
