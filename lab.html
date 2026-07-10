@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مختبر الكيمياء التفاعلي - تفاعلات ثنائية</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-arabic@latest/arabic-400-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-arabic@latest/arabic-700-normal.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans Arabic', sans-serif; }
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(ellipse at top, #1a2332 0%, #0a0f1a 50%, #000 100%);
+  color: #e8eef5;
+  overflow-x: hidden;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  gap: 16px;
+  padding: 16px;
+}
+
+.header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #38bdf8, #a78bfa, #f472b6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, #38bdf8, #a78bfa);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+}
+
+.header-stats {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+}
+
+.stat-pill {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.stat-pill .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.lab {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.7));
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+}
+
+.lab::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.5), transparent);
+}
+
+.lab-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lab-title h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.lab-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: white;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+}
+
+.btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e8eef5;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.12); }
+
+.beaker-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 300px;
+}
+
+.beaker-container {
+  position: relative;
+  width: 320px;
+  height: 420px;
+}
+
+.beaker-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
+  transition: all 1s ease;
+}
+
+.effect-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.bubble {
+  position: absolute;
+  bottom: 20%;
+  width: 10px; height: 10px;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.2));
+  border-radius: 50%;
+  animation: rise 3s infinite ease-in;
+}
+
+@keyframes rise {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-200px) scale(1.2); opacity: 0; }
+}
+
+.smoke {
+  position: absolute;
+  width: 40px; height: 40px;
+  background: radial-gradient(circle, rgba(200,200,200,0.4), transparent 70%);
+  border-radius: 50%;
+  animation: smokeRise 4s infinite ease-out;
+}
+
+@keyframes smokeRise {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  30% { opacity: 0.6; }
+  100% { transform: translateY(-150px) scale(2); opacity: 0; }
+}
+
+.shelf {
+  grid-column: 1 / -1;
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8));
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(12px);
+}
+
+.shelf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.shelf-header h2 {
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shelf-hint {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.materials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.material-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.material-card:hover {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.3);
+  transform: translateY(-4px);
+}
+
+.material-card.selected {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(167, 139, 250, 0.15));
+  border-color: #38bdf8;
+  box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
+  transform: translateY(-4px);
+}
+
+.material-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 22px; height: 22px;
+  background: #38bdf8;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+}
+
+.material-img {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: white;
+  padding: 4px;
+}
+
+.material-name {
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+  color: #e8eef5;
+}
+
+.material-formula {
+  font-size: 10px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.info-panel {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8));
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 16px;
+  padding: 20px;
+  overflow-y: auto;
+  max-height: calc(100vh - 130px);
+  backdrop-filter: blur(12px);
+}
+
+.info-panel::-webkit-scrollbar { width: 6px; }
+.info-panel::-webkit-scrollbar-track { background: transparent; }
+.info-panel::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.3); border-radius: 3px; }
+
+.info-header {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.info-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #38bdf8, #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.info-header .equation {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.6;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  border-right: 3px solid #38bdf8;
+  margin-top: 10px;
+}
+
+.info-section {
+  margin-bottom: 18px;
+}
+
+.info-section h3 {
+  font-size: 12px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.info-card {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.info-card .label {
+  font-size: 10px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.info-card .value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e8eef5;
+}
+
+.color-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.color-swatch {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.color-arrow {
+  color: #64748b;
+  font-size: 16px;
+}
+
+.safety-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.safety-safe { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.safety-medium { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+.safety-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+.temp-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.temp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #fbbf24, #ef4444);
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+
+.educational-goal {
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.1), rgba(56, 189, 248, 0.1));
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #cbd5e1;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.type-exothermic { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+.type-endothermic { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); }
+.type-neutral { background: rgba(167, 139, 250, 0.15); color: #c4b5fd; border: 1px solid rgba(167, 139, 250, 0.3); }
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
+.status-dot.ready { background: #38bdf8; box-shadow: 0 0 8px #38bdf8; }
+.status-dot.running { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; animation: pulse 1s infinite; }
+.status-dot.done { background: #10b981; box-shadow: 0 0 8px #10b981; }
+
+.selected-mats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  min-height: 40px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.selected-mat-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.selected-mat-chip img {
+  width: 20px; height: 20px;
+  border-radius: 4px;
+  object-fit: contain;
+  background: white;
+}
+
+.reaction-img {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 1024px) {
+  .app { grid-template-columns: 1fr; }
+  .info-panel { max-height: none; }
+}
+
+@media (max-width: 640px) {
+  .materials-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
+  .material-img { width: 60px; height: 60px; }
+  .material-name { font-size: 10px; }
+  .beaker-container { width: 260px; height: 340px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <h1>
+      <span class="header-icon">⚗️</span>
+      مختبر الكيمياء التفاعلي
+    </h1>
+    <div class="header-stats">
+      <div class="stat-pill"><span class="dot"></span> المختبر جاهز</div>
+      <div class="stat-pill">🧪 18 مادة متاحة</div>
+    </div>
+  </header>
+
+  <main class="lab">
+    <div class="lab-title">
+      <h2 id="labTitle">🧪 اختر مادتين من الرف لبدء التجربة</h2>
+      <div class="lab-controls">
+        <button class="btn btn-secondary" onclick="resetLab()">🔄 إعادة</button>
+        <button class="btn btn-primary" id="runBtn" onclick="runReaction()" disabled>
+          ▶ تشغيل التفاعل
+        </button>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">اختر مادتين من الرف السفلي لإضافتهما إلى الدورق</span>
+    </div>
+
+    <div class="selected-mats" id="selectedMats">
+      <span style="color: #64748b; font-size: 12px;">لم يتم اختيار مواد بعد...</span>
+    </div>
+
+    <div class="beaker-area">
+      <div class="beaker-container">
+        <img class="beaker-img" id="beakerImg" src="https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1b9d0bb02-238c-4bfa-86a0-b0239abfabab.png" alt="دورق فارغ">
+        <div class="effect-layer" id="effectLayer"></div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="info-panel" id="infoPanel">
+    <div class="info-header">
+      <h2>🔬 لوحة المعلومات</h2>
+      <div style="font-size: 13px; color: #94a3b8; margin-top: 8px;">
+        اختر مادتين من الرف لتشغيل تفاعل كيميائي
+      </div>
+    </div>
+    <div class="info-section">
+      <h3>📋 كيفية الاستخدام</h3>
+      <div class="educational-goal">
+        1️⃣ انقر على مادتين في الرف السفلي لإضافتهما إلى الدورق<br>
+        2️⃣ إذا كانت المادتان متوافقتين كيميائياً، سيظهر التفاعل<br>
+        3️⃣ اضغط "تشغيل التفاعل" لمشاهدة النتيجة<br>
+        4️⃣ اقرأ المعلومات العلمية في هذه اللوحة
+      </div>
+    </div>
+    <div class="info-section">
+      <h3>⚡ أنواع التفاعلات المتوفرة</h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        <span class="type-badge type-exothermic">طارد للحرارة</span>
+        <span class="type-badge type-endothermic">ماص للحرارة</span>
+        <span class="type-badge type-neutral">تعادل</span>
+        <span class="type-badge" style="background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3);">احتراق</span>
+        <span class="type-badge" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3);">أكسدة-اختزال</span>
+        <span class="type-badge" style="background: rgba(244,114,182,0.15); color: #f472b6; border: 1px solid rgba(244,114,182,0.3);">ترسيب</span>
+      </div>
+    </div>
+  </aside>
+
+  <section class="shelf">
+    <div class="shelf-header">
+      <h2>🧴 رف المواد الكيميائية</h2>
+      <div class="shelf-hint">💡 اختر مادتين بالضبط لتشغيل التفاعل</div>
+    </div>
+    <div class="materials-grid" id="materialsGrid"></div>
+  </section>
+</div>
+
+<script>
+const materials = [
+  {id: 'hcl', name: 'حمض الهيدروكلوريك', formula: 'HCl', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/171434403-9024-4604-bf03-9b70f1c4c6f4.png', type: 'حمض قوي'},
+  {id: 'naoh', name: 'هيدروكسيد الصوديوم', formula: 'NaOH', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1e092ebb3-bea6-4cd1-9e54-3ac748e47bed.png', type: 'قاعدة قوية'},
+  {id: 'vinegar', name: 'الخل', formula: 'CH₃COOH', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/160ed9058-8d6c-4e66-9dfe-c48115238067.png', type: 'حمض ضعيف'},
+  {id: 'baking', name: 'بيكربونات الصوديوم', formula: 'NaHCO₃', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/14a1e48fe-db29-4951-be1e-e28e7f4c613f.png', type: 'قاعدة ضعيفة'},
+  {id: 'kmno4', name: 'برمنجنات البوتاسيوم', formula: 'KMnO₄', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/12f25e13e-d2be-4f96-b482-735966694c31.png', type: 'عامل مؤكسد'},
+  {id: 'iodine', name: 'صبغة اليود', formula: 'I₂', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1f931ab70-8b52-4afd-af07-264dfc71c618.png', type: 'كاشف'},
+  {id: 'starch', name: 'النشا', formula: '(C₆H₁₀O₅)n', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1d8b78e3a-5fc7-4dff-962b-40d8705a8f51.png', type: 'كربوهيدرات'},
+  {id: 'cuso4', name: 'كبريتات النحاس', formula: 'CuSO₄', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/103f05fad-f797-42ee-8e15-44ae5dbd03ab.png', type: 'ملح'},
+  {id: 'iron', name: 'مسمار حديد', formula: 'Fe', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/114bbef83-7aee-4db7-b93c-79c776f031f0.png', type: 'فلز'},
+  {id: 'zinc', name: 'شريط زنك', formula: 'Zn', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/101aaafe8-c1da-4964-8448-910688f11956.png', type: 'فلز نشط'},
+  {id: 'h2o2', name: 'بيروكسيد الهيدروجين', formula: 'H₂O₂', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1a6ef695d-b37e-403f-9a5d-ce75975b9bb7.png', type: 'مؤكسد'},
+  {id: 'ki', name: 'يوديد البوتاسيوم', formula: 'KI', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1a6ef695d-b37e-403f-9a5d-ce75975b9bb7.png', type: 'محفز'},
+  {id: 'magnesium', name: 'شريط مغنيسيوم', formula: 'Mg', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/10f64e5c1-60d4-489d-8d08-23440d85631e.png', type: 'فلز نشط جداً'},
+  {id: 'turmeric', name: 'الكركم', formula: 'كركمين', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1e2ff0e6b-5d5f-4ecb-990a-371e133d8170.png', type: 'مؤشر طبيعي'},
+  {id: 'milk', name: 'الحليب', formula: 'بروتين + دهن', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1821b0b72-bf6b-4e35-a1f7-c4cfb9b0e0c4.png', type: 'مادة غذائية'},
+  {id: 'eggshell', name: 'قشر البيض', formula: 'CaCO₃', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1a1d77f15-6530-49ce-a064-ad3877ab58b4.png', type: 'كربونات'},
+  {id: 'vitaminc', name: 'فيتامين سي', formula: 'C₆H₈O₆', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1d6d28e3d-ae9b-4ab9-80cf-a455c096b481.png', type: 'مضاد أكسدة'},
+  {id: 'oxygen', name: 'الأكسجين', formula: 'O₂', img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1b9d0bb02-238c-4bfa-86a0-b0239abfabab.png', type: 'غاز'}
+];
+
+const reactions = {
+  'hcl+naoh': {
+    name: 'تعادل حمض وقاعدة',
+    equation: 'HCl + NaOH → NaCl + H₂O + حرارة',
+    reactants: ['حمض الهيدروكلوريك', 'هيدروكسيد الصوديوم'],
+    products: ['كلوريد الصوديوم (ملح)', 'ماء', 'حرارة'],
+    notes: 'ارتفاع حرارة الوعاء، تفاعل طارد للحرارة، تغير لون عباد الشمس إلى البنفسجي (متعادل)',
+    colorBefore: '#ef4444 / #3b82f6',
+    colorAfter: '#a855f7',
+    type: 'تعادل (حمض-قاعدة)',
+    typeClass: 'type-neutral',
+    temp: 50,
+    safety: 'medium',
+    goal: 'محاكاة تغير الأس الهيدروجيني (pH) حتى التعادل',
+    effect: 'color',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1173ce254-4468-42db-9bd7-b828365191a5.png'
+  },
+  'baking+vinegar': {
+    name: 'تفاعل البركان (الخل + بيكربونات)',
+    equation: 'NaHCO₃ + CH₃COOH → CH₃COONa + H₂O + CO₂↑',
+    reactants: ['الخل', 'بيكربونات الصوديوم'],
+    products: ['أسيتات الصوديوم', 'ماء', 'غاز ثاني أكسيد الكربون'],
+    notes: 'فوران عنيف، رغوة بيضاء، صوت أزيز، برودة طفيفة (ماص للحرارة)',
+    colorBefore: '#fef3c7 / #f3f4f6',
+    colorAfter: '#ffffff',
+    type: 'حمض-كربونات (ماص)',
+    typeClass: 'type-endothermic',
+    temp: 20,
+    safety: 'safe',
+    goal: 'محاكاة تكوين الغاز وزيادة الضغط في المختبر',
+    effect: 'foam',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1f448a2fc-c9c5-44fa-95d8-a6ef70233ef8.png'
+  },
+  'iodine+starch': {
+    name: 'كشف النشا باليود',
+    equation: 'نشا + I₂ → مركب نشا-يود (أزرق غامق)',
+    reactants: ['النشا', 'صبغة اليود'],
+    products: ['مركب نشا-يود معقد'],
+    notes: 'تغير لون فوري إلى أزرق غامق جداً - تفاعل كشف نوعي',
+    colorBefore: '#fefce8 / #92400e',
+    colorAfter: '#1e3a8a',
+    type: 'تفاعل كشف (تعقيد)',
+    typeClass: 'type-neutral',
+    temp: 25,
+    safety: 'safe',
+    goal: 'محاكاة تفاعلات الكشف النوعي عن المواد العضوية',
+    effect: 'color',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/15ff11157-7e02-431a-bec3-126e5a975f9a.png'
+  },
+  'naoh+turmeric': {
+    name: 'مؤشر الكركم مع القاعدة',
+    equation: 'كركمين (أصفر) + NaOH → كركمين (أحمر)',
+    reactants: ['الكركم', 'هيدروكسيد الصوديوم'],
+    products: ['كركمين بصيغته القاعدية (أحمر)'],
+    notes: 'تغير لون من الأصفر الفاقع إلى الأحمر القاني',
+    colorBefore: '#fbbf24 / #f3f4f6',
+    colorAfter: '#dc2626',
+    type: 'حمض-قاعدة (مؤشر طبيعي)',
+    typeClass: 'type-neutral',
+    temp: 25,
+    safety: 'safe',
+    goal: 'محاكاة استخدام المؤشرات الطبيعية للتمييز بين الأحماض والقواعد',
+    effect: 'color',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/12dcf33e5-7fca-4afc-a7a8-ca47d559363d.png'
+  },
+  'baking+turmeric': {
+    name: 'مؤشر الكركم مع القاعدة',
+    equation: 'كركمين (أصفر) + قاعدة → كركمين (أحمر)',
+    reactants: ['الكركم', 'بيكربونات الصوديوم'],
+    products: ['كركمين أحمر'],
+    notes: 'تغير لون من الأصفر إلى الأحمر',
+    colorBefore: '#fbbf24 / #f3f4f6',
+    colorAfter: '#dc2626',
+    type: 'حمض-قاعدة (مؤشر طبيعي)',
+    typeClass: 'type-neutral',
+    temp: 25,
+    safety: 'safe',
+    goal: 'محاكاة استخدام المؤشرات الطبيعية للتمييز بين الأحماض والقواعد',
+    effect: 'color',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/12dcf33e5-7fca-4afc-a7a8-ca47d559363d.png'
+  },
+  'milk+vinegar': {
+    name: 'تخثر الحليب (الكازين)',
+    equation: 'حليب + حمض → كازين (صلب) + مصل لبن',
+    reactants: ['الحليب', 'الخل'],
+    products: ['كازين (مادة صلبة بيضاء)', 'مصل لبن'],
+    notes: 'تكتل وتجبن الحليب إلى كتلة مطاطية بيضاء - تغير خواص البروتين',
+    colorBefore: '#fefce8 / #f3f4f6',
+    colorAfter: '#fde68a',
+    type: 'ترسيب (حمض-بروتين)',
+    typeClass: 'type-neutral',
+    temp: 25,
+    safety: 'safe',
+    goal: 'محاكاة تغير خواص البروتينات بتغيير درجة الحموضة',
+    effect: 'precipitate',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1331b97a5-178e-4dfb-9e2e-d20dcc95673d.png'
+  },
+  'cuso4+iron': {
+    name: 'طلاء النحاس بالحديد (إزاحة فلزية)',
+    equation: 'Fe + CuSO₄ → Cu + FeSO₄',
+    reactants: ['مسمار حديد', 'كبريتات النحاس'],
+    products: ['نحاس (طبقة حمراء)', 'كبريتات الحديدوز (خضراء)'],
+    notes: 'ترسب طبقة نحاسية حمراء على المسمار، وتحول المحلول من أزرق إلى أخضر',
+    colorBefore: '#9ca3af / #3b82f6',
+    colorAfter: '#b45309',
+    type: 'إزاحة فلزية (أكسدة-اختزال)',
+    typeClass: 'type-neutral',
+    temp: 25,
+    safety: 'safe',
+    goal: 'محاكاة السلسلة الكهروكيميائية للنشاط الكيميائي للمعادن',
+    effect: 'color',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/120f05a4f-0754-4e45-a0ba-434e2ba56a54.png'
+  },
+  'hcl+zinc': {
+    name: 'تفاعل الزنك مع حمض الهيدروكلوريك',
+    equation: 'Zn + 2HCl → ZnCl₂ + H₂↑ + حرارة',
+    reactants: ['شريط زنك', 'حمض الهيدروكلوريك'],
+    products: ['كلوريد الزنك', 'غاز الهيدروجين', 'حرارة'],
+    notes: 'فوران سريع وذوبان شريط الزنك، تصاعد غاز الهيدروجين القابل للاشتعال',
+    colorBefore: '#9ca3af / #f3f4f6',
+    colorAfter: '#f3f4f6',
+    type: 'إزاحة (طارد)',
+    typeClass: 'type-exothermic',
+    temp: 35,
+    safety: 'medium',
+    goal: 'محاكاة تفاعل الفلزات النشطة مع الأحماض وإنتاج غاز قابل للاشتعال',
+    effect: 'bubbles',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1ff9a3811-eea4-4a22-ba36-f80c31743f2c.png'
+  },
+  'eggshell+vinegar': {
+    name: 'تفاعل قشر البيض مع الخل',
+    equation: 'CaCO₃ + 2CH₃COOH → Ca(CH₃COO)₂ + H₂O + CO₂↑',
+    reactants: ['قشر البيض', 'الخل'],
+    products: ['أسيتات الكالسيوم', 'ماء', 'غاز ثاني أكسيد الكربون'],
+    notes: 'ظهور فقاعات غازية على سطح القشرة، ذوبانها تدريجياً',
+    colorBefore: '#fefce8 / #f3f4f6',
+    colorAfter: '#fef9c3',
+    type: 'حمض-كربونات (ماص)',
+    typeClass: 'type-endothermic',
+    temp: 20,
+    safety: 'safe',
+    goal: 'محاكاة تآكل المواد الصلبة بالتفاعل مع الأحماض وتكوّن الغاز',
+    effect: 'bubbles',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1ff9a3811-eea4-4a22-ba36-f80c31743f2c.png'
+  },
+  'kmno4+vitaminc': {
+    name: 'أكسدة فيتامين سي بالبرمنجنات',
+    equation: 'KMnO₄ + فيتامين سي → Mn²⁺ + حمض ديهيدروأسكوربيك',
+    reactants: ['برمنجنات البوتاسيوم', 'فيتامين سي'],
+    products: ['أيونات منغنيز (Mn²⁺)', 'حمض ديهيدروأسكوربيك'],
+    notes: 'تلاشي اللون البنفسجي فجأة حتى يصبح شفافاً - قوة مضادات الأكسدة',
+    colorBefore: '#7c3aed / #f97316',
+    colorAfter: '#f3f4f6',
+    type: 'أكسدة-اختزال',
+    typeClass: 'type-neutral',
+    temp: 25,
+    safety: 'safe',
+    goal: 'محاكاة سرعة التفاعل وقوة المواد المضادة للأكسدة',
+    effect: 'fade',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/10b5f3bd5-e718-447a-9130-81b1bab95820.png'
+  },
+  'iron+oxygen': {
+    name: 'تأكسد الحديد (الصدأ)',
+    equation: '4Fe + 3O₂ → 2Fe₂O₃',
+    reactants: ['مسمار حديد', 'الأكسجين'],
+    products: ['صدأ (أكسيد الحديد)'],
+    notes: 'تغير لون السطح تدريجياً إلى البني البرتقالي وتقشر',
+    colorBefore: '#9ca3af / #f3f4f6',
+    colorAfter: '#b45309',
+    type: 'أكسدة بطيئة',
+    typeClass: 'type-neutral',
+    temp: 25,
+    safety: 'safe',
+    goal: 'محاكاة التفاعلات البطيئة وتأثير الأكسجين على المعادن',
+    effect: 'rust',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1d2921c82-1574-4e87-b89c-32c2fb4387e7.png'
+  },
+  'hcl+magnesium': {
+    name: 'احتراق المغنيسيوم (تفاعل عنيف)',
+    equation: 'Mg + 2HCl → MgCl₂ + H₂↑ (يتفاعل بعنف)',
+    reactants: ['شريط مغنيسيوم', 'حمض الهيدروكلوريك'],
+    products: ['كلوريد المغنيسيوم', 'غاز الهيدروجين'],
+    notes: 'تفاعل عنيف جداً مع فوران سريع وتصاعد غاز الهيدروجين',
+    colorBefore: '#d1d5db / #f3f4f6',
+    colorAfter: '#f3f4f6',
+    type: 'إزاحة (طارد جداً)',
+    typeClass: 'type-exothermic',
+    temp: 60,
+    safety: 'danger',
+    goal: 'محاكاة تفاعل الفلزات النشطة جداً مع الأحماض القوية',
+    effect: 'bubbles',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1ff9a3811-eea4-4a22-ba36-f80c31743f2c.png'
+  },
+  'h2o2+ki': {
+    name: 'تحلل بيروكسيد الهيدروجين بيوديد البوتاسيوم',
+    equation: '2H₂O₂ → 2H₂O + O₂↑ (بوجود KI كمحفز)',
+    reactants: ['بيروكسيد الهيدروجين', 'يوديد البوتاسيوم'],
+    products: ['ماء', 'غاز الأكسجين'],
+    notes: 'تصاعد فقاعات الأكسجين بفعل يوديد البوتاسيوم كمحفز للتفاعل',
+    colorBefore: '#f3f4f6 / #f3f4f6',
+    colorAfter: '#f3f4f6',
+    type: 'تحلل (محفز)',
+    typeClass: 'type-neutral',
+    temp: 30,
+    safety: 'medium',
+    goal: 'محاكاة دور المحفزات في تسريع تفاعلات التحلل',
+    effect: 'bubbles',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1ff9a3811-eea4-4a22-ba36-f80c31743f2c.png'
+  },
+  'h2o2+vitaminc': {
+    name: 'أكسدة فيتامين سي بالبيروكسيد',
+    equation: 'H₂O₂ + فيتامين سي → حمض ديهيدروأسكوربيك + H₂O',
+    reactants: ['بيروكسيد الهيدروجين', 'فيتامين سي'],
+    products: ['حمض ديهيدروأسكوربيك', 'ماء'],
+    notes: 'تفاعل أكسدة سريع، فيتامين سي يعمل كمضاد أكسدة',
+    colorBefore: '#f3f4f6 / #f97316',
+    colorAfter: '#f3f4f6',
+    type: 'أكسدة-اختزال',
+    typeClass: 'type-neutral',
+    temp: 25,
+    safety: 'safe',
+    goal: 'محاكاة قوة مضادات الأكسدة في تحييد المواد المؤكسدة',
+    effect: 'color',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/10b5f3bd5-e718-447a-9130-81b1bab95820.png'
+  },
+  'cuso4+naoh': {
+    name: 'ترسيب هيدروكسيد النحاس',
+    equation: '2NaOH + CuSO₄ → Cu(OH)₂↓ + Na₂SO₄',
+    reactants: ['هيدروكسيد الصوديوم', 'كبريتات النحاس'],
+    products: ['هيدروكسيد النحاس (راسب أزرق)', 'كبريتات الصوديوم'],
+    notes: 'تكوّن راسب أزرق غامق من هيدروكسيد النحاس',
+    colorBefore: '#f3f4f6 / #3b82f6',
+    colorAfter: '#1e40af',
+    type: 'ترسيب (إحلال مزدوج)',
+    typeClass: 'type-neutral',
+    temp: 25,
+    safety: 'medium',
+    goal: 'محاكاة تفاعلات الترسيب وتكوّن المواد الصلبة من المحاليل',
+    effect: 'precipitate',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1331b97a5-178e-4dfb-9e2e-d20dcc95673d.png'
+  },
+  'eggshell+hcl': {
+    name: 'تفاعل حمض الهيدروكلوريك مع قشر البيض',
+    equation: 'CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂↑',
+    reactants: ['حمض الهيدروكلوريك', 'قشر البيض'],
+    products: ['كلوريد الكالسيوم', 'ماء', 'غاز ثاني أكسيد الكربون'],
+    notes: 'فوران سريع وذوبان القشرة مع تصاعد غاز CO₂',
+    colorBefore: '#f3f4f6 / #fefce8',
+    colorAfter: '#f3f4f6',
+    type: 'حمض-كربونات (ماص)',
+    typeClass: 'type-endothermic',
+    temp: 20,
+    safety: 'medium',
+    goal: 'محاكاة تآكل المواد الصلبة بالأحماض القوية',
+    effect: 'bubbles',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1ff9a3811-eea4-4a22-ba36-f80c31743f2c.png'
+  },
+  'baking+hcl': {
+    name: 'تفاعل حمض الهيدروكلوريك مع بيكربونات الصوديوم',
+    equation: 'NaHCO₃ + HCl → NaCl + H₂O + CO₂↑',
+    reactants: ['حمض الهيدروكلوريك', 'بيكربونات الصوديوم'],
+    products: ['كلوريد الصوديوم', 'ماء', 'غاز ثاني أكسيد الكربون'],
+    notes: 'فوران عنيف وتصاعد غاز CO₂ بكثافة',
+    colorBefore: '#f3f4f6 / #f3f4f6',
+    colorAfter: '#f3f4f6',
+    type: 'حمض-كربونات (ماص)',
+    typeClass: 'type-endothermic',
+    temp: 20,
+    safety: 'medium',
+    goal: 'محاكاة تفاعل الأحماض القوية مع الكربونات',
+    effect: 'foam',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1f448a2fc-c9c5-44fa-95d8-a6ef70233ef8.png'
+  },
+  'magnesium+oxygen': {
+    name: 'احتراق شريط المغنيسيوم',
+    equation: '2Mg + O₂ → 2MgO + ضوء أبيض مبهر',
+    reactants: ['شريط مغنيسيوم', 'الأكسجين'],
+    products: ['أكسيد المغنيسيوم (مسحوق أبيض)', 'ضوء'],
+    notes: 'لهب أبيض ساطع جداً لا يطاق النظر إليه، دخان أبيض',
+    colorBefore: '#d1d5db / #f3f4f6',
+    colorAfter: '#ffffff',
+    type: 'احتراق فلز (طارد جداً)',
+    typeClass: 'type-exothermic',
+    temp: 2000,
+    safety: 'danger',
+    goal: 'محاكاة تفاعلات الاحتراق الشديدة واستخدام الفلزات النشطة في الصناعات الحرارية',
+    effect: 'flash',
+    img: 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1ff9a3811-eea4-4a22-ba36-f80c31743f2c.png'
+  }
+};
+
+let selectedMaterials = [];
+let currentReaction = null;
+let isRunning = false;
+
+function renderMaterials() {
+  const grid = document.getElementById('materialsGrid');
+  grid.innerHTML = materials.map(m => `
+    <div class="material-card" data-id="${m.id}" onclick="toggleMaterial('${m.id}')">
+      <img class="material-img" src="${m.img}" alt="${m.name}" loading="lazy">
+      <div class="material-name">${m.name}</div>
+      <div class="material-formula">${m.formula}</div>
+    </div>
+  `).join('');
+}
+
+function toggleMaterial(id) {
+  if (isRunning) return;
+
+  const idx = selectedMaterials.indexOf(id);
+  if (idx > -1) {
+    selectedMaterials.splice(idx, 1);
+  } else {
+    if (selectedMaterials.length >= 2) {
+      selectedMaterials.shift();
+    }
+    selectedMaterials.push(id);
+  }
+
+  // 🔥 الإصلاح: التحقق من التفاعل أولاً ثم تحديث الواجهة
+  checkReaction();
+  updateUI();
+}
+
+function updateUI() {
+  document.querySelectorAll('.material-card').forEach(card => {
+    card.classList.toggle('selected', selectedMaterials.includes(card.dataset.id));
+  });
+
+  const container = document.getElementById('selectedMats');
+  if (selectedMaterials.length === 0) {
+    container.innerHTML = '<span style="color: #64748b; font-size: 12px;">لم يتم اختيار مواد بعد...</span>';
+  } else {
+    container.innerHTML = selectedMaterials.map(id => {
+      const m = materials.find(x => x.id === id);
+      return `<div class="selected-mat-chip"><img src="${m.img}" alt="${m.name}">${m.name}</div>`;
+    }).join('');
+  }
+
+  document.getElementById('runBtn').disabled = selectedMaterials.length !== 2 || !currentReaction;
+
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+
+  if (selectedMaterials.length === 0) {
+    statusDot.className = 'status-dot';
+    statusText.textContent = 'اختر مادتين من الرف السفلي لإضافتهما إلى الدورق';
+  } else if (selectedMaterials.length === 1) {
+    statusDot.className = 'status-dot ready';
+    statusText.textContent = 'تم اختيار مادة واحدة - اختر مادة أخرى';
+  } else if (currentReaction) {
+    statusDot.className = 'status-dot ready';
+    statusText.textContent = `✓ تم التعرف على التفاعل: ${currentReaction.name} - اضغط تشغيل`;
+  } else {
+    statusDot.className = 'status-dot';
+    statusText.textContent = 'لا يوجد تفاعل معروف بين هاتين المادتين - جرب مواد أخرى';
+  }
+}
+
+function checkReaction() {
+  if (selectedMaterials.length !== 2) {
+    currentReaction = null;
+    return;
+  }
+
+  const mat1 = selectedMaterials[0];
+  const mat2 = selectedMaterials[1];
+
+  const key1 = mat1 + '+' + mat2;
+  const key2 = mat2 + '+' + mat1;
+
+  if (reactions[key1]) {
+    currentReaction = reactions[key1];
+  } else if (reactions[key2]) {
+    currentReaction = reactions[key2];
+  } else {
+    currentReaction = null;
+  }
+}
+
+function runReaction() {
+  if (!currentReaction || isRunning) return;
+  isRunning = true;
+
+  document.getElementById('runBtn').innerHTML = '⏸ التفاعل جارٍ...';
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('statusDot').className = 'status-dot running';
+  document.getElementById('statusText').textContent = 'التفاعل الكيميائي جارٍ...';
+
+  const beakerImg = document.getElementById('beakerImg');
+  beakerImg.style.opacity = '0';
+  setTimeout(() => {
+    beakerImg.src = currentReaction.img;
+    beakerImg.style.opacity = '1';
+  }, 500);
+
+  setTimeout(() => {
+    const effect = currentReaction.effect;
+    if (effect === 'foam') createFoamEffect();
+    else if (effect === 'bubbles') createBubblesEffect();
+    else if (effect === 'color') createColorEffect();
+    else if (effect === 'fade') createFadeEffect();
+    else if (effect === 'rust') createRustEffect();
+    else if (effect === 'precipitate') createPrecipitateEffect();
+    else if (effect === 'flash') createFlashEffect();
+  }, 1000);
+
+  renderReactionInfo();
+
+  setTimeout(() => {
+    isRunning = false;
+    document.getElementById('statusDot').className = 'status-dot done';
+    document.getElementById('statusText').textContent = '✓ اكتمل التفاعل - اضغط "إعادة" للتجربة مرة أخرى';
+    document.getElementById('runBtn').innerHTML = '▶ إعادة التشغيل';
+    document.getElementById('runBtn').disabled = false;
+    document.getElementById('runBtn').onclick = () => { resetLab(); setTimeout(runReaction, 500); };
+  }, 4500);
+}
+
+function renderReactionInfo() {
+  const r = currentReaction;
+  const safetyMap = {
+    safe: {cls: 'safety-safe', text: '🟢 آمن'},
+    medium: {cls: 'safety-medium', text: '🟡 متوسط'},
+    danger: {cls: 'safety-danger', text: '🔴 خطير'}
+  };
+  const safety = safetyMap[r.safety];
+  const tempPercent = Math.min((r.temp / 2000) * 100, 100);
+
+  document.getElementById('infoPanel').innerHTML = `
+    <div class="info-header">
+      <h2>⚗️ ${r.name}</h2>
+      <div class="equation">${r.equation}</div>
+    </div>
+
+    <img class="reaction-img" src="${r.img}" alt="${r.name}">
+
+    <div class="info-section">
+      <h3>🧪 المواد الداخلة والناتجة</h3>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="label">المتفاعلات (2)</div>
+          <div class="value">${r.reactants.join(' + ')}</div>
+        </div>
+        <div class="info-card">
+          <div class="label">النواتج</div>
+          <div class="value">${r.products.join(' + ')}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h3>🎨 تغير اللون</h3>
+      <div class="color-indicator">
+        <div class="color-swatch" style="background: ${r.colorBefore.includes('/') ? 'linear-gradient(135deg, ' + r.colorBefore.split(' / ')[0] + ', ' + r.colorBefore.split(' / ')[1] + ')' : r.colorBefore}"></div>
+        <span class="color-arrow">←</span>
+        <div class="color-swatch" style="background: ${r.colorAfter}"></div>
+        <div style="flex:1; font-size: 11px; color: #94a3b8;">قبل ← بعد</div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h3>🌡️ درجة الحرارة</h3>
+      <div class="info-card">
+        <div class="label">الحرارة التقريبية</div>
+        <div class="value">${r.temp}°م</div>
+        <div class="temp-bar"><div class="temp-fill" style="width: ${tempPercent}%"></div></div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h3>⚠️ درجة الأمان</h3>
+      <span class="safety-badge ${safety.cls}">${safety.text}</span>
+    </div>
+
+    <div class="info-section">
+      <h3>🔬 نوع التفاعل</h3>
+      <span class="type-badge ${r.typeClass}">${r.type}</span>
+    </div>
+
+    <div class="info-section">
+      <h3>📝 الملاحظات المظهرية</h3>
+      <div style="font-size: 12px; line-height: 1.7; color: #cbd5e1; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+        ${r.notes}
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h3>🎯 الهدف التعليمي</h3>
+      <div class="educational-goal">${r.goal}</div>
+    </div>
+  `;
+}
+
+function resetLab() {
+  selectedMaterials = [];
+  currentReaction = null;
+  isRunning = false;
+  clearEffects();
+  document.getElementById('beakerImg').src = 'https://image.qwenlm.ai/public_source/f515affe-7083-46cf-83e6-359c1f52d8ad/1b9d0bb02-238c-4bfa-86a0-b0239abfabab.png';
+  document.getElementById('runBtn').innerHTML = '▶ تشغيل التفاعل';
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('runBtn').onclick = runReaction;
+  updateUI();
+
+  document.getElementById('infoPanel').innerHTML = `
+    <div class="info-header">
+      <h2>🔬 لوحة المعلومات</h2>
+      <div style="font-size: 13px; color: #94a3b8; margin-top: 8px;">
+        اختر مادتين من الرف لتشغيل تفاعل كيميائي
+      </div>
+    </div>
+    <div class="info-section">
+      <h3>📋 كيفية الاستخدام</h3>
+      <div class="educational-goal">
+        1️⃣ انقر على مادتين في الرف السفلي لإضافتهما إلى الدورق<br>
+        2️⃣ إذا كانت المادتان متوافقتين كيميائياً، سيظهر التفاعل<br>
+        3️⃣ اضغط "تشغيل التفاعل" لمشاهدة النتيجة<br>
+        4️⃣ اقرأ المعلومات العلمية في هذه اللوحة
+      </div>
+    </div>
+    <div class="info-section">
+      <h3>⚡ أنواع التفاعلات المتوفرة</h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        <span class="type-badge type-exothermic">طارد للحرارة</span>
+        <span class="type-badge type-endothermic">ماص للحرارة</span>
+        <span class="type-badge type-neutral">تعادل</span>
+        <span class="type-badge" style="background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3);">احتراق</span>
+        <span class="type-badge" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3);">أكسدة-اختزال</span>
+        <span class="type-badge" style="background: rgba(244,114,182,0.15); color: #f472b6; border: 1px solid rgba(244,114,182,0.3);">ترسيب</span>
+      </div>
+    </div>
+  `;
+}
+
+function clearEffects() {
+  document.getElementById('effectLayer').innerHTML = '';
+}
+
+function createBubblesEffect() {
+  const layer = document.getElementById('effectLayer');
+  const interval = setInterval(() => {
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.style.left = (20 + Math.random() * 60) + '%';
+    bubble.style.width = bubble.style.height = (6 + Math.random() * 10) + 'px';
+    bubble.style.animationDuration = (2 + Math.random() * 2) + 's';
+    layer.appendChild(bubble);
+    setTimeout(() => bubble.remove(), 4000);
+  }, 150);
+  setTimeout(() => clearInterval(interval), 4000);
+}
+
+function createFoamEffect() {
+  createBubblesEffect();
+}
+
+function createColorEffect() {
+  const layer = document.getElementById('effectLayer');
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => {
+      const swirl = document.createElement('div');
+      swirl.style.cssText = `
+        position: absolute;
+        width: 40px; height: 40px;
+        background: radial-gradient(circle, rgba(56,189,248,0.6), transparent 70%);
+        border-radius: 50%;
+        left: ${30 + Math.random() * 40}%;
+        top: ${40 + Math.random() * 30}%;
+        opacity: 0;
+        animation: swirlAnim 2s ease-out forwards;
+      `;
+      layer.appendChild(swirl);
+      setTimeout(() => swirl.remove(), 2000);
+    }, i * 200);
+  }
+
+  if (!document.getElementById('swirlStyle')) {
+    const style = document.createElement('style');
+    style.id = 'swirlStyle';
+    style.textContent = `
+      @keyframes swirlAnim {
+        0% { opacity: 0; transform: scale(0) rotate(0deg); }
+        50% { opacity: 0.6; }
+        100% { opacity: 0; transform: scale(2) rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+function createFadeEffect() {
+  createBubblesEffect();
+}
+
+function createRustEffect() {
+  const layer = document.getElementById('effectLayer');
+  for (let i = 0; i < 30; i++) {
+    setTimeout(() => {
+      const particle = document.createElement('div');
+      particle.style.cssText = `
+        position: absolute;
+        width: 4px; height: 4px;
+        background: #b45309;
+        border-radius: 50%;
+        left: ${25 + Math.random() * 50}%;
+        top: ${60 + Math.random() * 20}%;
+        opacity: 0;
+        animation: rustAnim 3s ease-out forwards;
+      `;
+      layer.appendChild(particle);
+      setTimeout(() => particle.remove(), 3000);
+    }, i * 100);
+  }
+
+  if (!document.getElementById('rustStyle')) {
+    const style = document.createElement('style');
+    style.id = 'rustStyle';
+    style.textContent = `
+      @keyframes rustAnim {
+        0% { opacity: 0; transform: translateY(0); }
+        50% { opacity: 0.8; }
+        100% { opacity: 0.4; transform: translateY(-20px); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+function createPrecipitateEffect() {
+  const layer = document.getElementById('effectLayer');
+  for (let i = 0; i < 40; i++) {
+    setTimeout(() => {
+      const particle = document.createElement('div');
+      particle.style.cssText = `
+        position: absolute;
+        width: 6px; height: 6px;
+        background: rgba(255,255,255,0.9);
+        border-radius: 50%;
+        left: ${25 + Math.random() * 50}%;
+        top: 30%;
+        opacity: 0.8;
+        animation: precipAnim 2s ease-in forwards;
+      `;
+      layer.appendChild(particle);
+      setTimeout(() => particle.remove(), 2000);
+    }, i * 80);
+  }
+
+  if (!document.getElementById('precipStyle')) {
+    const style = document.createElement('style');
+    style.id = 'precipStyle';
+    style.textContent = `
+      @keyframes precipAnim {
+        0% { opacity: 0.8; transform: translateY(0); }
+        100% { opacity: 0.6; transform: translateY(150px); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+function createFlashEffect() {
+  const layer = document.getElementById('effectLayer');
+  const flash = document.createElement('div');
+  flash.style.cssText = `
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, white, transparent 70%);
+    opacity: 0;
+    animation: flashAnim 2s ease-out;
+  `;
+  layer.appendChild(flash);
+
+  if (!document.getElementById('flashStyle')) {
+    const style = document.createElement('style');
+    style.id = 'flashStyle';
+    style.textContent = `
+      @keyframes flashAnim {
+        0% { opacity: 0; }
+        20% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  for (let i = 0; i < 20; i++) {
+    setTimeout(() => {
+      const smoke = document.createElement('div');
+      smoke.className = 'smoke';
+      smoke.style.left = (30 + Math.random() * 40) + '%';
+      smoke.style.top = '30%';
+      smoke.style.background = 'radial-gradient(circle, rgba(255,255,255,0.6), transparent 70%)';
+      layer.appendChild(smoke);
+      setTimeout(() => smoke.remove(), 4000);
+    }, i * 150);
+  }
+}
+
+renderMaterials();
+updateUI();
+</script>
+
+</body>
+</html>
