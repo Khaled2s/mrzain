@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة خلية النحل - تعلّم الرياضيات</title>
+    <link href="https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-arabic@latest/index.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            background: linear-gradient(135deg, #1a0a00 0%, #2d1800 50%, #1a0a00 100%);
+            overflow: hidden;
+            height: 100vh;
+            color: #fff;
+        }
+        #gameCanvas { position: absolute; top: 0; left: 0; z-index: 1; }
+        .ui-overlay { position: absolute; z-index: 10; pointer-events: none; }
+        .ui-overlay > * { pointer-events: auto; }
+
+        .top-bar {
+            top: 0; left: 0; right: 0;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 10px 15px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+        .resources { display: flex; gap: 10px; flex-wrap: wrap; }
+        .resource-item {
+            background: rgba(255, 180, 0, 0.15);
+            border: 1px solid rgba(255, 180, 0, 0.3);
+            border-radius: 12px; padding: 6px 12px;
+            display: flex; align-items: center; gap: 6px;
+            backdrop-filter: blur(10px); transition: all 0.3s;
+        }
+        .resource-item:hover { background: rgba(255, 180, 0, 0.25); transform: translateY(-2px); }
+        .resource-item.warning { border-color: #F44336; animation: warnPulse 1s infinite; }
+        @keyframes warnPulse { 0%,100%{ box-shadow: 0 0 5px rgba(244,67,54,0.3); } 50%{ box-shadow: 0 0 15px rgba(244,67,54,0.6); } }
+        .resource-icon { font-size: 20px; }
+        .resource-value { font-size: 15px; font-weight: bold; color: #ffd700; }
+        .resource-label { font-size: 10px; color: #ccc; }
+        .resource-rate { font-size: 9px; color: #8BC34A; }
+        .resource-rate.negative { color: #F44336; }
+
+        .game-title { text-align: center; padding: 3px 0; }
+        .game-title h1 { font-size: 20px; color: #ffd700; text-shadow: 0 0 20px rgba(255,215,0,0.5); }
+        .game-title .subtitle { font-size: 11px; color: #aaa; }
+
+        .side-panel {
+            position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+            z-index: 10; display: flex; flex-direction: column; gap: 8px;
+        }
+        .action-btn {
+            background: linear-gradient(135deg, rgba(255,180,0,0.2), rgba(255,120,0,0.2));
+            border: 1px solid rgba(255,180,0,0.4); border-radius: 14px;
+            padding: 10px 14px; color: #ffd700; cursor: pointer;
+            font-family: 'Noto Sans Arabic', sans-serif; font-size: 12px;
+            transition: all 0.3s; backdrop-filter: blur(10px);
+            display: flex; align-items: center; gap: 8px; min-width: 135px;
+        }
+        .action-btn:hover {
+            background: linear-gradient(135deg, rgba(255,180,0,0.4), rgba(255,120,0,0.4));
+            transform: scale(1.05); box-shadow: 0 0 20px rgba(255,180,0,0.3);
+        }
+        .action-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-icon { font-size: 18px; }
+        .btn-reward { font-size: 9px; color: #4CAF50; }
+        .btn-math { font-size: 9px; color: #81D4FA; }
+
+        .stats-panel {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            z-index: 10; background: rgba(0,0,0,0.7);
+            border: 1px solid rgba(255,180,0,0.2); border-radius: 16px;
+            padding: 14px; backdrop-filter: blur(10px); min-width: 170px;
+        }
+        .stats-panel h3 {
+            color: #ffd700; font-size: 14px; margin-bottom: 10px;
+            text-align: center; border-bottom: 1px solid rgba(255,180,0,0.2); padding-bottom: 6px;
+        }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; }
+        .stat-label { color: #aaa; }
+        .stat-value { color: #ffd700; font-weight: bold; }
+        .progress-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+
+        .level-badge {
+            position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
+            z-index: 10; background: rgba(0,0,0,0.6); border-radius: 20px;
+            padding: 5px 18px; font-size: 12px; backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,180,0,0.3);
+        }
+        .level-badge span { color: #81D4FA; font-weight: bold; }
+
+        .bottom-bar {
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+            display: flex; justify-content: center; padding: 10px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+        .speed-controls {
+            display: flex; gap: 6px; align-items: center;
+            background: rgba(0,0,0,0.5); border-radius: 20px;
+            padding: 5px 14px; border: 1px solid rgba(255,180,0,0.2);
+        }
+        .speed-btn {
+            background: none; border: 1px solid rgba(255,180,0,0.3);
+            color: #ffd700; border-radius: 8px; padding: 3px 10px;
+            cursor: pointer; font-family: 'Noto Sans Arabic', sans-serif;
+            font-size: 11px; transition: all 0.3s;
+        }
+        .speed-btn:hover, .speed-btn.active { background: rgba(255,180,0,0.3); }
+        .speed-label { color: #aaa; font-size: 11px; margin-left: 6px; }
+
+        .math-modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); z-index: 100;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .math-modal-overlay.show { display: flex; }
+        .math-modal {
+            background: linear-gradient(135deg, #2d1800, #1a0a00);
+            border: 2px solid rgba(255,180,0,0.5); border-radius: 24px;
+            padding: 30px; text-align: center; min-width: 350px; max-width: 450px;
+            box-shadow: 0 0 60px rgba(255,180,0,0.2);
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .math-modal h2 { color: #ffd700; font-size: 20px; margin-bottom: 8px; }
+        .math-modal .reward-info { color: #4CAF50; font-size: 13px; margin-bottom: 15px; }
+        .math-problem {
+            background: rgba(255,180,0,0.1); border: 1px solid rgba(255,180,0,0.3);
+            border-radius: 16px; padding: 20px; margin: 15px 0;
+            font-size: 32px; color: #fff; font-weight: bold;
+            direction: ltr;
+        }
+        .math-input {
+            width: 150px; padding: 12px; font-size: 24px; text-align: center;
+            background: rgba(255,255,255,0.1); border: 2px solid rgba(255,180,0,0.4);
+            border-radius: 12px; color: #ffd700; font-family: 'Noto Sans Arabic', sans-serif;
+            outline: none; direction: ltr;
+        }
+        .math-input:focus { border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.3); }
+        .math-submit {
+            display: block; margin: 15px auto 0; padding: 10px 40px;
+            background: linear-gradient(135deg, #FFB800, #FF9500);
+            border: none; border-radius: 12px; color: #1a0a00;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            font-family: 'Noto Sans Arabic', sans-serif; transition: all 0.3s;
+        }
+        .math-submit:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,180,0,0.5); }
+        .math-result { margin-top: 12px; font-size: 16px; min-height: 24px; }
+        .math-result.correct { color: #4CAF50; }
+        .math-result.wrong { color: #F44336; }
+        .math-hint { color: #aaa; font-size: 11px; margin-top: 8px; }
+        .math-close {
+            position: absolute; top: 10px; left: 10px;
+            background: none; border: none; color: #aaa; font-size: 20px;
+            cursor: pointer; padding: 5px 10px;
+        }
+        .math-close:hover { color: #fff; }
+        .math-timer { display: flex; justify-content: center; gap: 4px; margin: 10px 0; }
+        .timer-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(255,180,0,0.3); transition: background 0.3s;
+        }
+        .timer-dot.active { background: #ffd700; }
+        .timer-dot.used { background: #4CAF50; }
+        .timer-dot.failed { background: #F44336; }
+        .difficulty-stars { color: #ffd700; font-size: 14px; margin-bottom: 5px; }
+
+        .notification {
+            position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+            z-index: 20; background: rgba(255,180,0,0.2);
+            border: 1px solid rgba(255,180,0,0.5); border-radius: 12px;
+            padding: 8px 20px; color: #ffd700; font-size: 13px;
+            backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.5s;
+            text-align: center; white-space: nowrap;
+        }
+        .notification.show { opacity: 1; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="ui-overlay top-bar">
+        <div class="resources">
+            <div class="resource-item" id="res-honey">
+                <span class="resource-icon">🍯</span>
+                <div>
+                    <div class="resource-value" id="honeyCount">50</div>
+                    <div class="resource-label">عسل</div>
+                    <div class="resource-rate" id="honeyRate">+0/ث</div>
+                </div>
+            </div>
+            <div class="resource-item" id="res-pollen">
+                <span class="resource-icon">🌸</span>
+                <div>
+                    <div class="resource-value" id="pollenCount">30</div>
+                    <div class="resource-label">حبوب لقاح</div>
+                    <div class="resource-rate" id="pollenRate">+0/ث</div>
+                </div>
+            </div>
+            <div class="resource-item" id="res-nectar">
+                <span class="resource-icon">💧</span>
+                <div>
+                    <div class="resource-value" id="nectarCount">40</div>
+                    <div class="resource-label">رحيق</div>
+                    <div class="resource-rate" id="nectarRate">+0/ث</div>
+                </div>
+            </div>
+            <div class="resource-item">
+                <span class="resource-icon">🐝</span>
+                <div>
+                    <div class="resource-value" id="beeCount">0</div>
+                    <div class="resource-label">نحل</div>
+                </div>
+            </div>
+        </div>
+        <div class="game-title">
+            <h1>🐝 خلية النحل التعليمية</h1>
+            <div class="subtitle">حل المسائل الرياضية لبناء خليتك وإطعام النحل!</div>
+        </div>
+    </div>
+
+    <div class="level-badge">
+        📚 مستوى الصعوبة: <span id="diffLevel">1</span> | ⭐ النقاط: <span id="scorePoints">0</span>
+    </div>
+
+    <div class="side-panel">
+        <button class="action-btn" onclick="requestAction('addWorker')">
+            <span class="btn-icon">🐝</span>
+            <div><div>إضافة عاملة</div><div class="btn-reward">🎁 مكافأة مجانية!</div><div class="btn-math">🧮 مسألة سهلة</div></div>
+        </button>
+        <button class="action-btn" onclick="requestAction('addFlower')">
+            <span class="btn-icon">🌺</span>
+            <div><div>زراعة زهرة</div><div class="btn-reward">🎁 مكافأة مجانية!</div><div class="btn-math">🧮 مسألة متوسطة</div></div>
+        </button>
+        <button class="action-btn" onclick="requestAction('buildCell')">
+            <span class="btn-icon">⬡</span>
+            <div><div>بناء خلية</div><div class="btn-reward">🎁 مكافأة مجانية!</div><div class="btn-math">🧮 مسألة متوسطة</div></div>
+        </button>
+        <button class="action-btn" onclick="requestAction('upgradeHive')">
+            <span class="btn-icon">⬆️</span>
+            <div><div>ترقية الخلية</div><div class="btn-reward">🎁 مكافأة مجانية!</div><div class="btn-math">🧮 مسألة صعبة</div></div>
+        </button>
+        <button class="action-btn" onclick="requestAction('feedBees')">
+            <span class="btn-icon">🍽️</span>
+            <div><div>تغذية النحل</div><div class="btn-reward">🎁 إطعام مجاني!</div><div class="btn-math">🧮 مسألة سريعة</div></div>
+        </button>
+    </div>
+
+    <div class="stats-panel">
+        <h3>📊 إحصائيات الخلية</h3>
+        <div class="stat-row"><span class="stat-label">المستوى</span><span class="stat-value" id="hiveLevel">1</span></div>
+        <div class="stat-row"><span class="stat-label">الخلايا</span><span class="stat-value" id="cellCount">7</span></div>
+        <div class="stat-row"><span class="stat-label">العاملات</span><span class="stat-value" id="workerCount">3</span></div>
+        <div class="stat-row"><span class="stat-label">الزهور</span><span class="stat-value" id="flowerCount">5</span></div>
+        <div style="margin-top:10px;">
+            <div class="stat-row"><span class="stat-label">صحة الخلية</span><span class="stat-value" id="healthVal">100%</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="healthBar" style="width:100%;background:linear-gradient(90deg,#4CAF50,#8BC34A);"></div></div>
+        </div>
+        <div style="margin-top:6px;">
+            <div class="stat-row"><span class="stat-label">شبع النحل</span><span class="stat-value" id="fedVal">100%</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="fedBar" style="width:100%;background:linear-gradient(90deg,#FF9800,#FFD54F);"></div></div>
+        </div>
+        <div style="margin-top:6px;">
+            <div class="stat-row"><span class="stat-label">مسائل محلولة</span><span class="stat-value" id="solvedCount">0</span></div>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="speed-controls">
+            <span class="speed-label">السرعة:</span>
+            <button class="speed-btn" onclick="setSpeed(0.5)">0.5x</button>
+            <button class="speed-btn active" onclick="setSpeed(1)">1x</button>
+            <button class="speed-btn" onclick="setSpeed(2)">2x</button>
+        </div>
+    </div>
+
+    <div class="math-modal-overlay" id="mathModal">
+        <div class="math-modal" style="position:relative;">
+            <button class="math-close" onclick="closeMathModal()">✕</button>
+            <h2 id="mathTitle">🧮 حل المسألة</h2>
+            <div class="reward-info" id="rewardInfo"></div>
+            <div class="difficulty-stars" id="diffStars"></div>
+            <div class="math-timer" id="mathTimer"></div>
+            <div class="math-problem" id="mathProblem">2 + 3 = ?</div>
+            <input type="number" class="math-input" id="mathAnswer" placeholder="؟" autocomplete="off">
+            <button class="math-submit" id="mathSubmitBtn" onclick="submitAnswer()">تحقق ✓</button>
+            <div class="math-result" id="mathResult"></div>
+            <div class="math-hint" id="mathHint">💡 حاول الإجابة بشكل صحيح!</div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let W, H;
+        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+        resize();
+        window.addEventListener('resize', () => { resize(); createHexGrid(); });
+
+        // ============ موازنة اللعبة ============
+        const PRODUCTION = {
+            honeyPerWorker: 0.18,
+            pollenPerWorker: 0.16,
+            nectarPerWorker: 0.12
+        };
+        const CONSUMPTION = {
+            honeyPerWorker: 0.10,
+            pollenPerWorker: 0.08,
+            nectarPerWorker: 0.06
+        };
+        const FED_DECAY_PER_WORKER = 0.15;
+        // ====================================
+
+        let gs = {
+            honey: 50, pollen: 30, nectar: 40,
+            hiveLevel: 1, speed: 1,
+            health: 100, fedLevel: 100,
+            score: 0, solved: 0, diffLevel: 1,
+            dayTime: 0, day: 1
+        };
+
+        const HEX_SIZE = 36;
+        let hexCells = [], bees = [], flowers = [], particles = [];
+        let pendingAction = null;
+
+        let currentProblem = null;
+        let attempts = 0;
+        const MAX_ATTEMPTS = 3;
+
+        function generateProblem(difficulty) {
+            let a, b, c, op, answer, text;
+            const d = Math.min(difficulty, 5);
+            
+            if (d <= 1) {
+                op = Math.random() > 0.5 ? '+' : '-';
+                if (op === '+') {
+                    a = Math.floor(Math.random() * 10) + 1;
+                    b = Math.floor(Math.random() * 10) + 1;
+                    answer = a + b;
+                    text = `${a} + ${b} = ?`;
+                } else {
+                    a = Math.floor(Math.random() * 15) + 5;
+                    b = Math.floor(Math.random() * (a - 1)) + 1;
+                    answer = a - b;
+                    text = `${a} - ${b} = ?`;
+                }
+            } else if (d === 2) {
+                op = Math.random() > 0.4 ? '+' : '-';
+                if (op === '+') {
+                    a = Math.floor(Math.random() * 30) + 10;
+                    b = Math.floor(Math.random() * 30) + 10;
+                    answer = a + b;
+                    text = `${a} + ${b} = ?`;
+                } else {
+                    a = Math.floor(Math.random() * 50) + 20;
+                    b = Math.floor(Math.random() * (a - 1)) + 1;
+                    answer = a - b;
+                    text = `${a} - ${b} = ?`;
+                }
+            } else if (d === 3) {
+                const type = Math.random();
+                if (type < 0.5) {
+                    a = Math.floor(Math.random() * 9) + 2;
+                    b = Math.floor(Math.random() * 9) + 2;
+                    answer = a * b;
+                    text = `${a} × ${b} = ?`;
+                } else {
+                    b = Math.floor(Math.random() * 9) + 2;
+                    answer = Math.floor(Math.random() * 10) + 1;
+                    a = b * answer;
+                    text = `${a} ÷ ${b} = ?`;
+                }
+            } else if (d === 4) {
+                const type = Math.random();
+                if (type < 0.3) {
+                    a = Math.floor(Math.random() * 12) + 2;
+                    b = Math.floor(Math.random() * 12) + 2;
+                    answer = a * b;
+                    text = `${a} × ${b} = ?`;
+                } else if (type < 0.6) {
+                    b = Math.floor(Math.random() * 11) + 2;
+                    answer = Math.floor(Math.random() * 12) + 1;
+                    a = b * answer;
+                    text = `${a} ÷ ${b} = ?`;
+                } else {
+                    a = Math.floor(Math.random() * 50) + 20;
+                    b = Math.floor(Math.random() * 40) + 10;
+                    answer = a + b;
+                    text = `${a} + ${b} = ?`;
+                }
+            } else {
+                const type = Math.random();
+                if (type < 0.33) {
+                    a = Math.floor(Math.random() * 9) + 2;
+                    b = Math.floor(Math.random() * 9) + 2;
+                    c = Math.floor(Math.random() * 10) + 1;
+                    answer = a * b + c;
+                    text = `${a} × ${b} + ${c} = ?`;
+                } else if (type < 0.66) {
+                    a = Math.floor(Math.random() * 9) + 2;
+                    b = Math.floor(Math.random() * 9) + 2;
+                    c = Math.floor(Math.random() * (a * b - 1)) + 1;
+                    answer = a * b - c;
+                    text = `${a} × ${b} - ${c} = ?`;
+                } else {
+                    b = Math.floor(Math.random() * 10) + 2;
+                    const partial = Math.floor(Math.random() * 10) + 2;
+                    c = Math.floor(Math.random() * 10) + 1;
+                    a = b * partial;
+                    text = `${a} ÷ ${b} + ${c} = ?`;
+                    answer = partial + c;
+                }
+            }
+            
+            return { text, answer, difficulty: d };
+        }
+
+        function requestAction(action) {
+            pendingAction = action;
+            attempts = 0;
+
+            let diff;
+            switch(action) {
+                case 'addWorker': diff = Math.max(1, gs.diffLevel - 1); break;
+                case 'addFlower': diff = gs.diffLevel; break;
+                case 'buildCell': diff = gs.diffLevel; break;
+                case 'upgradeHive': diff = Math.min(5, gs.diffLevel + 1); break;
+                case 'feedBees': diff = Math.max(1, gs.diffLevel - 1); break;
+                default: diff = gs.diffLevel;
+            }
+
+            currentProblem = generateProblem(diff);
+            showMathModal(currentProblem, action);
+        }
+
+        function showMathModal(problem, action) {
+            const modal = document.getElementById('mathModal');
+            modal.classList.add('show');
+            
+            const titles = {
+                'addWorker': '🐝 إضافة نحلة عاملة',
+                'addFlower': '🌺 زراعة زهرة',
+                'buildCell': '⬡ بناء خلية سداسية',
+                'upgradeHive': '⬆️ ترقية الخلية',
+                'feedBees': '🍽️ إطعام النحل'
+            };
+
+            const workers = bees.filter(b => b.type === 'worker').length;
+            const rewards = {
+                'addWorker': '🎁 المكافأة: نحلة عاملة جديدة مجاناً!',
+                'addFlower': '🎁 المكافأة: زهرة جديدة مجاناً!',
+                'buildCell': '🎁 المكافأة: خلية سداسية جديدة مجاناً!',
+                'upgradeHive': '🎁 المكافأة: ترقية الخلية مجاناً!',
+                'feedBees': `🍯 المكافأة: إطعام ${workers} نحلة ورفع شبعهم!`
+            };
+            
+            document.getElementById('mathTitle').textContent = titles[action] || '🧮 حل المسألة';
+            document.getElementById('rewardInfo').textContent = rewards[action] || 'أجب بشكل صحيح!';
+            document.getElementById('mathProblem').textContent = problem.text;
+            document.getElementById('mathAnswer').value = '';
+            document.getElementById('mathResult').textContent = '';
+            document.getElementById('mathResult').className = 'math-result';
+            document.getElementById('mathHint').textContent = `💡 لديك ${MAX_ATTEMPTS} محاولات`;
+            
+            const stars = '⭐'.repeat(problem.difficulty) + '☆'.repeat(5 - problem.difficulty);
+            document.getElementById('diffStars').textContent = stars;
+
+            let timerHTML = '';
+            for (let i = 0; i < MAX_ATTEMPTS; i++) {
+                timerHTML += '<div class="timer-dot active"></div>';
+            }
+            document.getElementById('mathTimer').innerHTML = timerHTML;
+
+            setTimeout(() => document.getElementById('mathAnswer').focus(), 100);
+        }
+
+        function closeMathModal() {
+            document.getElementById('mathModal').classList.remove('show');
+            pendingAction = null;
+        }
+
+        function submitAnswer() {
+            if (!currentProblem) return;
+            
+            const input = document.getElementById('mathAnswer');
+            const userAnswer = parseInt(input.value);
+            const resultEl = document.getElementById('mathResult');
+            const dots = document.querySelectorAll('.timer-dot');
+
+            if (isNaN(userAnswer)) {
+                resultEl.textContent = '⚠️ أدخل رقماً!';
+                resultEl.className = 'math-result wrong';
+                return;
+            }
+
+            if (userAnswer === currentProblem.answer) {
+                resultEl.textContent = '🎉 إجابة صحيحة! أحسنت!';
+                resultEl.className = 'math-result correct';
+                dots[attempts].classList.remove('active');
+                dots[attempts].classList.add('used');
+                
+                gs.solved++;
+                gs.score += currentProblem.difficulty * 10;
+                
+                if (gs.solved % 5 === 0 && gs.diffLevel < 5) {
+                    gs.diffLevel++;
+                    showNotification(`📈 ارتفع مستوى الصعوبة إلى ${gs.diffLevel}!`);
+                }
+
+                setTimeout(() => {
+                    executeAction(pendingAction);
+                    closeMathModal();
+                }, 800);
+            } else {
+                attempts++;
+                if (attempts < MAX_ATTEMPTS) {
+                    dots[attempts - 1].classList.remove('active');
+                    dots[attempts - 1].classList.add('failed');
+                    
+                    const diff = userAnswer - currentProblem.answer;
+                    let hint = '';
+                    if (Math.abs(diff) <= 3) hint = '🔥 قريب جداً! حاول مرة أخرى';
+                    else if (diff > 0) hint = '📉 الإجابة أصغر مما أدخلت';
+                    else hint = '📈 الإجابة أكبر مما أدخلت';
+                    
+                    resultEl.textContent = `❌ خطأ! ${hint} (محاولات متبقية: ${MAX_ATTEMPTS - attempts})`;
+                    resultEl.className = 'math-result wrong';
+                    input.value = '';
+                    input.focus();
+                } else {
+                    dots[attempts - 1].classList.remove('active');
+                    dots[attempts - 1].classList.add('failed');
+                    resultEl.textContent = `😔 الإجابة الصحيحة هي: ${currentProblem.answer}`;
+                    resultEl.className = 'math-result wrong';
+                    setTimeout(() => closeMathModal(), 1500);
+                }
+            }
+        }
+
+        document.getElementById('mathAnswer').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') submitAnswer();
+        });
+
+        function executeAction(action) {
+            switch(action) {
+                case 'addWorker':
+                    bees.push(createBee('worker'));
+                    showNotification('🐝 تمت إضافة نحلة عاملة جديدة! 🎉');
+                    spawnParticles(W/2, H/2, '#FFD700', 15);
+                    break;
+                case 'addFlower':
+                    const side = Math.random() > 0.5;
+                    flowers.push(createFlower(
+                        side ? Math.random() * W * 0.25 + 20 : Math.random() * W * 0.25 + W * 0.75,
+                        Math.random() * H * 0.6 + H * 0.2
+                    ));
+                    showNotification('🌺 تمت زراعة زهرة جديدة! 🎉');
+                    break;
+                case 'buildCell':
+                    buildNewCell();
+                    showNotification('⬡ تمت إضافة خلية سداسية! 🎉');
+                    break;
+                case 'upgradeHive':
+                    gs.hiveLevel++;
+                    showNotification(`⬆️ تمت ترقية الخلية للمستوى ${gs.hiveLevel}! 🎉`);
+                    hexCells.forEach(c => spawnParticles(c.x, c.y, '#E040FB', 5));
+                    break;
+                case 'feedBees':
+                    gs.fedLevel = Math.min(100, gs.fedLevel + 45);
+                    showNotification('🍽️ تم إطعام النحل! شبعهم ارتفع 🎉');
+                    bees.forEach(b => { if(b.type==='worker') spawnParticles(b.x, b.y, '#FFD54F', 4); });
+                    break;
+            }
+        }
+
+        function buildNewCell() {
+            const occupied = new Set(hexCells.map(c => `${c.q},${c.r}`));
+            const candidates = [];
+            hexCells.forEach(cell => {
+                const neighbors = [
+                    [cell.q+1,cell.r],[cell.q,cell.r+1],[cell.q-1,cell.r+1],
+                    [cell.q-1,cell.r],[cell.q,cell.r-1],[cell.q+1,cell.r-1]
+                ];
+                neighbors.forEach(n => { if (!occupied.has(`${n[0]},${n[1]}`)) candidates.push(n); });
+            });
+            if (candidates.length > 0) {
+                const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+                const pos = hexToPixel(chosen[0], chosen[1]);
+                hexCells.push({
+                    x: pos.x, y: pos.y, q: chosen[0], r: chosen[1],
+                    type: 'empty', fillLevel: 0, pulsePhase: Math.random() * Math.PI * 2
+                });
+                spawnParticles(pos.x, pos.y, '#FFB800', 12);
+            }
+        }
+
+        function hexToPixel(q, r) {
+            return { x: W/2 + q * HEX_SIZE * 1.75, y: H/2 + r * HEX_SIZE * 1.52 + q * HEX_SIZE * 0.76 };
+        }
+
+        function createHexGrid() {
+            hexCells = [];
+            const dirs = [[0,0],[1,0],[0,1],[-1,1],[-1,0],[0,-1],[1,-1]];
+            dirs.forEach((d, i) => {
+                const pos = hexToPixel(d[0], d[1]);
+                hexCells.push({
+                    x: pos.x, y: pos.y, q: d[0], r: d[1],
+                    type: i === 0 ? 'queen' : (i < 4 ? 'honey' : 'empty'),
+                    fillLevel: i === 0 ? 1 : Math.random() * 0.5 + 0.2,
+                    pulsePhase: Math.random() * Math.PI * 2
+                });
+            });
+        }
+
+        function createBee(type = 'worker') {
+            const cell = hexCells[Math.floor(Math.random() * hexCells.length)];
+            const maxAge = type === 'queen' ? 999999 : (120 + Math.random() * 60);
+            return {
+                x: cell.x, y: cell.y, targetX: cell.x, targetY: cell.y,
+                type, speed: type === 'queen' ? 0.3 : 1.2,
+                wingPhase: Math.random() * Math.PI * 2,
+                state: 'idle', stateTimer: Math.random() * 200,
+                carrying: null, size: type === 'queen' ? 14 : 8,
+                angle: 0, wobble: Math.random() * Math.PI * 2,
+                age: 0, maxAge: maxAge, alive: true
+            };
+        }
+
+        function createFlower(x, y) {
+            return {
+                x: x || Math.random() * W * 0.25 + 20,
+                y: y || Math.random() * H * 0.6 + H * 0.2,
+                size: 12 + Math.random() * 8,
+                petals: 5 + Math.floor(Math.random() * 3),
+                color: ['#FF6B9D','#C084FC','#60A5FA','#F472B6','#FB923C','#A78BFA'][Math.floor(Math.random()*6)],
+                nectar: 100, maxNectar: 100,
+                swayPhase: Math.random() * Math.PI * 2,
+                growthPhase: 0,
+                lifetime: 90 + Math.random() * 60,
+                maxLifetime: 90 + Math.random() * 60,
+                alive: true
+            };
+        }
+
+        function initFlowers() {
+            flowers = [];
+            for (let i = 0; i < 5; i++) {
+                const side = Math.random() > 0.5;
+                flowers.push(createFlower(
+                    side ? Math.random() * W * 0.25 + 20 : Math.random() * W * 0.25 + W * 0.75,
+                    Math.random() * H * 0.6 + H * 0.2
+                ));
+            }
+        }
+
+        function initBees() {
+            bees = [];
+            bees.push(createBee('queen'));
+            for (let i = 0; i < 3; i++) bees.push(createBee('worker'));
+        }
+
+        function spawnParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random()-0.5) * 4,
+                    vy: (Math.random()-0.5) * 4 - 1,
+                    life: 1, decay: 0.02 + Math.random() * 0.02,
+                    color, size: 2 + Math.random() * 3
+                });
+            }
+        }
+
+        function showNotification(text) {
+            const el = document.getElementById('notification');
+            el.textContent = text;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        function setSpeed(s) {
+            gs.speed = s;
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === s + 'x');
+            });
+        }
+
+        function updateBees(dt) {
+            bees.forEach(bee => {
+                if (!bee.alive) return;
+                bee.wingPhase += dt * 25;
+                bee.wobble += dt * 2;
+                bee.age += dt;
+                bee.stateTimer -= dt * 60;
+
+                if (bee.age >= bee.maxAge && bee.type !== 'queen') {
+                    bee.alive = false;
+                    showNotification('💀 ماتت نحلة عاملة بسبب كبر السن! أضف المزيد');
+                    spawnParticles(bee.x, bee.y, '#888', 8);
+                    return;
+                }
+
+                if (bee.stateTimer <= 0) {
+                    if (bee.type === 'queen') {
+                        const cell = hexCells.find(c => c.type === 'queen') || hexCells[0];
+                        bee.targetX = cell.x + (Math.random()-0.5) * 30;
+                        bee.targetY = cell.y + (Math.random()-0.5) * 30;
+                        bee.stateTimer = 100 + Math.random() * 100;
+                    } else {
+                        const rand = Math.random();
+                        const aliveFlowers = flowers.filter(f=>f.alive);
+                        if (rand < 0.5 && aliveFlowers.length > 0) {
+                            bee.state = 'collecting';
+                            const flower = aliveFlowers[Math.floor(Math.random() * aliveFlowers.length)];
+                            bee.targetX = flower.x;
+                            bee.targetY = flower.y;
+                            bee.stateTimer = 150 + Math.random() * 100;
+                        } else if (rand < 0.8) {
+                            bee.state = 'returning';
+                            const cell = hexCells[Math.floor(Math.random() * hexCells.length)];
+                            bee.targetX = cell.x;
+                            bee.targetY = cell.y;
+                            bee.stateTimer = 100 + Math.random() * 80;
+                        } else {
+                            bee.state = 'wandering';
+                            bee.targetX = W/2 + (Math.random()-0.5) * W * 0.6;
+                            bee.targetY = H/2 + (Math.random()-0.5) * H * 0.6;
+                            bee.stateTimer = 60 + Math.random() * 60;
+                        }
+                    }
+                }
+
+                const dx = bee.targetX - bee.x;
+                const dy = bee.targetY - bee.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist > 2) {
+                    bee.x += (dx/dist) * bee.speed * dt * 60;
+                    bee.y += (dy/dist) * bee.speed * dt * 60;
+                    bee.angle = Math.atan2(dy, dx);
+                }
+                bee.x += Math.sin(bee.wobble) * 0.3;
+                bee.y += Math.cos(bee.wobble * 1.3) * 0.2;
+
+                if (bee.type === 'worker' && bee.state === 'collecting') {
+                    flowers.forEach(flower => {
+                        if (!flower.alive) return;
+                        const fd = Math.sqrt((bee.x-flower.x)**2 + (bee.y-flower.y)**2);
+                        if (fd < 25 && flower.nectar > 0) {
+                            flower.nectar -= dt * 15;
+                            bee.carrying = 'pollen';
+                            if (Math.random() < 0.1) spawnParticles(bee.x, bee.y, '#8BC34A', 1);
+                        }
+                    });
+                }
+
+                if (bee.type === 'worker' && bee.state === 'returning' && bee.carrying) {
+                    const hiveDist = Math.sqrt((bee.x-W/2)**2 + (bee.y-H/2)**2);
+                    if (hiveDist < HEX_SIZE * 2.5) {
+                        gs.pollen += PRODUCTION.pollenPerWorker * dt * 60 * 0.5;
+                        gs.nectar += PRODUCTION.nectarPerWorker * dt * 60 * 0.5;
+                        gs.honey += PRODUCTION.honeyPerWorker * dt * 60 * 0.5;
+                        bee.carrying = null;
+                    }
+                }
+            });
+
+            bees = bees.filter(b => b.alive);
+        }
+
+        function updateFlowers(dt) {
+            flowers.forEach(flower => {
+                if (!flower.alive) return;
+                flower.swayPhase += dt * 1.5;
+                flower.growthPhase = Math.min(1, flower.growthPhase + dt * 0.5);
+                flower.nectar = Math.min(flower.maxNectar, flower.nectar + dt * 2);
+                flower.lifetime -= dt;
+                if (flower.lifetime <= 0) {
+                    flower.alive = false;
+                    showNotification('🥀 ذبلت زهرة! ازرع واحدة جديدة');
+                    spawnParticles(flower.x, flower.y, '#888', 6);
+                }
+            });
+            flowers = flowers.filter(f => f.alive);
+        }
+
+        function updateCells(dt) {
+            hexCells.forEach(cell => {
+                cell.pulsePhase += dt * 2;
+                if (cell.type === 'honey' || cell.type === 'queen') {
+                    const workers = bees.filter(b => b.type === 'worker').length;
+                    cell.fillLevel = Math.min(1, cell.fillLevel + workers * 0.005 * gs.hiveLevel * dt);
+                }
+            });
+        }
+
+        function updateParticles(dt) {
+            particles = particles.filter(p => {
+                p.x += p.vx * dt * 60;
+                p.y += p.vy * dt * 60;
+                p.life -= p.decay * dt * 60;
+                return p.life > 0;
+            });
+        }
+
+        function updateGameState(dt) {
+            const workers = bees.filter(b => b.type === 'worker').length;
+
+            const honeyProd = PRODUCTION.honeyPerWorker * workers * dt;
+            const pollenProd = PRODUCTION.pollenPerWorker * workers * dt;
+            const nectarProd = PRODUCTION.nectarPerWorker * workers * dt;
+
+            gs.honey += honeyProd;
+            gs.pollen += pollenProd;
+            gs.nectar += nectarProd;
+
+            const honeyCons = CONSUMPTION.honeyPerWorker * workers * dt;
+            const pollenCons = CONSUMPTION.pollenPerWorker * workers * dt;
+            const nectarCons = CONSUMPTION.nectarPerWorker * workers * dt;
+
+            gs.honey -= honeyCons;
+            gs.pollen -= pollenCons;
+            gs.nectar -= nectarCons;
+
+            if (workers > 0) {
+                gs.fedLevel -= FED_DECAY_PER_WORKER * workers * dt;
+                gs.fedLevel = Math.max(0, gs.fedLevel);
+            }
+
+            if (gs.fedLevel < 15) {
+                gs.health -= dt * 1.5;
+                if (gs.fedLevel <= 0 && Math.random() < 0.003 * dt * 60) {
+                    const workerBees = bees.filter(b => b.type === 'worker');
+                    if (workerBees.length > 0) {
+                        const victim = workerBees[Math.floor(Math.random() * workerBees.length)];
+                        victim.alive = false;
+                        showNotification('💀 ماتت نحلة بسبب الجوع! أطعمهم بحل مسألة 🍽️');
+                    }
+                }
+            } else {
+                gs.health = Math.min(100, gs.health + dt * 0.5);
+            }
+
+            gs.honey = Math.max(0, gs.honey);
+            gs.pollen = Math.max(0, gs.pollen);
+            gs.nectar = Math.max(0, gs.nectar);
+            gs.health = Math.max(0, Math.min(100, gs.health));
+
+            gs.dayTime += dt * 0.01 * gs.speed;
+            if (gs.dayTime >= 1) { gs.dayTime = 0; gs.day++; }
+
+            // =========== تحديث الواجهة ===========
+            document.getElementById('honeyCount').textContent = Math.floor(gs.honey);
+            document.getElementById('pollenCount').textContent = Math.floor(gs.pollen);
+            document.getElementById('nectarCount').textContent = Math.floor(gs.nectar);
+            document.getElementById('beeCount').textContent = bees.length;
+            document.getElementById('hiveLevel').textContent = gs.hiveLevel;
+            document.getElementById('cellCount').textContent = hexCells.length;
+            document.getElementById('workerCount').textContent = workers;
+            document.getElementById('flowerCount').textContent = flowers.length;
+            document.getElementById('healthVal').textContent = Math.floor(gs.health) + '%';
+            document.getElementById('healthBar').style.width = gs.health + '%';
+            document.getElementById('fedVal').textContent = Math.floor(gs.fedLevel) + '%';
+            document.getElementById('fedBar').style.width = gs.fedLevel + '%';
+            document.getElementById('solvedCount').textContent = gs.solved;
+            document.getElementById('scorePoints').textContent = gs.score;
+            document.getElementById('diffLevel').textContent = gs.diffLevel;
+
+            // مؤشرات المعدل في الأعلى (الصافي الكلي لكل عاملة)
+            const pH = PRODUCTION.honeyPerWorker;
+            const cH = CONSUMPTION.honeyPerWorker;
+            const pP = PRODUCTION.pollenPerWorker;
+            const cP = CONSUMPTION.pollenPerWorker;
+            const pN = PRODUCTION.nectarPerWorker;
+            const cN = CONSUMPTION.nectarPerWorker;
+
+            const totalNetH = (pH - cH) * workers;
+            const totalNetP = (pP - cP) * workers;
+            const totalNetN = (pN - cN) * workers;
+            
+            const honeyRateEl = document.getElementById('honeyRate');
+            honeyRateEl.textContent = `${totalNetH >= 0 ? '+' : ''}${totalNetH.toFixed(2)}/ث`;
+            honeyRateEl.className = 'resource-rate' + (totalNetH < 0 ? ' negative' : '');
+
+            const pollenRateEl = document.getElementById('pollenRate');
+            pollenRateEl.textContent = `${totalNetP >= 0 ? '+' : ''}${totalNetP.toFixed(2)}/ث`;
+            pollenRateEl.className = 'resource-rate' + (totalNetP < 0 ? ' negative' : '');
+
+            const nectarRateEl = document.getElementById('nectarRate');
+            nectarRateEl.textContent = `${totalNetN >= 0 ? '+' : ''}${totalNetN.toFixed(2)}/ث`;
+            nectarRateEl.className = 'resource-rate' + (totalNetN < 0 ? ' negative' : '');
+
+            document.getElementById('res-honey').classList.toggle('warning', gs.honey < 10);
+            document.getElementById('res-pollen').classList.toggle('warning', gs.pollen < 5);
+            document.getElementById('res-nectar').classList.toggle('warning', gs.nectar < 5);
+
+            const hBar = document.getElementById('healthBar');
+            if (gs.health < 30) hBar.style.background = 'linear-gradient(90deg,#F44336,#FF5722)';
+            else if (gs.health < 60) hBar.style.background = 'linear-gradient(90deg,#FF9800,#FFC107)';
+            else hBar.style.background = 'linear-gradient(90deg,#4CAF50,#8BC34A)';
+
+            const fBar = document.getElementById('fedBar');
+            if (gs.fedLevel < 20) fBar.style.background = 'linear-gradient(90deg,#F44336,#FF5722)';
+            else if (gs.fedLevel < 50) fBar.style.background = 'linear-gradient(90deg,#FF9800,#FFC107)';
+            else fBar.style.background = 'linear-gradient(90deg,#FF9800,#FFD54F)';
+        }
+
+        function drawBackground() {
+            const nightFactor = Math.sin(gs.dayTime * Math.PI * 2) * 0.5 + 0.5;
+            const r = Math.floor(26 + nightFactor * 20);
+            const g = Math.floor(10 + nightFactor * 15);
+            const b = Math.floor(5 + nightFactor * 10);
+            const gradient = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.7);
+            gradient.addColorStop(0, `rgb(${r+20},${g+15},${b+5})`);
+            gradient.addColorStop(1, `rgb(${r},${g},${b})`);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, W, H);
+
+            const glowGradient = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, 200);
+            glowGradient.addColorStop(0, 'rgba(255,180,0,0.08)');
+            glowGradient.addColorStop(1, 'rgba(255,180,0,0)');
+            ctx.fillStyle = glowGradient;
+            ctx.fillRect(0, 0, W, H);
+        }
+
+        function drawHexagon(cx, cy, size, fillColor, strokeColor, lineWidth = 2) {
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const angle = Math.PI/3 * i - Math.PI/6;
+                const x = cx + size * Math.cos(angle);
+                const y = cy + size * Math.sin(angle);
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fillStyle = fillColor;
+            ctx.fill();
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = lineWidth;
+            ctx.stroke();
+        }
+
+        function drawCells() {
+            hexCells.forEach(cell => {
+                const pulse = Math.sin(cell.pulsePhase) * 0.08 + 0.92;
+                const size = HEX_SIZE * pulse;
+                let fillColor;
+                switch(cell.type) {
+                    case 'queen': fillColor = `rgba(224,64,251,${0.3+cell.fillLevel*0.4})`; break;
+                    case 'honey': fillColor = `rgba(255,180,0,${0.2+cell.fillLevel*0.6})`; break;
+                    case 'larva': fillColor = `rgba(255,249,196,${0.3+cell.fillLevel*0.4})`; break;
+                    default: fillColor = `rgba(61,40,0,0.6)`;
+                }
+                drawHexagon(cell.x, cell.y, size, fillColor, 'rgba(255,180,0,0.5)', 2);
+
+                if (cell.fillLevel > 0.1 && cell.type !== 'queen') {
+                    const fillSize = size * cell.fillLevel * 0.7;
+                    ctx.beginPath();
+                    for (let i = 0; i < 6; i++) {
+                        const angle = Math.PI/3 * i - Math.PI/6;
+                        const x = cell.x + fillSize * Math.cos(angle);
+                        const y = cell.y + fillSize * Math.sin(angle);
+                        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                    }
+                    ctx.closePath();
+                    ctx.fillStyle = cell.type === 'honey' ? 'rgba(255,200,0,0.4)' : 'rgba(255,180,0,0.2)';
+                    ctx.fill();
+                }
+
+                if (cell.type === 'queen') {
+                    ctx.font = '18px serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('👑', cell.x, cell.y);
+                }
+            });
+        }
+
+        function drawFlowers() {
+            flowers.forEach(flower => {
+                const sway = Math.sin(flower.swayPhase) * 3;
+                const scale = flower.growthPhase;
+                const lifeRatio = flower.lifetime / flower.maxLifetime;
+                const fx = flower.x + sway;
+
+                ctx.save();
+                ctx.translate(fx, flower.y);
+                ctx.scale(scale, scale);
+                ctx.globalAlpha = 0.4 + lifeRatio * 0.6;
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(sway*0.5, 20, 0, 40);
+                ctx.strokeStyle = lifeRatio > 0.3 ? '#4CAF50' : '#8D6E63';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                for (let i = 0; i < flower.petals; i++) {
+                    const angle = (Math.PI*2/flower.petals)*i + flower.swayPhase*0.1;
+                    ctx.beginPath();
+                    ctx.ellipse(
+                        Math.cos(angle)*flower.size*0.5,
+                        Math.sin(angle)*flower.size*0.5,
+                        flower.size*0.4, flower.size*0.2,
+                        angle, 0, Math.PI*2
+                    );
+                    ctx.fillStyle = lifeRatio > 0.3 ? flower.color : '#9E9E9E';
+                    ctx.fill();
+                }
+
+                ctx.beginPath();
+                ctx.arc(0, 0, flower.size*0.25, 0, Math.PI*2);
+                ctx.fillStyle = '#FFD54F';
+                ctx.fill();
+
+                ctx.globalAlpha = 1;
+
+                const barW = 24;
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.fillRect(-barW/2, -flower.size - 10, barW, 3);
+                ctx.fillStyle = lifeRatio > 0.5 ? '#4CAF50' : (lifeRatio > 0.2 ? '#FF9800' : '#F44336');
+                ctx.fillRect(-barW/2, -flower.size - 10, barW * lifeRatio, 3);
+
+                const nectarRatio = flower.nectar / flower.maxNectar;
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.fillRect(-barW/2, -flower.size - 6, barW, 3);
+                ctx.fillStyle = '#2196F3';
+                ctx.fillRect(-barW/2, -flower.size - 6, barW * nectarRatio, 3);
+
+                ctx.restore();
+            });
+        }
+
+        function drawBee(bee) {
+            if (!bee.alive) return;
+            ctx.save();
+            ctx.translate(bee.x, bee.y);
+
+            const wingFlap = Math.sin(bee.wingPhase) * 0.5;
+            const bodyBob = Math.sin(bee.wobble * 3) * 1;
+
+            if (bee.type === 'worker') {
+                const ageRatio = 1 - (bee.age / bee.maxAge);
+                ctx.beginPath();
+                ctx.arc(0, -bee.size - 5, 5, Math.PI, Math.PI + Math.PI * ageRatio);
+                ctx.strokeStyle = ageRatio > 0.5 ? '#4CAF50' : (ageRatio > 0.2 ? '#FF9800' : '#F44336');
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            ctx.globalAlpha = 0.4;
+            ctx.beginPath();
+            ctx.ellipse(-bee.size*0.3, -bee.size*0.5+bodyBob, bee.size*0.7, bee.size*0.3*(1+wingFlap), -0.3, 0, Math.PI*2);
+            ctx.fillStyle = '#B3E5FC';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(bee.size*0.3, -bee.size*0.5+bodyBob, bee.size*0.7, bee.size*0.3*(1-wingFlap), 0.3, 0, Math.PI*2);
+            ctx.fillStyle = '#B3E5FC';
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            const bodyColor = bee.type === 'queen' ? '#FFB300' : '#FFC107';
+            ctx.beginPath();
+            ctx.ellipse(0, bodyBob, bee.size*0.6, bee.size*0.8, 0, 0, Math.PI*2);
+            ctx.fillStyle = bodyColor;
+            ctx.fill();
+            ctx.strokeStyle = '#5D4037';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            for (let i = -1; i <= 1; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-bee.size*0.5, i*bee.size*0.3+bodyBob);
+                ctx.lineTo(bee.size*0.5, i*bee.size*0.3+bodyBob);
+                ctx.strokeStyle = '#3E2723';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            ctx.beginPath();
+            ctx.arc(0, -bee.size*0.7+bodyBob, bee.size*0.35, 0, Math.PI*2);
+            ctx.fillStyle = '#3E2723';
+            ctx.fill();
+
+            ctx.fillStyle = '#FFF';
+            ctx.beginPath();
+            ctx.arc(-bee.size*0.15, -bee.size*0.75+bodyBob, 1.5, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(bee.size*0.15, -bee.size*0.75+bodyBob, 1.5, 0, Math.PI*2);
+            ctx.fill();
+
+            if (bee.type === 'queen') {
+                ctx.font = `${bee.size}px serif`;
+                ctx.textAlign = 'center';
+                ctx.fillText('👑', 0, -bee.size*1.2+bodyBob);
+            }
+
+            if (bee.carrying === 'pollen') {
+                ctx.beginPath();
+                ctx.arc(bee.size*0.4, bee.size*0.3+bodyBob, 3, 0, Math.PI*2);
+                ctx.fillStyle = '#8BC34A';
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        function drawParticles() {
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI*2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        let lastTime = 0;
+        function gameLoop(timestamp) {
+            const dt = Math.min((timestamp - lastTime) / 1000, 0.05) * gs.speed;
+            lastTime = timestamp;
+
+            updateBees(dt);
+            updateCells(dt);
+            updateFlowers(dt);
+            updateParticles(dt);
+            updateGameState(dt);
+
+            ctx.clearRect(0, 0, W, H);
+            drawBackground();
+            drawFlowers();
+            drawCells();
+            bees.forEach(drawBee);
+            drawParticles();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        createHexGrid();
+        initFlowers();
+        initBees();
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

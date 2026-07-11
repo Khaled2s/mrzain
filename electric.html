@@ -1,0 +1,2895 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 مختبر الكهرباء المرح - Circuit Fun Lab</title>
+    <link href="https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-arabic@latest/arabic-400-normal.woff2" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #a1c4fd 100%);
+            overflow: hidden;
+            height: 100vh;
+            user-select: none;
+        }
+
+        /* Animated background bubbles */
+        .bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.1));
+            animation: float 15s infinite ease-in-out;
+            opacity: 0.5;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0) scale(1); }
+            25% { transform: translateY(-30px) translateX(20px) scale(1.1); }
+            50% { transform: translateY(-60px) translateX(-20px) scale(0.9); }
+            75% { transform: translateY(-30px) translateX(10px) scale(1.05); }
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ========= SIDEBAR ========= */
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, #fff5e6 0%, #ffe0f0 50%, #e0f0ff 100%);
+            border-left: 4px dashed #ff9ec7;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            box-shadow: -4px 0 20px rgba(255, 158, 199, 0.3);
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 18px 15px;
+            background: linear-gradient(135deg, #ff6b9d, #ffa751, #ffe259);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.4rem;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-header p {
+            font-size: 0.8rem;
+            color: #fff;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+            margin-top: 4px;
+        }
+
+        .robot-mascot {
+            font-size: 2.5rem;
+            display: inline-block;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-8px) rotate(5deg); }
+        }
+
+        .components-section {
+            padding: 12px;
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .components-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .components-section::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+        }
+
+        .components-section::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #ff9ec7, #a1c4fd);
+            border-radius: 10px;
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            color: #ff4081;
+            margin: 10px 0 10px 0;
+            padding: 6px 12px;
+            background: linear-gradient(90deg, #fff0f5, transparent);
+            border-radius: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .component-btn {
+            background: linear-gradient(135deg, #ffffff, #fff9f0);
+            border: 3px solid;
+            border-radius: 18px;
+            padding: 10px 6px;
+            cursor: grab;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .component-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            transition: left 0.5s;
+        }
+
+        .component-btn:hover::before {
+            left: 100%;
+        }
+
+        .component-btn:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .component-btn:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .component-btn svg {
+            width: 48px;
+            height: 36px;
+        }
+
+        .component-btn span {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .component-btn .emoji {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        /* Color themes for each component type */
+        .comp-battery { border-color: #ff6b6b; background: linear-gradient(135deg, #fff5f5, #ffe0e0); }
+        .comp-resistor { border-color: #ffa726; background: linear-gradient(135deg, #fffaf0, #ffe8c8); }
+        .comp-led { border-color: #66bb6a; background: linear-gradient(135deg, #f0fff0, #d4edda); }
+        .comp-capacitor { border-color: #ab47bc; background: linear-gradient(135deg, #fdf0ff, #f3d9ff); }
+        .comp-switch { border-color: #ffca28; background: linear-gradient(135deg, #fffde7, #fff59d); }
+        .comp-lamp { border-color: #ffc107; background: linear-gradient(135deg, #fffef0, #fff9c4); }
+        .comp-wire { border-color: #78909c; background: linear-gradient(135deg, #f5f5f5, #e0e0e0); }
+        .comp-ground { border-color: #8d6e63; background: linear-gradient(135deg, #f5ebe0, #e8d5c4); }
+        .comp-motor { border-color: #26c6da; background: linear-gradient(135deg, #e0f7fa, #b2ebf2); }
+        .comp-buzzer { border-color: #ec407a; background: linear-gradient(135deg, #fce4ec, #f8bbd0); }
+        .comp-diode { border-color: #5c6bc0; background: linear-gradient(135deg, #e8eaf6, #c5cae9); }
+        .comp-photoresistor { border-color: #9ccc65; background: linear-gradient(135deg, #f1f8e9, #dcedc8); }
+        .comp-voltmeter { border-color: #e91e63; background: linear-gradient(135deg, #fce4ec, #f8bbd0); }
+        .comp-ammeter { border-color: #00bcd4; background: linear-gradient(135deg, #e0f7fa, #b2ebf2); }
+        .comp-fuse { border-color: #ff5252; background: linear-gradient(135deg, #ffebee, #ffcdd2); }
+        .comp-inductor { border-color: #7e57c2; background: linear-gradient(135deg, #ede7f6, #d1c4e9); }
+
+        .tools-section {
+            padding: 12px;
+            border-top: 3px dashed #ff9ec7;
+            background: rgba(255,255,255,0.4);
+        }
+
+        .tool-btn {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 6px;
+            border: 3px solid;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .tool-btn.active {
+            transform: scale(0.98);
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .tool-select { border-color: #42a5f5; color: #1976d2; }
+        .tool-select.active { background: linear-gradient(135deg, #bbdefb, #90caf9); }
+        .tool-wire { border-color: #66bb6a; color: #388e3c; }
+        .tool-wire.active { background: linear-gradient(135deg, #c8e6c9, #a5d6a7); }
+        .tool-simulate { border-color: #ff9800; color: #f57c00; }
+        .tool-simulate.active { background: linear-gradient(135deg, #ffe0b2, #ffcc80); }
+        .tool-danger { border-color: #ef5350; color: #d32f2f; }
+        .tool-danger:hover { background: #ffebee; }
+        .tool-help { border-color: #ab47bc; color: #7b1fa2; }
+        .tool-help:hover { background: #f3e5f5; }
+
+        /* ========= MAIN AREA ========= */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toolbar {
+            height: 56px;
+            background: linear-gradient(90deg, #fff5e6, #ffe0f0, #e0f0ff);
+            border-bottom: 3px dashed #a1c4fd;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 12px;
+            box-shadow: 0 2px 10px rgba(161, 196, 253, 0.3);
+        }
+
+        .toolbar-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: auto;
+            flex-wrap: wrap;
+        }
+
+        .info-badge {
+            background: white;
+            padding: 5px 14px;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .badge-status { border-color: #66bb6a; color: #2e7d32; }
+        .badge-comp { border-color: #42a5f5; color: #1565c0; }
+        .badge-wire { border-color: #ffa726; color: #ef6c00; }
+
+        .info-badge .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #bdbdbd;
+        }
+
+        .info-badge .dot.on {
+            background: #66bb6a;
+            box-shadow: 0 0 10px #66bb6a;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 236, 210, 0.5) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(161, 196, 253, 0.5) 0%, transparent 50%),
+                linear-gradient(135deg, #f8fbff 0%, #fff5f8 100%);
+        }
+
+        #circuitCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: crosshair;
+        }
+
+        /* ========= PROPERTIES PANEL ========= */
+        .properties-panel {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 260px;
+            background: linear-gradient(135deg, #fff5e6, #ffe0f0);
+            border: 3px solid #ff9ec7;
+            border-radius: 20px;
+            padding: 15px;
+            display: none;
+            box-shadow: 0 8px 25px rgba(255, 158, 199, 0.3);
+            z-index: 5;
+        }
+
+        .properties-panel.visible {
+            display: block;
+            animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .properties-panel h3 {
+            font-size: 1rem;
+            color: #ff4081;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prop-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .prop-row label {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .prop-row input {
+            width: 110px;
+            padding: 6px 10px;
+            background: white;
+            border: 2px solid #ff9ec7;
+            border-radius: 12px;
+            color: #333;
+            font-size: 0.8rem;
+            text-align: center;
+            font-family: inherit;
+            font-weight: bold;
+        }
+
+        .prop-row input:focus {
+            outline: none;
+            border-color: #ff4081;
+            box-shadow: 0 0 0 3px rgba(255, 64, 129, 0.2);
+        }
+
+        /* ========= SIMULATION PANEL ========= */
+        .simulation-panel {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            left: 15px;
+            background: linear-gradient(135deg, #fff5e6, #ffe0f0, #e0f0ff);
+            border: 3px solid #ffa751;
+            border-radius: 25px;
+            padding: 15px 20px;
+            display: none;
+            box-shadow: 0 8px 25px rgba(255, 167, 81, 0.3);
+            z-index: 5;
+        }
+
+        .simulation-panel.visible {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .sim-value {
+            text-align: center;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 18px;
+            min-width: 100px;
+            border: 2px solid #ffd54f;
+            box-shadow: 0 3px 8px rgba(255, 213, 79, 0.3);
+        }
+
+        .sim-value .label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .sim-value .value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff6b9d, #ffa751);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sim-value .unit {
+            font-size: 0.7rem;
+            color: #999;
+            font-weight: bold;
+        }
+
+        /* ========= MESSAGE BOX ========= */
+        .message-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #fff5e6, #ffe0f0);
+            border: 4px solid #ff6b9d;
+            border-radius: 25px;
+            padding: 25px 35px;
+            text-align: center;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 15px 40px rgba(255, 107, 157, 0.4);
+            max-width: 400px;
+        }
+
+        .message-box.visible {
+            display: block;
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            70% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .message-box .emoji-big {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+            animation: bounce 1s infinite;
+        }
+
+        .message-box h2 {
+            color: #ff4081;
+            margin-bottom: 8px;
+        }
+
+        .message-box p {
+            color: #555;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .message-box button {
+            padding: 8px 25px;
+            background: linear-gradient(135deg, #ff6b9d, #ffa751);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(255, 107, 157, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .message-box button:hover {
+            transform: scale(1.05);
+        }
+
+        /* ========= CONTEXT MENU ========= */
+        .context-menu {
+            position: absolute;
+            background: linear-gradient(135deg, #fff5e6, #ffe0f0);
+            border: 3px solid #ff9ec7;
+            border-radius: 18px;
+            padding: 8px 0;
+            display: none;
+            z-index: 100;
+            min-width: 170px;
+            box-shadow: 0 8px 25px rgba(255, 158, 199, 0.4);
+        }
+
+        .context-menu.visible {
+            display: block;
+            animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .context-menu-item {
+            padding: 10px 18px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .context-menu-item:hover {
+            background: linear-gradient(90deg, #ffe0f0, transparent);
+            color: #ff4081;
+            padding-right: 25px;
+        }
+
+        .context-menu-item.danger {
+            color: #ef5350;
+        }
+
+        .context-menu-item.danger:hover {
+            background: linear-gradient(90deg, #ffebee, transparent);
+        }
+
+        /* ========= ZOOM CONTROLS ========= */
+        .zoom-controls {
+            position: absolute;
+            bottom: 80px;
+            left: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 5;
+        }
+
+        .zoom-btn {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #fff, #fff5e6);
+            border: 3px solid #ffa751;
+            border-radius: 15px;
+            color: #f57c00;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 3px 10px rgba(255, 167, 81, 0.3);
+        }
+
+        .zoom-btn:hover {
+            transform: scale(1.1) rotate(5deg);
+            background: linear-gradient(135deg, #ffe0b2, #ffcc80);
+        }
+
+        /* ========= HELP OVERLAY ========= */
+        .help-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 107, 157, 0.3);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .help-overlay.visible {
+            display: flex;
+        }
+
+        .help-content {
+            background: linear-gradient(135deg, #fff5e6, #ffe0f0, #e0f0ff);
+            border: 4px solid #ff6b9d;
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 550px;
+            width: 90%;
+            box-shadow: 0 20px 50px rgba(255, 107, 157, 0.4);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .help-content h2 {
+            color: #ff4081;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .help-content .help-emoji {
+            font-size: 3rem;
+            text-align: center;
+            display: block;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        .help-content p {
+            font-size: 0.9rem;
+            line-height: 1.9;
+            color: #555;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 12px;
+            border-right: 4px solid #ff9ec7;
+        }
+
+        .help-content .close-btn {
+            display: block;
+            margin: 15px auto 0;
+            padding: 10px 30px;
+            background: linear-gradient(135deg, #ff6b9d, #ffa751);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .help-content .close-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* ========= CONFETTI ========= */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 999;
+            animation: confettiFall 3s linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ========= TIPS ========= */
+        .tip-box {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #fff5e6, #fff9c4);
+            border: 3px solid #ffca28;
+            border-radius: 20px;
+            padding: 12px 18px;
+            max-width: 280px;
+            box-shadow: 0 5px 15px rgba(255, 202, 40, 0.3);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .tip-box .tip-emoji {
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        .tip-box .tip-text {
+            font-size: 0.8rem;
+            color: #555;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar { width: 260px; }
+            .component-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bubbles" id="bubbles"></div>
+
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="robot-mascot">🤖</div>
+                <h1>مختبر الكهرباء المرح</h1>
+                <p>✨ اصنع دوائرك واكتشف عالم الكهرباء! ✨</p>
+            </div>
+
+            <div class="components-section">
+                <div class="section-title">⚡ مصادر الطاقة</div>
+                <div class="component-grid">
+                    <div class="component-btn comp-battery" data-type="battery" draggable="true">
+                        <span class="emoji">🔋</span>
+                        <span>بطارية</span>
+                    </div>
+                    <div class="component-btn comp-ground" data-type="ground" draggable="true">
+                        <span class="emoji">🌍</span>
+                        <span>أرضي</span>
+                    </div>
+                </div>
+
+                <div class="section-title">🔧 مكونات التحكم</div>
+                <div class="component-grid">
+                    <div class="component-btn comp-switch" data-type="switch" draggable="true">
+                        <span class="emoji">🔘</span>
+                        <span>مفتاح</span>
+                    </div>
+                    <div class="component-btn comp-resistor" data-type="resistor" draggable="true">
+                        <span class="emoji">🎯</span>
+                        <span>مقاومة</span>
+                    </div>
+                    <div class="component-btn comp-capacitor" data-type="capacitor" draggable="true">
+                        <span class="emoji">📦</span>
+                        <span>مكثف</span>
+                    </div>
+                    <div class="component-btn comp-inductor" data-type="inductor" draggable="true">
+                        <span class="emoji">🌀</span>
+                        <span>ملف</span>
+                    </div>
+                    <div class="component-btn comp-diode" data-type="diode" draggable="true">
+                        <span class="emoji">➡️</span>
+                        <span>دايود</span>
+                    </div>
+                    <div class="component-btn comp-fuse" data-type="fuse" draggable="true">
+                        <span class="emoji">🛡️</span>
+                        <span>فيوز</span>
+                    </div>
+                    <div class="component-btn comp-photoresistor" data-type="photoresistor" draggable="true">
+                        <span class="emoji">☀️</span>
+                        <span>حساس ضوء</span>
+                    </div>
+                </div>
+
+                <div class="section-title">💡 الأجهزة والمصابيح</div>
+                <div class="component-grid">
+                    <div class="component-btn comp-led" data-type="led" draggable="true">
+                        <span class="emoji">💡</span>
+                        <span>LED ملون</span>
+                    </div>
+                    <div class="component-btn comp-lamp" data-type="lamp" draggable="true">
+                        <span class="emoji">🔆</span>
+                        <span>مصباح</span>
+                    </div>
+                    <div class="component-btn comp-motor" data-type="motor" draggable="true">
+                        <span class="emoji">⚙️</span>
+                        <span>محرك</span>
+                    </div>
+                    <div class="component-btn comp-buzzer" data-type="buzzer" draggable="true">
+                        <span class="emoji">🔔</span>
+                        <span>صافرة</span>
+                    </div>
+                </div>
+
+                <div class="section-title">🔌 التوصيل والقياس</div>
+                <div class="component-grid">
+                    <div class="component-btn comp-wire" data-type="wire" draggable="true">
+                        <span class="emoji">🔗</span>
+                        <span>سلك</span>
+                    </div>
+                    <div class="component-btn comp-voltmeter" data-type="voltmeter" draggable="true">
+                        <span class="emoji">📊</span>
+                        <span>فولتميتر</span>
+                    </div>
+                    <div class="component-btn comp-ammeter" data-type="ammeter" draggable="true">
+                        <span class="emoji">📈</span>
+                        <span>أميتر</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tools-section">
+                <button class="tool-btn tool-select active" id="selectTool">🖱️ وضع التحديد</button>
+                <button class="tool-btn tool-wire" id="wireTool">🔗 رسم سلك</button>
+                <button class="tool-btn tool-simulate" id="simulateBtn">▶️ تشغيل المحاكاة</button>
+                <button class="tool-btn tool-danger" id="clearBtn">🗑️ مسح الكل</button>
+                <button class="tool-btn tool-help" id="helpBtn">❓ مساعدة</button>
+            </div>
+        </div>
+
+        <div class="main-area">
+            <div class="toolbar">
+                <div class="toolbar-info">
+                    <div class="info-badge badge-status">
+                        <div class="dot" id="simDot"></div>
+                        <span id="simStatus">متوقف</span>
+                    </div>
+                    <div class="info-badge badge-comp">
+                        🧩 المكونات: <span id="compCount">0</span>
+                    </div>
+                    <div class="info-badge badge-wire">
+                        🔌 الأسلاك: <span id="wireCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-container" id="canvasContainer">
+                <canvas id="circuitCanvas"></canvas>
+
+                <div class="properties-panel" id="propertiesPanel">
+                    <h3 id="propTitle">🎛️ خصائص المكون</h3>
+                    <div id="propContent"></div>
+                </div>
+
+                <div class="simulation-panel" id="simulationPanel">
+                    <div class="sim-value">
+                        <div class="label">⚡ الجهد الكلي</div>
+                        <div class="value" id="totalVoltage">0</div>
+                        <div class="unit">فولت</div>
+                    </div>
+                    <div class="sim-value">
+                        <div class="label">🌊 التيار الكلي</div>
+                        <div class="value" id="totalCurrent">0</div>
+                        <div class="unit">مللي أمبير</div>
+                    </div>
+                    <div class="sim-value">
+                        <div class="label">🎯 المقاومة الكلية</div>
+                        <div class="value" id="totalResistance">0</div>
+                        <div class="unit">أوم</div>
+                    </div>
+                    <div class="sim-value">
+                        <div class="label">💪 القدرة</div>
+                        <div class="value" id="totalPower">0</div>
+                        <div class="unit">واط</div>
+                    </div>
+                </div>
+
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoomIn">+</button>
+                    <button class="zoom-btn" id="zoomOut">−</button>
+                    <button class="zoom-btn" id="zoomReset">⟲</button>
+                </div>
+
+                <div class="tip-box" id="tipBox">
+                    <span class="tip-emoji">💡</span>
+                    <div class="tip-text" id="tipText">اسحب المكونات من الشريط الجانبي وابدأ ببناء دائرتك!</div>
+                </div>
+
+                <div class="context-menu" id="contextMenu">
+                    <div class="context-menu-item" id="ctxEdit">✏️ تعديل الخصائص</div>
+                    <div class="context-menu-item" id="ctxRotate">🔄 تدوير</div>
+                    <div class="context-menu-item" id="ctxDuplicate">📋 نسخ</div>
+                    <div class="context-menu-item danger" id="ctxDelete">🗑️ حذف</div>
+                </div>
+
+                <div class="message-box" id="messageBox">
+                    <span class="emoji-big" id="msgEmoji">🎉</span>
+                    <h2 id="msgTitle">رائع!</h2>
+                    <p id="msgText">لقد أكملت دائرة كهربائية بنجاح!</p>
+                    <button id="msgClose">حسناً!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="help-overlay" id="helpOverlay">
+        <div class="help-content">
+            <span class="help-emoji">🤖✨</span>
+            <h2>مرحباً بك في مختبر الكهرباء!</h2>
+            <p>🎨 <strong>اسحب المكون:</strong> اسحب أي مكون من الشريط الجانبي إلى لوحة التصميم</p>
+            <p>🔗 <strong>التوصيل:</strong> اختر أداة "رسم سلك" ثم انقر على نقاط التوصيل (الدوائر الزرقاء)</p>
+            <p>🖱️ <strong>التحديد والتحريك:</strong> في وضع التحديد، اسحب المكون لتغيير مكانه</p>
+            <p>🔄 <strong>التدوير:</strong> انقر بزر الماوس الأيمن على المكون واختر "تدوير" أو اضغط R</p>
+            <p>🎛️ <strong>تعديل القيم:</strong> انقر على المكون ثم عدّل قيمته من لوحة الخصائص</p>
+            <p>▶️ <strong>المحاكاة:</strong> اضغط "تشغيل المحاكاة" لرؤية التيار يتدفق!</p>
+            <p>🔘 <strong>المفتاح:</strong> انقر مرتين على المفتاح في وضع المحاكاة لفتحه/إغلاقه</p>
+            <p>🎉 <strong>تحدي:</strong> حاول إضاءة المصباح أو تشغيل المحرك!</p>
+            <button class="close-btn" id="closeHelp">🚀 هيا نبدأ!</button>
+        </div>
+    </div>
+
+    <script>
+        // ============ Background bubbles ============
+        const bubblesContainer = document.getElementById('bubbles');
+        const bubbleColors = ['#ff9ec7', '#a1c4fd', '#ffd54f', '#81c784', '#ce93d8', '#ffab91'];
+        for (let i = 0; i < 15; i++) {
+            const b = document.createElement('div');
+            b.className = 'bubble';
+            const size = 30 + Math.random() * 80;
+            b.style.width = size + 'px';
+            b.style.height = size + 'px';
+            b.style.left = Math.random() * 100 + '%';
+            b.style.top = Math.random() * 100 + '%';
+            b.style.animationDelay = Math.random() * 10 + 's';
+            b.style.animationDuration = (10 + Math.random() * 15) + 's';
+            bubblesContainer.appendChild(b);
+        }
+
+        // ============ Audio ============
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+            }
+        }
+        function playTone(freq, duration, type='sine', volume=0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+        function playClick() { playTone(800, 0.05, 'square', 0.05); }
+        function playSuccess() {
+            playTone(523, 0.15, 'sine', 0.1);
+            setTimeout(() => playTone(659, 0.15, 'sine', 0.1), 100);
+            setTimeout(() => playTone(784, 0.25, 'sine', 0.1), 200);
+        }
+        function playDelete() { playTone(200, 0.15, 'sawtooth', 0.05); }
+        function playBuzz() { playTone(440, 0.3, 'square', 0.08); }
+
+        // ============ Confetti ============
+        function launchConfetti() {
+            const colors = ['#ff6b9d', '#ffa751', '#ffe259', '#66bb6a', '#42a5f5', '#ab47bc'];
+            for (let i = 0; i < 50; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = Math.random() * 100 + 'vw';
+                c.style.background = colors[Math.floor(Math.random() * colors.length)];
+                c.style.animationDuration = (2 + Math.random() * 2) + 's';
+                c.style.animationDelay = Math.random() * 0.5 + 's';
+                c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 4000);
+            }
+        }
+
+        // ============ Tips ============
+        const tips = [
+            "💡 جرب توصيل البطارية بالمصباح لإضاءته!",
+            "🔋 البطارية هي مصدر الطاقة في الدائرة",
+            "🎯 المقاومة تقلل من شدة التيار",
+            "🔘 المفتاح يتحكم في مرور التيار",
+            "💡 LED يحتاج مقاومة لحمايته من الاحتراق",
+            "⚙️ المحرك يحول الكهرباء إلى حركة",
+            "🔔 الصافرة تحول الكهرباء إلى صوت",
+            "🌍 الأرضي يحمي الدائرة من الشحنات الزائدة",
+            "📦 المكثف يخزن الطاقة الكهربائية",
+            "🌀 الملف يخزن الطاقة في مجال مغناطيسي",
+            "➡️ الدايود يسمح للتيار بالمرور في اتجاه واحد",
+            "🛡️ الفيوز يحمي الدائرة من التيار الزائد",
+            "☀️ حساس الضوء يغير مقاومته مع شدة الإضاءة"
+        ];
+        let currentTip = 0;
+        function rotateTip() {
+            currentTip = (currentTip + 1) % tips.length;
+            const tipText = document.getElementById('tipText');
+            tipText.style.opacity = '0';
+            setTimeout(() => {
+                tipText.textContent = tips[currentTip];
+                tipText.style.opacity = '1';
+            }, 300);
+        }
+        setInterval(rotateTip, 8000);
+
+        // ============ Canvas setup ============
+        const canvas = document.getElementById('circuitCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvasContainer');
+
+        let width, height;
+        let zoom = 1;
+        let panX = 0, panY = 0;
+        let gridSize = 30;
+
+        let components = [];
+        let wires = [];
+        let selectedComponent = null;
+        let draggingComponent = null;
+        let dragOffset = { x: 0, y: 0 };
+        let currentTool = 'select';
+        let wireStart = null;
+        let wireStartComponent = null;
+        let isSimulating = false;
+        let mousePos = { x: 0, y: 0 };
+        let isPanning = false;
+        let panStart = { x: 0, y: 0 };
+        let contextTarget = null;
+        let animFrame = 0;
+        let lastCircuitState = false;
+
+        const componentDefaults = {
+            battery: { voltage: 9, label: 'بطارية' },
+            resistor: { resistance: 1000, label: 'مقاومة' },
+            led: { voltage: 2, color: '#4caf50', label: 'LED' },
+            capacitor: { capacitance: 0.000001, label: 'مكثف' },
+            switch: { closed: false, label: 'مفتاح' },
+            lamp: { resistance: 100, label: 'مصباح' },
+            wire: { label: 'سلك' },
+            ground: { label: 'أرضي' },
+            voltmeter: { label: 'فولتميتر' },
+            ammeter: { label: 'أميتر' },
+            motor: { resistance: 50, label: 'محرك' },
+            buzzer: { resistance: 200, label: 'صافرة' },
+            diode: { label: 'دايود' },
+            photoresistor: { resistance: 10000, label: 'حساس ضوء' },
+            fuse: { rating: 1, label: 'فيوز' },
+            inductor: { inductance: 0.001, resistance: 10, label: 'ملف' }
+        };
+
+        const componentColors = {
+            battery: '#ff6b6b',
+            resistor: '#ffa726',
+            led: '#66bb6a',
+            capacitor: '#ab47bc',
+            switch: '#ffca28',
+            lamp: '#ffc107',
+            wire: '#78909c',
+            ground: '#8d6e63',
+            voltmeter: '#e91e63',
+            ammeter: '#00bcd4',
+            motor: '#26c6da',
+            buzzer: '#ec407a',
+            diode: '#5c6bc0',
+            photoresistor: '#9ccc65',
+            fuse: '#ff5252',
+            inductor: '#7e57c2'
+        };
+
+        const componentEmojis = {
+            battery: '🔋', resistor: '🎯', led: '💡', capacitor: '📦',
+            switch: '🔘', lamp: '🔆', wire: '🔗', ground: '🌍',
+            voltmeter: '📊', ammeter: '📈', motor: '⚙️', buzzer: '🔔',
+            diode: '➡️', photoresistor: '☀️', fuse: '🛡️', inductor: '🌀'
+        };
+
+        function resizeCanvas() {
+            width = container.clientWidth;
+            height = container.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+            draw();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function screenToWorld(sx, sy) {
+            return { x: (sx - panX) / zoom, y: (sy - panY) / zoom };
+        }
+
+        function worldToScreen(wx, wy) {
+            return { x: wx * zoom + panX, y: wy * zoom + panY };
+        }
+
+        function snapToGrid(val) {
+            return Math.round(val / gridSize) * gridSize;
+        }
+
+        function createComponent(type, x, y) {
+            const id = Date.now() + Math.random();
+            const defaults = componentDefaults[type] || {};
+            const comp = {
+                id,
+                type,
+                x: snapToGrid(x),
+                y: snapToGrid(y),
+                rotation: 0,
+                ...JSON.parse(JSON.stringify(defaults)),
+                width: 90,
+                height: 40,
+                pins: getPins(type),
+                bouncePhase: Math.random() * Math.PI * 2
+            };
+            components.push(comp);
+            updateCounts();
+            playClick();
+            return comp;
+        }
+
+        function getPins(type) {
+            switch (type) {
+                case 'battery':
+                case 'resistor':
+                case 'led':
+                case 'capacitor':
+                case 'switch':
+                case 'lamp':
+                case 'wire':
+                case 'voltmeter':
+                case 'ammeter':
+                case 'motor':
+                case 'buzzer':
+                case 'diode':
+                case 'photoresistor':
+                case 'fuse':
+                case 'inductor':
+                    return [
+                        { x: -45, y: 0, id: 'left' },
+                        { x: 45, y: 0, id: 'right' }
+                    ];
+                case 'ground':
+                    return [{ x: 0, y: -20, id: 'top' }];
+                default:
+                    return [];
+            }
+        }
+
+        function getPinWorldPos(comp, pin) {
+            const cos = Math.cos(comp.rotation * Math.PI / 180);
+            const sin = Math.sin(comp.rotation * Math.PI / 180);
+            return {
+                x: comp.x + pin.x * cos - pin.y * sin,
+                y: comp.y + pin.x * sin + pin.y * cos
+            };
+        }
+
+        // ============ Drawing ============
+        function drawGrid() {
+            ctx.save();
+            const startX = (-panX / zoom);
+            const startY = (-panY / zoom);
+            const endX = (width - panX) / zoom;
+            const endY = (height - panY) / zoom;
+
+            // Small grid dots
+            ctx.fillStyle = 'rgba(255, 158, 199, 0.25)';
+            const gridStartX = Math.floor(startX / gridSize) * gridSize;
+            const gridStartY = Math.floor(startY / gridSize) * gridSize;
+
+            for (let x = gridStartX; x < endX; x += gridSize) {
+                for (let y = gridStartY; y < endY; y += gridSize) {
+                    const screen = worldToScreen(x, y);
+                    ctx.beginPath();
+                    ctx.arc(screen.x, screen.y, 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // Major grid dots
+            ctx.fillStyle = 'rgba(161, 196, 253, 0.5)';
+            const majorGrid = gridSize * 5;
+            const majorStartX = Math.floor(startX / majorGrid) * majorGrid;
+            const majorStartY = Math.floor(startY / majorGrid) * majorGrid;
+
+            for (let x = majorStartX; x < endX; x += majorGrid) {
+                for (let y = majorStartY; y < endY; y += majorGrid) {
+                    const screen = worldToScreen(x, y);
+                    ctx.beginPath();
+                    ctx.arc(screen.x, screen.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            ctx.restore();
+        }
+
+        function drawComponent(comp) {
+            const screen = worldToScreen(comp.x, comp.y);
+            const color = componentColors[comp.type];
+            const isSelected = selectedComponent === comp;
+
+            ctx.save();
+            ctx.translate(screen.x, screen.y);
+            ctx.rotate(comp.rotation * Math.PI / 180);
+            ctx.scale(zoom, zoom);
+
+            // Cute bounce effect when selected
+            let scale = 1;
+            if (isSelected) {
+                scale = 1 + Math.sin(animFrame * 0.1) * 0.03;
+            }
+            ctx.scale(scale, scale);
+
+            // Shadow
+            ctx.shadowColor = color;
+            ctx.shadowBlur = isSelected ? 20 : 8;
+            ctx.shadowOffsetY = 3;
+
+            // Selection highlight - cute rounded rectangle
+            if (isSelected) {
+                ctx.strokeStyle = '#ff4081';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([8, 5]);
+                const dashOffset = animFrame * 0.5;
+                ctx.lineDashOffset = dashOffset;
+                roundRect(ctx, -55, -28, 110, 56, 15);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            switch (comp.type) {
+                case 'battery': drawBattery(comp, color); break;
+                case 'resistor': drawResistor(comp, color); break;
+                case 'led': drawLED(comp, color); break;
+                case 'capacitor': drawCapacitor(comp, color); break;
+                case 'switch': drawSwitch(comp, color); break;
+                case 'lamp': drawLamp(comp, color); break;
+                case 'wire': drawWireComponent(comp, color); break;
+                case 'ground': drawGround(comp, color); break;
+                case 'voltmeter': drawMeter(comp, color, 'V'); break;
+                case 'ammeter': drawMeter(comp, color, 'A'); break;
+                case 'motor': drawMotor(comp, color); break;
+                case 'buzzer': drawBuzzer(comp, color); break;
+                case 'diode': drawDiode(comp, color); break;
+                case 'photoresistor': drawPhotoresistor(comp, color); break;
+                case 'fuse': drawFuse(comp, color); break;
+                case 'inductor': drawInductor(comp, color); break;
+            }
+
+            // Label with cute background
+            ctx.shadowBlur = 0;
+            const label = comp.label;
+            ctx.font = 'bold 10px sans-serif';
+            const labelWidth = ctx.measureText(label).width + 10;
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            roundRect(ctx, -labelWidth/2, -30, labelWidth, 14, 7);
+            ctx.fill();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            roundRect(ctx, -labelWidth/2, -30, labelWidth, 14, 7);
+            ctx.stroke();
+
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, 0, -23);
+
+            // Value
+            let valueText = '';
+            if (comp.type === 'battery') valueText = comp.voltage + 'V';
+            else if (comp.type === 'resistor' || comp.type === 'lamp' || comp.type === 'motor' || comp.type === 'buzzer' || comp.type === 'photoresistor') valueText = formatResistance(comp.resistance);
+            else if (comp.type === 'led') valueText = comp.voltage + 'V';
+            else if (comp.type === 'capacitor') valueText = formatCapacitance(comp.capacitance);
+            else if (comp.type === 'inductor') valueText = formatInductance(comp.inductance);
+            else if (comp.type === 'fuse') valueText = comp.rating + 'A';
+
+            if (valueText) {
+                ctx.fillStyle = '#888';
+                ctx.font = '9px sans-serif';
+                ctx.fillText(valueText, 0, 32);
+            }
+
+            // Simulation values
+            if (isSimulating && comp.simValues) {
+                ctx.fillStyle = '#ff4081';
+                ctx.font = 'bold 9px sans-serif';
+                if (comp.simValues.voltage !== undefined) {
+                    ctx.fillText('⚡' + comp.simValues.voltage.toFixed(1) + 'V', 0, 42);
+                }
+                if (comp.simValues.current !== undefined) {
+                    ctx.fillText('🌊' + (comp.simValues.current * 1000).toFixed(1) + 'mA', 0, 52);
+                }
+            }
+
+            ctx.restore();
+
+            drawPins(comp);
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function drawBattery(comp, color) {
+            // Wires
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-15, 0);
+            ctx.stroke();
+
+            // Plus plate (thick)
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(-15, -16);
+            ctx.lineTo(-15, 16);
+            ctx.stroke();
+
+            // Minus plate (thin)
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-6, -10);
+            ctx.lineTo(-6, 10);
+            ctx.stroke();
+
+            // Plus plate 2
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(3, -16);
+            ctx.lineTo(3, 16);
+            ctx.stroke();
+
+            // Minus plate 2
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(12, -10);
+            ctx.lineTo(12, 10);
+            ctx.stroke();
+
+            // Output wire
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(12, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+
+            // + and - signs with cute circles
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(-25, -20, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.fillStyle = color;
+            ctx.font = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('+', -25, -20);
+
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(22, -20, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = color;
+            ctx.stroke();
+            ctx.fillStyle = color;
+            ctx.fillText('−', 22, -20);
+        }
+
+        function drawResistor(comp, color) {
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-25, 0);
+            ctx.stroke();
+
+            // Body (rounded rectangle)
+            ctx.fillStyle = color + '30';
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+            roundRect(ctx, -25, -10, 50, 20, 5);
+            ctx.fill();
+            ctx.stroke();
+
+            // Color bands
+            const bands = ['#ff0000', '#ff9800', '#f44336', '#ffd700'];
+            bands.forEach((c, i) => {
+                ctx.fillStyle = c;
+                ctx.fillRect(-20 + i * 11, -8, 4, 16);
+            });
+
+            ctx.strokeStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(25, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+        }
+
+        function drawLED(comp, color) {
+            const isOn = isSimulating && comp.simValues && comp.simValues.current > 0;
+            const ledColor = comp.color || color;
+
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-12, 0);
+            ctx.stroke();
+
+            // Triangle body
+            ctx.beginPath();
+            ctx.moveTo(-12, -14);
+            ctx.lineTo(-12, 14);
+            ctx.lineTo(12, 0);
+            ctx.closePath();
+            
+            if (isOn) {
+                ctx.shadowColor = ledColor;
+                ctx.shadowBlur = 25;
+                ctx.fillStyle = ledColor;
+                ctx.globalAlpha = 0.6;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            } else {
+                ctx.fillStyle = ledColor + '40';
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = ledColor;
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Bar
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(12, -14);
+            ctx.lineTo(12, 14);
+            ctx.stroke();
+
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(12, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+
+            // Light rays
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = isOn ? ledColor : '#999';
+            for (let i = 0; i < 3; i++) {
+                const angle = -Math.PI/3 + i * Math.PI/6;
+                const x1 = 0 + Math.cos(angle) * 18;
+                const y1 = -5 + Math.sin(angle) * 18;
+                const x2 = 0 + Math.cos(angle) * 25;
+                const y2 = -5 + Math.sin(angle) * 25;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+
+                // Arrow head
+                const ax = x2 - Math.cos(angle - 0.5) * 3;
+                const ay = y2 - Math.sin(angle - 0.5) * 3;
+                const bx = x2 - Math.cos(angle + 0.5) * 3;
+                const by = y2 - Math.sin(angle + 0.5) * 3;
+                ctx.beginPath();
+                ctx.moveTo(ax, ay);
+                ctx.lineTo(x2, y2);
+                ctx.lineTo(bx, by);
+                ctx.stroke();
+            }
+
+            if (isOn) {
+                // Glow
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 30);
+                gradient.addColorStop(0, ledColor + '80');
+                gradient.addColorStop(1, ledColor + '00');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, 30, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawCapacitor(comp, color) {
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-6, 0);
+            ctx.stroke();
+
+            // Plates
+            ctx.lineWidth = 3.5;
+            ctx.beginPath();
+            ctx.moveTo(-6, -17);
+            ctx.lineTo(-6, 17);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(6, -17);
+            ctx.lineTo(6, 17);
+            ctx.stroke();
+
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(6, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+
+            // + sign
+            ctx.fillStyle = color;
+            ctx.font = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('+', -14, -18);
+        }
+
+        function drawSwitch(comp, color) {
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-15, 0);
+            ctx.stroke();
+
+            // Contact points with cute circles
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(-15, 0, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(15, 0, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.stroke();
+
+            // Lever
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            if (comp.closed) {
+                ctx.beginPath();
+                ctx.moveTo(-15, 0);
+                ctx.lineTo(15, 0);
+                ctx.stroke();
+                // Green indicator
+                ctx.fillStyle = '#4caf50';
+                ctx.beginPath();
+                ctx.arc(0, -15, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 8px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('✓', 0, -15);
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(-15, 0);
+                ctx.lineTo(10, -18);
+                ctx.stroke();
+                // Red indicator
+                ctx.fillStyle = '#f44336';
+                ctx.beginPath();
+                ctx.arc(0, -15, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 8px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('✗', 0, -15);
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(15, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+        }
+
+        function drawLamp(comp, color) {
+            const isOn = isSimulating && comp.simValues && comp.simValues.current > 0;
+
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-16, 0);
+            ctx.stroke();
+
+            // Lamp body
+            ctx.beginPath();
+            ctx.arc(0, 0, 16, 0, Math.PI * 2);
+            if (isOn) {
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 20);
+                gradient.addColorStop(0, '#fff9c4');
+                gradient.addColorStop(0.5, '#ffc107');
+                gradient.addColorStop(1, '#ff9800');
+                ctx.fillStyle = gradient;
+                ctx.shadowColor = '#ffc107';
+                ctx.shadowBlur = 30;
+            } else {
+                ctx.fillStyle = color + '20';
+            }
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // X inside
+            ctx.strokeStyle = isOn ? '#ff6f00' : color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-10, -10);
+            ctx.lineTo(10, 10);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(10, -10);
+            ctx.lineTo(-10, 10);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(16, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+
+            if (isOn) {
+                // Rays
+                ctx.strokeStyle = '#ffc107';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2 + animFrame * 0.02;
+                    const x1 = Math.cos(angle) * 20;
+                    const y1 = Math.sin(angle) * 20;
+                    const x2 = Math.cos(angle) * 26;
+                    const y2 = Math.sin(angle) * 26;
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function drawWireComponent(comp, color) {
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+        }
+
+        function drawGround(comp, color) {
+            ctx.beginPath();
+            ctx.moveTo(0, -20);
+            ctx.lineTo(0, 0);
+            ctx.stroke();
+
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(-16, 0);
+            ctx.lineTo(16, 0);
+            ctx.stroke();
+
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(-10, 6);
+            ctx.lineTo(10, 6);
+            ctx.stroke();
+
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-5, 12);
+            ctx.lineTo(5, 12);
+            ctx.stroke();
+        }
+
+        function drawMeter(comp, color, letter) {
+            // Body circle
+            ctx.beginPath();
+            ctx.arc(0, 0, 18, 0, Math.PI * 2);
+            const gradient = ctx.createRadialGradient(-5, -5, 0, 0, 0, 20);
+            gradient.addColorStop(0, '#fff');
+            gradient.addColorStop(1, color + '30');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Letter
+            ctx.fillStyle = color;
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(letter, 0, 0);
+
+            // Wires
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-18, 0);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(18, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+
+            if (isSimulating && comp.simValues && comp.simValues.reading) {
+                ctx.fillStyle = '#ff4081';
+                ctx.font = 'bold 9px sans-serif';
+                ctx.fillText(comp.simValues.reading, 0, 30);
+            }
+        }
+
+        function drawMotor(comp, color) {
+            const isOn = isSimulating && comp.simValues && comp.simValues.current > 0;
+
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-18, 0);
+            ctx.stroke();
+
+            // Motor body
+            ctx.beginPath();
+            ctx.arc(0, 0, 18, 0, Math.PI * 2);
+            const gradient = ctx.createRadialGradient(-5, -5, 0, 0, 0, 20);
+            gradient.addColorStop(0, '#fff');
+            gradient.addColorStop(1, color + '40');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // M letter
+            ctx.fillStyle = color;
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('M', 0, 0);
+
+            ctx.beginPath();
+            ctx.moveTo(18, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+
+            // Spinning shaft animation
+            if (isOn) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                const angle = animFrame * 0.2;
+                for (let i = 0; i < 3; i++) {
+                    const a = angle + (i * Math.PI * 2 / 3);
+                    ctx.beginPath();
+                    ctx.moveTo(Math.cos(a) * 12, Math.sin(a) * 12);
+                    ctx.lineTo(Math.cos(a) * 18, Math.sin(a) * 18);
+                    ctx.stroke();
+                }
+
+                // Motion lines
+                ctx.strokeStyle = color + '80';
+                ctx.lineWidth = 1.5;
+                for (let i = 0; i < 4; i++) {
+                    const a = angle + (i * Math.PI / 2);
+                    const r1 = 22 + (animFrame * 0.5) % 10;
+                    const r2 = r1 + 5;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, r1, a - 0.2, a + 0.2);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function drawBuzzer(comp, color) {
+            const isOn = isSimulating && comp.simValues && comp.simValues.current > 0;
+
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-16, 0);
+            ctx.stroke();
+
+            // Buzzer body (rectangle with dome)
+            ctx.fillStyle = color + '40';
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+            roundRect(ctx, -16, -14, 20, 28, 4);
+            ctx.fill();
+            ctx.stroke();
+
+            // Dome
+            ctx.beginPath();
+            ctx.arc(4, 0, 14, -Math.PI/2, Math.PI/2);
+            ctx.fillStyle = color + '60';
+            ctx.fill();
+            ctx.stroke();
+
+            // Sound waves
+            if (isOn) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                for (let i = 1; i <= 3; i++) {
+                    const r = 14 + i * 5 + Math.sin(animFrame * 0.3) * 2;
+                    ctx.globalAlpha = 1 - i * 0.25;
+                    ctx.beginPath();
+                    ctx.arc(4, 0, r, -Math.PI/3, Math.PI/3);
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(18, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+        }
+
+        function drawDiode(comp, color) {
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-12, 0);
+            ctx.stroke();
+
+            // Triangle
+            ctx.beginPath();
+            ctx.moveTo(-12, -14);
+            ctx.lineTo(-12, 14);
+            ctx.lineTo(12, 0);
+            ctx.closePath();
+            ctx.fillStyle = color + '40';
+            ctx.fill();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Bar
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(12, -14);
+            ctx.lineTo(12, 14);
+            ctx.stroke();
+
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(12, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+
+            // Arrow indicator
+            ctx.fillStyle = color;
+            ctx.font = 'bold 10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('→', 0, -20);
+        }
+
+        function drawPhotoresistor(comp, color) {
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-22, 0);
+            ctx.stroke();
+
+            // Body circle
+            ctx.beginPath();
+            ctx.arc(0, 0, 16, 0, Math.PI * 2);
+            ctx.fillStyle = color + '30';
+            ctx.fill();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Arrows indicating light
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < 2; i++) {
+                const y = -8 + i * 8;
+                ctx.beginPath();
+                ctx.moveTo(-20, y - 5);
+                ctx.lineTo(-5, y + 5);
+                ctx.stroke();
+                // Arrow head
+                ctx.beginPath();
+                ctx.moveTo(-5, y + 5);
+                ctx.lineTo(-9, y + 3);
+                ctx.moveTo(-5, y + 5);
+                ctx.lineTo(-7, y + 8);
+                ctx.stroke();
+            }
+
+            // Zigzag inside
+            ctx.beginPath();
+            ctx.moveTo(-10, 0);
+            ctx.lineTo(-6, -6);
+            ctx.lineTo(-2, 6);
+            ctx.lineTo(2, -6);
+            ctx.lineTo(6, 6);
+            ctx.lineTo(10, 0);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(16, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+        }
+
+        function drawFuse(comp, color) {
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-20, 0);
+            ctx.stroke();
+
+            // Fuse body
+            roundRect(ctx, -20, -8, 40, 16, 8);
+            const isBlown = isSimulating && comp.simValues && comp.simValues.blown;
+            ctx.fillStyle = isBlown ? '#666' : color + '40';
+            ctx.fill();
+            ctx.strokeStyle = isBlown ? '#666' : color;
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Fuse wire inside
+            ctx.strokeStyle = isBlown ? '#f44336' : color;
+            ctx.lineWidth = 2;
+            if (isBlown) {
+                // Broken wire
+                ctx.beginPath();
+                ctx.moveTo(-15, 0);
+                ctx.lineTo(-5, 0);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(5, 0);
+                ctx.lineTo(15, 0);
+                ctx.stroke();
+                // X mark
+                ctx.strokeStyle = '#f44336';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(-3, -3);
+                ctx.lineTo(3, 3);
+                ctx.moveTo(3, -3);
+                ctx.lineTo(-3, 3);
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(-15, 0);
+                ctx.lineTo(15, 0);
+                ctx.stroke();
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(20, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+        }
+
+        function drawInductor(comp, color) {
+            ctx.beginPath();
+            ctx.moveTo(-45, 0);
+            ctx.lineTo(-25, 0);
+            ctx.stroke();
+
+            // Coils
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            for (let i = 0; i < 4; i++) {
+                const x = -25 + i * 12.5;
+                ctx.arc(x + 6.25, 0, 6.25, Math.PI, 0, false);
+            }
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(25, 0);
+            ctx.lineTo(45, 0);
+            ctx.stroke();
+        }
+
+        function drawPins(comp) {
+            comp.pins.forEach(pin => {
+                const worldPos = getPinWorldPos(comp, pin);
+                const screenPos = worldToScreen(worldPos.x, worldPos.y);
+
+                const isConnected = wires.some(w =>
+                    (w.startComp === comp.id && w.startPin === pin.id) ||
+                    (w.endComp === comp.id && w.endPin === pin.id)
+                );
+
+                const radius = (isConnected ? 6 : 5) * zoom;
+                
+                // Outer ring
+                ctx.beginPath();
+                ctx.arc(screenPos.x, screenPos.y, radius + 2, 0, Math.PI * 2);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+
+                if (currentTool === 'wire') {
+                    // Pulsing blue pin
+                    const pulse = Math.sin(animFrame * 0.15) * 0.3 + 0.7;
+                    ctx.beginPath();
+                    ctx.arc(screenPos.x, screenPos.y, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(66, 165, 245, ${pulse})`;
+                    ctx.fill();
+                    ctx.strokeStyle = '#1976d2';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // Glow
+                    ctx.shadowColor = '#42a5f5';
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    ctx.arc(screenPos.x, screenPos.y, radius - 2, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fff';
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                } else if (isConnected) {
+                    ctx.beginPath();
+                    ctx.arc(screenPos.x, screenPos.y, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = '#66bb6a';
+                    ctx.fill();
+                    ctx.strokeStyle = '#2e7d32';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(screenPos.x, screenPos.y, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = '#e0e0e0';
+                    ctx.fill();
+                    ctx.strokeStyle = '#999';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            });
+        }
+
+        function drawWires() {
+            wires.forEach(wire => {
+                const startComp = components.find(c => c.id === wire.startComp);
+                const endComp = components.find(c => c.id === wire.endComp);
+                if (!startComp || !endComp) return;
+
+                const startPin = startComp.pins.find(p => p.id === wire.startPin);
+                const endPin = endComp.pins.find(p => p.id === wire.endPin);
+                if (!startPin || !endPin) return;
+
+                const startPos = getPinWorldPos(startComp, startPin);
+                const endPos = getPinWorldPos(endComp, endPin);
+                const startScreen = worldToScreen(startPos.x, startPos.y);
+                const endScreen = worldToScreen(endPos.x, endPos.y);
+
+                // Draw cute wire with rounded corners
+                ctx.beginPath();
+                ctx.moveTo(startScreen.x, startScreen.y);
+
+                if (wire.points) {
+                    wire.points.forEach(p => {
+                        const sp = worldToScreen(p.x, p.y);
+                        ctx.lineTo(sp.x, sp.y);
+                    });
+                }
+                ctx.lineTo(endScreen.x, endScreen.y);
+
+                if (isSimulating && wire.hasCurrent) {
+                    // Glowing wire
+                    ctx.shadowColor = '#66bb6a';
+                    ctx.shadowBlur = 12;
+                    ctx.strokeStyle = '#66bb6a';
+                    ctx.lineWidth = 4 * zoom;
+                } else {
+                    ctx.strokeStyle = '#546e7a';
+                    ctx.lineWidth = 3 * zoom;
+                    ctx.shadowBlur = 0;
+                }
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                // Current flow animation - cute particles
+                if (isSimulating && wire.hasCurrent) {
+                    const dx = endScreen.x - startScreen.x;
+                    const dy = endScreen.y - startScreen.y;
+                    const len = Math.sqrt(dx * dx + dy * dy);
+                    const numDots = Math.max(3, Math.floor(len / 18));
+                    for (let i = 0; i < numDots; i++) {
+                        const t = ((i / numDots) + animFrame * 0.015) % 1;
+                        const px = startScreen.x + dx * t;
+                        const py = startScreen.y + dy * t;
+                        
+                        // Cute particle with glow
+                        ctx.shadowColor = '#66bb6a';
+                        ctx.shadowBlur = 8;
+                        ctx.beginPath();
+                        ctx.arc(px, py, 3 * zoom, 0, Math.PI * 2);
+                        ctx.fillStyle = '#fff';
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+                }
+            });
+        }
+
+        function drawTempWire() {
+            if (currentTool === 'wire' && wireStart && wireStartComponent) {
+                const startComp = components.find(c => c.id === wireStartComponent);
+                if (!startComp) return;
+                const startPin = startComp.pins.find(p => p.id === wireStart);
+                if (!startPin) return;
+
+                const startPos = getPinWorldPos(startComp, startPin);
+                const startScreen = worldToScreen(startPos.x, startPos.y);
+
+                ctx.beginPath();
+                ctx.moveTo(startScreen.x, startScreen.y);
+                ctx.lineTo(mousePos.x, mousePos.y);
+                ctx.strokeStyle = 'rgba(66, 165, 245, 0.6)';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([8, 6]);
+                ctx.lineDashOffset = -animFrame * 0.5;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            drawGrid();
+            drawWires();
+            drawTempWire();
+            components.forEach(comp => drawComponent(comp));
+
+            if (isSimulating) {
+                animFrame++;
+            } else {
+                animFrame++;
+            }
+        }
+
+        function formatResistance(r) {
+            if (r >= 1000000) return (r / 1000000).toFixed(1) + 'MΩ';
+            if (r >= 1000) return (r / 1000).toFixed(1) + 'kΩ';
+            return r + 'Ω';
+        }
+
+        function formatCapacitance(c) {
+            if (c >= 0.001) return (c * 1000).toFixed(1) + 'mF';
+            if (c >= 0.000001) return (c * 1000000).toFixed(1) + 'µF';
+            if (c >= 0.000000001) return (c * 1000000000).toFixed(1) + 'nF';
+            return (c * 1000000000000).toFixed(1) + 'pF';
+        }
+
+        function formatInductance(l) {
+            if (l >= 1) return l.toFixed(1) + 'H';
+            if (l >= 0.001) return (l * 1000).toFixed(1) + 'mH';
+            return (l * 1000000).toFixed(1) + 'µH';
+        }
+
+        function findPinAt(mx, my) {
+            const world = screenToWorld(mx, my);
+            for (const comp of components) {
+                for (const pin of comp.pins) {
+                    const pinWorld = getPinWorldPos(comp, pin);
+                    const dx = world.x - pinWorld.x;
+                    const dy = world.y - pinWorld.y;
+                    if (dx * dx + dy * dy < 15 * 15) {
+                        return { comp, pin };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function findComponentAt(mx, my) {
+            const world = screenToWorld(mx, my);
+            for (let i = components.length - 1; i >= 0; i--) {
+                const comp = components[i];
+                const dx = world.x - comp.x;
+                const dy = world.y - comp.y;
+                if (Math.abs(dx) < 50 && Math.abs(dy) < 25) {
+                    return comp;
+                }
+            }
+            return null;
+        }
+
+        // ============ Mouse events ============
+        canvas.addEventListener('mousedown', (e) => {
+            initAudio();
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+
+            hideContextMenu();
+
+            if (e.button === 2) return;
+
+            if (e.button === 1 || (e.button === 0 && e.altKey)) {
+                isPanning = true;
+                panStart = { x: mx - panX, y: my - panY };
+                canvas.style.cursor = 'grabbing';
+                return;
+            }
+
+            if (currentTool === 'wire') {
+                const pinHit = findPinAt(mx, my);
+                if (pinHit) {
+                    if (!wireStart) {
+                        wireStart = pinHit.pin.id;
+                        wireStartComponent = pinHit.comp.id;
+                        playClick();
+                    } else {
+                        if (pinHit.comp.id !== wireStartComponent) {
+                            wires.push({
+                                startComp: wireStartComponent,
+                                startPin: wireStart,
+                                endComp: pinHit.comp.id,
+                                endPin: pinHit.pin.id,
+                                hasCurrent: false
+                            });
+                            updateCounts();
+                            playClick();
+                        }
+                        wireStart = null;
+                        wireStartComponent = null;
+                    }
+                }
+                draw();
+                return;
+            }
+
+            const comp = findComponentAt(mx, my);
+            if (comp) {
+                selectedComponent = comp;
+                draggingComponent = comp;
+                const world = screenToWorld(mx, my);
+                dragOffset = { x: world.x - comp.x, y: world.y - comp.y };
+                showProperties(comp);
+                playClick();
+            } else {
+                selectedComponent = null;
+                hideProperties();
+            }
+            draw();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mousePos.x = e.clientX - rect.left;
+            mousePos.y = e.clientY - rect.top;
+
+            if (isPanning) {
+                panX = mousePos.x - panStart.x;
+                panY = mousePos.y - panStart.y;
+                draw();
+                return;
+            }
+
+            if (draggingComponent) {
+                const world = screenToWorld(mousePos.x, mousePos.y);
+                draggingComponent.x = snapToGrid(world.x - dragOffset.x);
+                draggingComponent.y = snapToGrid(world.y - dragOffset.y);
+                draw();
+                return;
+            }
+
+            if (currentTool === 'wire' && wireStart) {
+                draw();
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (isPanning) {
+                isPanning = false;
+                canvas.style.cursor = 'crosshair';
+            }
+            draggingComponent = null;
+        });
+
+        canvas.addEventListener('dblclick', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+
+            const comp = findComponentAt(mx, my);
+            if (comp) {
+                if (comp.type === 'switch' && isSimulating) {
+                    comp.closed = !comp.closed;
+                    playClick();
+                    simulate();
+                    draw();
+                } else {
+                    selectedComponent = comp;
+                    showProperties(comp);
+                }
+            }
+        });
+
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+
+            const comp = findComponentAt(mx, my);
+            if (comp) {
+                contextTarget = comp;
+                const ctxMenu = document.getElementById('contextMenu');
+                ctxMenu.style.left = mx + 'px';
+                ctxMenu.style.top = my + 'px';
+                ctxMenu.classList.add('visible');
+            }
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+
+            const oldZoom = zoom;
+            if (e.deltaY < 0) {
+                zoom = Math.min(3, zoom * 1.1);
+            } else {
+                zoom = Math.max(0.3, zoom / 1.1);
+            }
+
+            panX = mx - (mx - panX) * (zoom / oldZoom);
+            panY = my - (my - panY) * (zoom / oldZoom);
+
+            draw();
+        });
+
+        function hideContextMenu() {
+            document.getElementById('contextMenu').classList.remove('visible');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.context-menu')) {
+                hideContextMenu();
+            }
+        });
+
+        // ============ Context menu actions ============
+        document.getElementById('ctxDelete').addEventListener('click', () => {
+            if (contextTarget) {
+                wires = wires.filter(w => w.startComp !== contextTarget.id && w.endComp !== contextTarget.id);
+                components = components.filter(c => c.id !== contextTarget.id);
+                if (selectedComponent === contextTarget) {
+                    selectedComponent = null;
+                    hideProperties();
+                }
+                contextTarget = null;
+                updateCounts();
+                playDelete();
+                draw();
+            }
+            hideContextMenu();
+        });
+
+        document.getElementById('ctxRotate').addEventListener('click', () => {
+            if (contextTarget) {
+                contextTarget.rotation = (contextTarget.rotation + 90) % 360;
+                playClick();
+                draw();
+            }
+            hideContextMenu();
+        });
+
+        document.getElementById('ctxEdit').addEventListener('click', () => {
+            if (contextTarget) {
+                selectedComponent = contextTarget;
+                showProperties(contextTarget);
+            }
+            hideContextMenu();
+        });
+
+        document.getElementById('ctxDuplicate').addEventListener('click', () => {
+            if (contextTarget) {
+                const newComp = createComponent(contextTarget.type, contextTarget.x + 60, contextTarget.y + 60);
+                Object.assign(newComp, JSON.parse(JSON.stringify(contextTarget)));
+                newComp.id = Date.now() + Math.random();
+                newComp.x += 60;
+                newComp.y += 60;
+                newComp.pins = getPins(newComp.type);
+                updateCounts();
+                draw();
+            }
+            hideContextMenu();
+        });
+
+        // ============ Drag and drop ============
+        document.querySelectorAll('.component-btn').forEach(btn => {
+            btn.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('type', btn.dataset.type);
+            });
+        });
+
+        container.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        container.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const type = e.dataTransfer.getData('type');
+            if (!type) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            const world = screenToWorld(mx, my);
+
+            createComponent(type, world.x, world.y);
+            draw();
+        });
+
+        // Click to add
+        document.querySelectorAll('.component-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                initAudio();
+                const type = btn.dataset.type;
+                const centerX = (width / 2 - panX) / zoom;
+                const centerY = (height / 2 - panY) / zoom;
+                createComponent(type, snapToGrid(centerX), snapToGrid(centerY));
+                draw();
+            });
+        });
+
+        // ============ Tools ============
+        document.getElementById('selectTool').addEventListener('click', () => {
+            initAudio();
+            currentTool = 'select';
+            wireStart = null;
+            wireStartComponent = null;
+            document.getElementById('selectTool').classList.add('active');
+            document.getElementById('wireTool').classList.remove('active');
+            canvas.style.cursor = 'crosshair';
+            playClick();
+        });
+
+        document.getElementById('wireTool').addEventListener('click', () => {
+            initAudio();
+            currentTool = 'wire';
+            wireStart = null;
+            wireStartComponent = null;
+            document.getElementById('wireTool').classList.add('active');
+            document.getElementById('selectTool').classList.remove('active');
+            canvas.style.cursor = 'pointer';
+            playClick();
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            initAudio();
+            if (confirm('هل أنت متأكد من مسح كل شيء؟ 🗑️')) {
+                components = [];
+                wires = [];
+                selectedComponent = null;
+                isSimulating = false;
+                hideProperties();
+                updateSimulationUI();
+                updateCounts();
+                playDelete();
+                draw();
+            }
+        });
+
+        document.getElementById('simulateBtn').addEventListener('click', () => {
+            initAudio();
+            isSimulating = !isSimulating;
+            const btn = document.getElementById('simulateBtn');
+            const dot = document.getElementById('simDot');
+            const status = document.getElementById('simStatus');
+
+            if (isSimulating) {
+                btn.textContent = '⏸️ إيقاف المحاكاة';
+                btn.classList.add('active');
+                dot.classList.add('on');
+                status.textContent = '✨ يعمل';
+                simulate();
+                playSuccess();
+            } else {
+                btn.textContent = '▶️ تشغيل المحاكاة';
+                btn.classList.remove('active');
+                dot.classList.remove('on');
+                status.textContent = 'متوقف';
+                clearSimulation();
+                playClick();
+            }
+            updateSimulationUI();
+            draw();
+        });
+
+        document.getElementById('helpBtn').addEventListener('click', () => {
+            initAudio();
+            document.getElementById('helpOverlay').classList.add('visible');
+            playClick();
+        });
+
+        document.getElementById('closeHelp').addEventListener('click', () => {
+            document.getElementById('helpOverlay').classList.remove('visible');
+            playSuccess();
+        });
+
+        // ============ Zoom controls ============
+        document.getElementById('zoomIn').addEventListener('click', () => {
+            zoom = Math.min(3, zoom * 1.2);
+            playClick();
+            draw();
+        });
+
+        document.getElementById('zoomOut').addEventListener('click', () => {
+            zoom = Math.max(0.3, zoom / 1.2);
+            playClick();
+            draw();
+        });
+
+        document.getElementById('zoomReset').addEventListener('click', () => {
+            zoom = 1;
+            panX = 0;
+            panY = 0;
+            playClick();
+            draw();
+        });
+
+        // ============ Properties panel ============
+        function showProperties(comp) {
+            const panel = document.getElementById('propertiesPanel');
+            const title = document.getElementById('propTitle');
+            const content = document.getElementById('propContent');
+
+            const typeNames = {
+                battery: '🔋 بطارية', resistor: '🎯 مقاومة', led: '💡 LED',
+                capacitor: '📦 مكثف', switch: '🔘 مفتاح', lamp: '🔆 مصباح',
+                wire: '🔗 سلك', ground: '🌍 أرضي', voltmeter: '📊 فولتميتر', 
+                ammeter: '📈 أميتر', motor: '⚙️ محرك', buzzer: '🔔 صافرة',
+                diode: '➡️ دايود', photoresistor: '☀️ حساس ضوء',
+                fuse: '🛡️ فيوز', inductor: '🌀 ملف'
+            };
+
+            title.textContent = typeNames[comp.type] || comp.type;
+
+            let html = `
+                <div class="prop-row">
+                    <label>🏷️ الاسم:</label>
+                    <input type="text" value="${comp.label}" data-prop="label">
+                </div>
+            `;
+
+            if (comp.type === 'battery') {
+                html += `
+                    <div class="prop-row">
+                        <label>⚡ الجهد (V):</label>
+                        <input type="number" value="${comp.voltage}" min="0" max="100" step="0.1" data-prop="voltage">
+                    </div>
+                `;
+            } else if (comp.type === 'resistor' || comp.type === 'lamp' || comp.type === 'motor' || comp.type === 'buzzer' || comp.type === 'photoresistor') {
+                html += `
+                    <div class="prop-row">
+                        <label>🎯 المقاومة (Ω):</label>
+                        <input type="number" value="${comp.resistance}" min="0" max="10000000" step="1" data-prop="resistance">
+                    </div>
+                `;
+            } else if (comp.type === 'led') {
+                html += `
+                    <div class="prop-row">
+                        <label>⚡ جهد التشغيل (V):</label>
+                        <input type="number" value="${comp.voltage}" min="0" max="5" step="0.1" data-prop="voltage">
+                    </div>
+                    <div class="prop-row">
+                        <label>🎨 اللون:</label>
+                        <input type="color" value="${comp.color || '#4caf50'}" data-prop="color" style="width:60px;height:30px;padding:0;border:none;cursor:pointer;">
+                    </div>
+                `;
+            } else if (comp.type === 'capacitor') {
+                html += `
+                    <div class="prop-row">
+                        <label>📦 السعة (F):</label>
+                        <input type="number" value="${comp.capacitance}" min="0" step="0.000001" data-prop="capacitance">
+                    </div>
+                `;
+            } else if (comp.type === 'inductor') {
+                html += `
+                    <div class="prop-row">
+                        <label>🌀 المحاثة (H):</label>
+                        <input type="number" value="${comp.inductance}" min="0" step="0.0001" data-prop="inductance">
+                    </div>
+                    <div class="prop-row">
+                        <label>🎯 المقاومة (Ω):</label>
+                        <input type="number" value="${comp.resistance}" min="0" step="1" data-prop="resistance">
+                    </div>
+                `;
+            } else if (comp.type === 'fuse') {
+                html += `
+                    <div class="prop-row">
+                        <label>🛡️ التيار الأقصى (A):</label>
+                        <input type="number" value="${comp.rating}" min="0" step="0.1" data-prop="rating">
+                    </div>
+                `;
+            }
+
+            content.innerHTML = html;
+            panel.classList.add('visible');
+
+            content.querySelectorAll('input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const prop = e.target.dataset.prop;
+                    let val = e.target.value;
+                    if (e.target.type === 'number') val = parseFloat(val);
+                    comp[prop] = val;
+                    if (isSimulating) simulate();
+                    playClick();
+                    draw();
+                });
+            });
+        }
+
+        function hideProperties() {
+            document.getElementById('propertiesPanel').classList.remove('visible');
+        }
+
+        // ============ Simulation ============
+        function simulate() {
+            clearSimulation();
+
+            const batteries = components.filter(c => c.type === 'battery');
+            if (batteries.length === 0) return;
+
+            const graph = {};
+            components.forEach(c => {
+                graph[c.id] = [];
+            });
+
+            wires.forEach(w => {
+                if (!graph[w.startComp]) graph[w.startComp] = [];
+                if (!graph[w.endComp]) graph[w.endComp] = [];
+                graph[w.startComp].push({ to: w.endComp, wire: w, pin: w.startPin });
+                graph[w.endComp].push({ to: w.startComp, wire: w, pin: w.endPin });
+            });
+
+            let totalVoltage = 0;
+            let totalResistance = 0;
+            let hasLoop = false;
+            let circuitSuccessful = false;
+
+            batteries.forEach(battery => {
+                totalVoltage += battery.voltage;
+
+                const startConnected = findConnectedComponents(battery, battery.pins[0]);
+                const endConnected = findConnectedComponents(battery, battery.pins[1]);
+
+                const visited = new Set();
+                const queue = [...startConnected.map(c => c.id)];
+                let found = false;
+
+                while (queue.length > 0) {
+                    const current = queue.shift();
+                    if (visited.has(current)) continue;
+                    visited.add(current);
+
+                    if (endConnected.some(c => c.id === current)) {
+                        found = true;
+                        break;
+                    }
+
+                    const neighbors = graph[current] || [];
+                    neighbors.forEach(n => {
+                        if (!visited.has(n.to)) {
+                            queue.push(n.to);
+                        }
+                    });
+                }
+
+                if (found) {
+                    hasLoop = true;
+
+                    const loopComponents = [...visited];
+                    loopComponents.forEach(compId => {
+                        const comp = components.find(c => c.id === compId);
+                        if (comp) {
+                            if (comp.type === 'resistor' || comp.type === 'lamp' || comp.type === 'motor' || comp.type === 'buzzer' || comp.type === 'photoresistor' || comp.type === 'inductor') {
+                                totalResistance += (comp.resistance || 0);
+                            }
+                            if (comp.type === 'switch' && !comp.closed) {
+                                hasLoop = false;
+                            }
+                        }
+                    });
+
+                    // Check for loads (lamp, motor, buzzer, LED)
+                    const hasLoad = loopComponents.some(id => {
+                        const c = components.find(comp => comp.id === id);
+                        return c && (c.type === 'lamp' || c.type === 'motor' || c.type === 'buzzer' || c.type === 'led');
+                    });
+
+                    if (hasLoad) {
+                        circuitSuccessful = true;
+                    }
+                }
+            });
+
+            if (hasLoop && totalResistance > 0) {
+                const current = totalVoltage / totalResistance;
+                const power = totalVoltage * current;
+
+                components.forEach(comp => {
+                    comp.simValues = {};
+                    if (comp.type === 'battery') {
+                        comp.simValues = { voltage: comp.voltage, current: current };
+                    } else if (comp.type === 'resistor' || comp.type === 'lamp' || comp.type === 'motor' || comp.type === 'buzzer' || comp.type === 'photoresistor' || comp.type === 'inductor') {
+                        comp.simValues = {
+                            voltage: current * (comp.resistance || 0),
+                            current: current
+                        };
+                    } else if (comp.type === 'led') {
+                        comp.simValues = { voltage: comp.voltage, current: current };
+                    } else {
+                        comp.simValues = { current: current };
+                    }
+
+                    // Check fuse
+                    if (comp.type === 'fuse') {
+                        if (current > comp.rating) {
+                            comp.simValues.blown = true;
+                            hasLoop = false;
+                        }
+                    }
+                });
+
+                wires.forEach(w => w.hasCurrent = true);
+
+                document.getElementById('totalVoltage').textContent = totalVoltage.toFixed(1);
+                document.getElementById('totalCurrent').textContent = (current * 1000).toFixed(1);
+                document.getElementById('totalResistance').textContent = formatResistance(totalResistance);
+                document.getElementById('totalPower').textContent = (power * 1000).toFixed(2);
+
+                // Play buzzer sound if buzzer is active
+                const hasActiveBuzzer = components.some(c => c.type === 'buzzer' && c.simValues && c.simValues.current > 0);
+                if (hasActiveBuzzer) {
+                    setTimeout(() => playBuzz(), 200);
+                }
+
+                // Show success message if circuit works
+                if (circuitSuccessful && !lastCircuitState) {
+                    showMessage('🎉', 'أحسنت!', 'دائرتك تعمل بنجاح! استمر في التجريب!');
+                    launchConfetti();
+                    playSuccess();
+                }
+                lastCircuitState = circuitSuccessful;
+            } else {
+                document.getElementById('totalVoltage').textContent = totalVoltage.toFixed(1);
+                document.getElementById('totalCurrent').textContent = '0';
+                document.getElementById('totalResistance').textContent = '∞';
+                document.getElementById('totalPower').textContent = '0';
+                lastCircuitState = false;
+            }
+        }
+
+        function findConnectedComponents(comp, pin) {
+            const connected = [];
+            wires.forEach(w => {
+                if (w.startComp === comp.id && w.startPin === pin.id) {
+                    const endComp = components.find(c => c.id === w.endComp);
+                    if (endComp) connected.push(endComp);
+                }
+                if (w.endComp === comp.id && w.endPin === pin.id) {
+                    const startComp = components.find(c => c.id === w.startComp);
+                    if (startComp) connected.push(startComp);
+                }
+            });
+            return connected;
+        }
+
+        function clearSimulation() {
+            components.forEach(c => { delete c.simValues; });
+            wires.forEach(w => { w.hasCurrent = false; });
+        }
+
+        function updateSimulationUI() {
+            const panel = document.getElementById('simulationPanel');
+            if (isSimulating) {
+                panel.classList.add('visible');
+            } else {
+                panel.classList.remove('visible');
+            }
+        }
+
+        function updateCounts() {
+            document.getElementById('compCount').textContent = components.length;
+            document.getElementById('wireCount').textContent = wires.length;
+        }
+
+        // ============ Message box ============
+        function showMessage(emoji, title, text) {
+            document.getElementById('msgEmoji').textContent = emoji;
+            document.getElementById('msgTitle').textContent = title;
+            document.getElementById('msgText').textContent = text;
+            document.getElementById('messageBox').classList.add('visible');
+        }
+
+        document.getElementById('msgClose').addEventListener('click', () => {
+            document.getElementById('messageBox').classList.remove('visible');
+            playClick();
+        });
+
+        // ============ Keyboard shortcuts ============
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (selectedComponent && document.activeElement.tagName !== 'INPUT') {
+                    wires = wires.filter(w => w.startComp !== selectedComponent.id && w.endComp !== selectedComponent.id);
+                    components = components.filter(c => c.id !== selectedComponent.id);
+                    selectedComponent = null;
+                    hideProperties();
+                    updateCounts();
+                    playDelete();
+                    draw();
+                }
+            }
+            if (e.key === 'r' || e.key === 'R') {
+                if (selectedComponent && document.activeElement.tagName !== 'INPUT') {
+                    selectedComponent.rotation = (selectedComponent.rotation + 90) % 360;
+                    playClick();
+                    draw();
+                }
+            }
+            if (e.key === 'Escape') {
+                wireStart = null;
+                wireStartComponent = null;
+                selectedComponent = null;
+                hideProperties();
+                draw();
+            }
+        });
+
+        // ============ Animation loop ============
+        function animate() {
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        // ============ Initialize ============
+        document.getElementById('selectTool').classList.add('active');
+        draw();
+        animate();
+
+        // Show help on first visit
+        setTimeout(() => {
+            if (!localStorage.getItem('circuitFunLabVisited')) {
+                document.getElementById('helpOverlay').classList.add('visible');
+                localStorage.setItem('circuitFunLabVisited', 'true');
+            }
+        }, 500);
+    </script>
+</body>
+</html>
+
