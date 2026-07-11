@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌍 لعبة البلدان للأطفال</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        * { font-family: 'Cairo', sans-serif; box-sizing: border-box; }
+        * { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; box-sizing: border-box; }
         
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -113,7 +114,6 @@
             100% { transform: translateY(0); opacity: 1; }
         }
 
-        /* Preloader */
         .preloader-overlay {
             position: absolute;
             inset: 0;
@@ -143,12 +143,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Timer */
-        .timer-ring {
-            transition: stroke-dashoffset 1s linear;
-        }
-
-        /* Badge */
         .badge {
             animation: badgePop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
@@ -157,13 +151,15 @@
             100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
-        .level-btn {
+        .continent-card {
             transition: all 0.3s ease;
+            cursor: pointer;
         }
-        .level-btn:hover {
-            transform: translateY(-4px) scale(1.05);
+        .continent-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
-        .level-btn.selected {
+        .continent-card.selected {
             ring: 4px;
             transform: scale(1.05);
         }
@@ -179,11 +175,6 @@
             0% { transform: scale(1); }
             50% { transform: scale(1.5); }
             100% { transform: scale(1); }
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(135deg, #8b5cf6, #a855f7);
-            color: white;
         }
 
         .cloud {
@@ -202,6 +193,25 @@
             0% { opacity: 0; }
             100% { opacity: 1; }
         }
+
+        #gameMap {
+            width: 100%;
+            height: 350px;
+            border-radius: 12px;
+            z-index: 1;
+        }
+
+        .flag-img {
+            max-width: 280px;
+            max-height: 180px;
+            border: 4px solid #3b82f6;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .leaflet-control-attribution {
+            font-size: 8px !important;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center p-4">
@@ -214,7 +224,7 @@
     </div>
 
     <!-- Welcome Screen -->
-    <div id="welcomeScreen" class="text-center z-10 max-w-2xl w-full">
+    <div id="welcomeScreen" class="text-center z-10 max-w-4xl w-full">
         <div class="floating mb-6">
             <div class="text-9xl mb-4">🌍</div>
         </div>
@@ -222,24 +232,55 @@
             لعبة البلدان
         </h1>
         <p class="text-xl md:text-2xl text-yellow-200 mb-6 font-bold">
-            🎉 تعلّم خرائط العالم بطريقة ممتعة!
+            🎉 تعلّم خرائط وعلم العالم بطريقة ممتعة!
         </p>
         
+        <!-- Continent Selection -->
+        <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-6 mb-6">
+            <h3 class="text-2xl font-black text-purple-600 mb-4">🗺️ اختر القارة</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div onclick="selectContinent('world', this)" class="continent-card bg-gradient-to-br from-blue-400 to-blue-600 text-white p-4 rounded-2xl shadow-lg">
+                    <div class="text-4xl mb-2">🌍</div>
+                    <div class="text-sm font-black">العالم كله</div>
+                </div>
+                <div onclick="selectContinent('asia', this)" class="continent-card bg-gradient-to-br from-red-400 to-red-600 text-white p-4 rounded-2xl shadow-lg">
+                    <div class="text-4xl mb-2">🏯</div>
+                    <div class="text-sm font-black">آسيا</div>
+                </div>
+                <div onclick="selectContinent('europe', this)" class="continent-card bg-gradient-to-br from-green-400 to-green-600 text-white p-4 rounded-2xl shadow-lg">
+                    <div class="text-4xl mb-2">🏰</div>
+                    <div class="text-sm font-black">أوروبا</div>
+                </div>
+                <div onclick="selectContinent('africa', this)" class="continent-card bg-gradient-to-br from-yellow-400 to-yellow-600 text-white p-4 rounded-2xl shadow-lg">
+                    <div class="text-4xl mb-2">🦁</div>
+                    <div class="text-sm font-black">أفريقيا</div>
+                </div>
+                <div onclick="selectContinent('americas', this)" class="continent-card bg-gradient-to-br from-purple-400 to-purple-600 text-white p-4 rounded-2xl shadow-lg">
+                    <div class="text-4xl mb-2">🗽</div>
+                    <div class="text-sm font-black">الأمريكتان</div>
+                </div>
+                <div onclick="selectContinent('arab', this)" class="continent-card bg-gradient-to-br from-orange-400 to-orange-600 text-white p-4 rounded-2xl shadow-lg">
+                    <div class="text-4xl mb-2">🕌</div>
+                    <div class="text-sm font-black">البلدان العربية</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Level Selection -->
         <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-6 mb-6">
             <h3 class="text-2xl font-black text-purple-600 mb-4">🎯 اختر مستوى الصعوبة</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <button onclick="selectLevel('easy')" id="levelEasy" class="level-btn bg-gradient-to-br from-green-400 to-emerald-500 text-white p-4 rounded-2xl shadow-lg">
+                <button onclick="selectLevel('easy', this)" id="levelEasy" class="level-btn bg-gradient-to-br from-green-400 to-emerald-500 text-white p-4 rounded-2xl shadow-lg">
                     <div class="text-4xl mb-2"></div>
                     <div class="text-xl font-black">سهل</div>
                     <div class="text-sm opacity-90">8 أسئلة • خرائط فقط</div>
                 </button>
-                <button onclick="selectLevel('medium')" id="levelMedium" class="level-btn bg-gradient-to-br from-yellow-400 to-orange-500 text-white p-4 rounded-2xl shadow-lg">
+                <button onclick="selectLevel('medium', this)" id="levelMedium" class="level-btn bg-gradient-to-br from-yellow-400 to-orange-500 text-white p-4 rounded-2xl shadow-lg">
                     <div class="text-4xl mb-2">🌟</div>
                     <div class="text-xl font-black">متوسط</div>
-                    <div class="text-sm opacity-90">12 سؤال • خرائط + عواصم</div>
+                    <div class="text-sm opacity-90">12 سؤال • خرائط + عواصم + أعلام</div>
                 </button>
-                <button onclick="selectLevel('hard')" id="levelHard" class="level-btn bg-gradient-to-br from-red-400 to-pink-500 text-white p-4 rounded-2xl shadow-lg">
+                <button onclick="selectLevel('hard', this)" id="levelHard" class="level-btn bg-gradient-to-br from-red-400 to-pink-500 text-white p-4 rounded-2xl shadow-lg">
                     <div class="text-4xl mb-2"></div>
                     <div class="text-xl font-black">صعب</div>
                     <div class="text-sm opacity-90">15 سؤال • كل الأنواع</div>
@@ -261,9 +302,9 @@
             <p class="text-white text-lg font-bold"> أنواع الأسئلة</p>
             <div class="grid grid-cols-2 gap-2 mt-3 text-sm">
                 <div class="bg-white/30 rounded-lg p-2">🗺️ خرائط البلدان</div>
+                <div class="bg-white/30 rounded-lg p-2">🏳️ أعلام البلدان</div>
                 <div class="bg-white/30 rounded-lg p-2">🏛️ العواصم</div>
                 <div class="bg-white/30 rounded-lg p-2">⭐ بماذا تشتهر</div>
-                <div class="bg-white/30 rounded-lg p-2">🌍 القارات</div>
             </div>
         </div>
     </div>
@@ -294,7 +335,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Progress Bar -->
             <div class="mt-4 bg-gray-200 rounded-full h-4 overflow-hidden">
                 <div id="progressBar" class="progress-fill bg-gradient-to-r from-green-400 to-emerald-500 h-full rounded-full" style="width: 0%"></div>
             </div>
@@ -316,22 +356,23 @@
                 <p id="questionSubtitle" class="text-gray-500 mt-1 font-bold">انظر إلى الخريطة واختر الإجابة الصحيحة</p>
             </div>
             
-            <div id="mapContainer" class="map-container relative flex justify-center items-center bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-4 md:p-8 border-4 border-blue-200 min-h-[280px]">
+            <div id="mapContainer" class="map-container relative flex justify-center items-center bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-4 md:p-8 border-4 border-blue-200 min-h-[350px]">
                 <!-- Preloader -->
                 <div id="preloader" class="preloader-overlay">
                     <div class="spinner mb-4"></div>
                     <p class="text-blue-600 font-bold text-lg">جاري تحميل الخريطة...</p>
                     <p class="text-blue-400 text-sm mt-2">انتظر قليلاً 🌍</p>
                 </div>
-                <!-- Image -->
-                <img id="mapImage" src="" alt="خريطة" class="max-w-full max-h-80 md:max-h-96 object-contain rounded-xl hidden">
-                <!-- Emoji fallback for non-map questions -->
+                <!-- Leaflet Map -->
+                <div id="gameMap" class="hidden"></div>
+                <!-- Flag Image -->
+                <img id="flagImage" class="flag-img hidden" src="" alt="علم البلد">
+                <!-- Emoji Display -->
                 <div id="emojiDisplay" class="hidden text-center">
                     <div id="questionEmoji" class="text-8xl mb-4"></div>
                 </div>
             </div>
 
-            <!-- Hint Button -->
             <div class="text-center mt-4">
                 <button id="hintBtn" onclick="showHint()" class="bg-gradient-to-r from-amber-400 to-yellow-500 text-white px-6 py-2 rounded-full font-bold shadow-lg hover:scale-105 transition-all">
                     💡 تلميح (<span id="hintCount">3</span>)
@@ -380,7 +421,6 @@
                 <div class="mt-3 text-4xl" id="starsDisplay">⭐⭐⭐</div>
             </div>
             
-            <!-- Badges Earned -->
             <div id="badgesContainer" class="hidden mb-6">
                 <h3 class="text-xl font-black text-purple-600 mb-3">🏅 الشارات التي حصلت عليها</h3>
                 <div id="badgesList" class="flex flex-wrap justify-center gap-3"></div>
@@ -399,236 +439,93 @@
     </div>
 
     <script>
-        // ============ DATA ============
+        // ============ COUNTRIES DATA ============
         const countries = [
-            {
-                name: 'مصر',
-                capital: 'القاهرة',
-                continent: 'أفريقيا',
-                language: 'العربية',
-                famous: 'الأهرامات ونهر النيل',
-                famousEmoji: '🏛️',
-                flag: '🇪🇬',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1e861590f-ecb9-47eb-b197-2fea7efa7efe.png',
-                fact: 'مصر بها أقدم حضارة في العالم، وأهرامات الجيزة هي الأعجوبة الوحيدة الباقية من عجائب الدنيا السبع القديمة!',
-                hint: 'بلد الأهرامات والنيل ️'
-            },
-            {
-                name: 'السعودية',
-                capital: 'الرياض',
-                continent: 'آسيا',
-                language: 'العربية',
-                famous: 'الحرمين الشريفين والكعبة',
-                famousEmoji: '🕌',
-                flag: '🇸🇦',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1a4c2cddf-4029-45c8-89fc-47ff3f31dd3f.png',
-                fact: 'السعودية هي أكبر دولة في الشرق الأوسط، وفيها أطول برج في العالم: برج جدة الذي سيصل ارتفاعه لأكثر من 1000 متر!',
-                hint: 'بلد الحرمين الشريفين '
-            },
-            {
-                name: 'الإمارات',
-                capital: 'أبوظبي',
-                continent: 'آسيا',
-                language: 'العربية',
-                famous: 'برج خليفة وجزر النخيل',
-                famousEmoji: '🏙️',
-                flag: '🇦🇪',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/16a5c23ad-2a00-4952-824a-b6e12911f717.png',
-                fact: 'برج خليفة في دبي هو أطول مبنى في العالم بارتفاع 828 متراً، ويمكن رؤيته من على بعد 95 كيلومتراً!',
-                hint: 'بلد برج خليفة 🏙️'
-            },
-            {
-                name: 'المغرب',
-                capital: 'الرباط',
-                continent: 'أفريقيا',
-                language: 'العربية',
-                famous: 'جبال الأطلس والصحراء',
-                famousEmoji: '️',
-                flag: '🇲🇦',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1cb0840f9-acde-4be2-a218-6706bf1c9d38.png',
-                fact: 'المغرب هو البلد الوحيد في أفريقيا الذي يطل على البحر الأبيض المتوسط والمحيط الأطلسي معاً!',
-                hint: 'بلد جبال الأطلس ️'
-            },
-            {
-                name: 'فرنسا',
-                capital: 'باريس',
-                continent: 'أوروبا',
-                language: 'الفرنسية',
-                famous: 'برج إيفل وقصر فرساي',
-                famousEmoji: '🗼',
-                flag: '🇫🇷',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/19163c507-02eb-46b5-9d13-879cfbd83dbb.png',
-                fact: 'برج إيفل في باريس يتوسع في الصيف بسبب الحرارة ويزداد طوله حوالي 15 سنتيمتراً!',
-                hint: 'بلد برج إيفل '
-            },
-            {
-                name: 'إيطاليا',
-                capital: 'روما',
-                continent: 'أوروبا',
-                language: 'الإيطالية',
-                famous: 'الكولوسيوم والبيتزا',
-                famousEmoji: '🍕',
-                flag: '🇮🇹',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/14c2bae24-50f6-402c-b8b7-f88c7e90b594.png',
-                fact: 'إيطاليا بها أكثر مواقع التراث العالمي في العالم (58 موقعاً)، وشكلها يشبه الحذاء!',
-                hint: 'بلد البيتزا والمعكرونة 🍕'
-            },
-            {
-                name: 'اليابان',
-                capital: 'طوكيو',
-                continent: 'آسيا',
-                language: 'اليابانية',
-                famous: 'جبل فوجي والكرز',
-                famousEmoji: '🗻',
-                flag: '🇯🇵',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/165208c42-ccc3-4277-8766-e3af82bb8a87.png',
-                fact: 'اليابان تتكون من 6852 جزيرة! وفيها قطارات فائقة السرعة تصل سرعتها إلى 320 كم/ساعة!',
-                hint: 'بلد الساموراي والكرز '
-            },
-            {
-                name: 'البرازيل',
-                capital: 'برازيليا',
-                continent: 'أمريكا الجنوبية',
-                language: 'البرتغالية',
-                famous: 'الكرنفال وكرة القدم',
-                famousEmoji: '⚽',
-                flag: '🇧🇷',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/131476f1c-1948-4db9-ade5-700105ed5661.png',
-                fact: 'البرازيل هي أكبر دولة في أمريكا الجنوبية، وفيها أكبر غابة استوائية في العالم: غابة الأمازون!',
-                hint: 'بلد الكرنفال وكرة القدم ⚽'
-            },
-            {
-                name: 'أستراليا',
-                capital: 'كانبيرا',
-                continent: 'أوقيانوسيا',
-                language: 'الإنجليزية',
-                famous: 'الكنغر ودار الأوبرا',
-                famousEmoji: '',
-                flag: '🇦',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/14974fe7d-fe5d-4f14-ae82-a547879a4774.png',
-                fact: 'أستراليا هي أكبر جزيرة وأصغر قارة في العالم، وفيها حيوانات لا توجد في أي مكان آخر مثل الكنغر والكوالا!',
-                hint: 'بلد الكنغر 🦘'
-            },
-            {
-                name: 'الهند',
-                capital: 'نيودلهي',
-                continent: 'آسيا',
-                language: 'الهندية',
-                famous: 'تاج محل والفيلة',
-                famousEmoji: '',
-                flag: '🇮🇳',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1bea3a328-1b9c-42f0-b190-aa97a2ae2425.png',
-                fact: 'الهند هي ثاني أكبر دولة في العالم من حيث عدد السكان، وفيها أكثر من 22 لغة رسمية!',
-                hint: 'بلد التاج محل 🕌'
-            },
-            {
-                name: 'تركيا',
-                capital: 'أنقرة',
-                continent: 'آسيا',
-                language: 'التركية',
-                famous: 'آيا صوفيا والبازار الكبير',
-                famousEmoji: '🕌',
-                flag: '🇹🇷',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1390bc833-660e-4117-8d29-4dd31fb8233a.png',
-                fact: 'تركيا تقع في قارتين: آسيا وأوروبا! ومضيق البوسفور يفصل بينهما في مدينة إسطنبول!',
-                hint: 'بلد آيا صوفيا 🕌'
-            },
-            {
-                name: 'ألمانيا',
-                capital: 'برلين',
-                continent: 'أوروبا',
-                language: 'الألمانية',
-                famous: 'بوابة براندنبورغ والسيارات',
-                famousEmoji: '🚗',
-                flag: '🇩🇪',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/171be7090-d6fb-4fa4-9a7e-d718318b3a46.png',
-                fact: 'ألمانيا هي أكبر اقتصاد في أوروبا، وفيها أكثر من 1500 نوع من البيرة و25000 قلعة!',
-                hint: 'بلد السيارات الفاخرة 🚗'
-            },
-            {
-                name: 'إسبانيا',
-                capital: 'مدريد',
-                continent: 'أوروبا',
-                language: 'الإسبانية',
-                famous: 'الفلامنكو ومصارعة الثيران',
-                famousEmoji: '💃',
-                flag: '🇸',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1a43e2a4c-0ec9-4451-a3ff-9e2cf476b05a.png',
-                fact: 'إسبانيا هي البلد الوحيد في أوروبا الذي يطل على البحر الأبيض المتوسط والمحيط الأطلسي!',
-                hint: 'بلد الفلامنكو 💃'
-            },
-            {
-                name: 'روسيا',
-                capital: 'موسكو',
-                continent: 'أوروبا',
-                language: 'الروسية',
-                famous: 'الكرملين ومساحة شاسعة',
-                famousEmoji: '',
-                flag: '🇷',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1c8a19dfd-8a88-4ddb-8509-55715563822c.png',
-                fact: 'روسيا هي أكبر دولة في العالم مساحةً، وتمتد عبر 11 منطقة زمنية مختلفة!',
-                hint: 'أكبر دولة في العالم 🏰'
-            },
-            {
-                name: 'كندا',
-                capital: 'أوتاوا',
-                continent: 'أمريكا الشمالية',
-                language: 'الإنجليزية والفرنسية',
-                famous: 'شلالات نياغارا وشراب القيقب',
-                famousEmoji: '',
-                flag: '🇨🇦',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1c912675a-b588-4479-9ae8-fffa4afeb5fa.png',
-                fact: 'كندا بها أكثر من 2 مليون بحيرة! أي أكثر من جميع بحيرات العالم مجتمعة!',
-                hint: 'بلد شراب القيقب 🍁'
-            },
-            {
-                name: 'المكسيك',
-                capital: 'مكسيكو سيتي',
-                continent: 'أمريكا الشمالية',
-                language: 'الإسبانية',
-                famous: 'حضارة المايا والتاكو',
-                famousEmoji: '🌮',
-                flag: '🇲🇽',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1bbf6c3d1-53ec-46e7-8d7c-e1ca4a7c2a32.png',
-                fact: 'المكسيك بها أكثر من 60 لغة مختلفة، وهي بلد التاكو والشوكولاتة!',
-                hint: 'بلد التاكو وحضارة المايا 🌮'
-            },
-            {
-                name: 'الأرجنتين',
-                capital: 'بوينس آيرس',
-                continent: 'أمريكا الجنوبية',
-                language: 'الإسبانية',
-                famous: 'التانغو وكرة القدم',
-                famousEmoji: '💃',
-                flag: '🇦🇷',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/19662cd23-bb40-4d55-888a-9cebf2c8d7d0.png',
-                fact: 'الأرجنتين هي بلد ميسي ومارادونا، وفيها أطول شارع في العالم: شارع 9 يوليو في بوينس آيرس!',
-                hint: 'بلد التانغو وكرة القدم 💃'
-            },
-            {
-                name: 'بريطانيا',
-                capital: 'لندن',
-                continent: 'أوروبا',
-                language: 'الإنجليزية',
-                famous: 'بيغ بن والقصر الملكي',
-                famousEmoji: '🏰',
-                flag: '🇬🇧',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/14e35c5e8-1238-4601-a0d2-5511e85e3c6e.png',
-                fact: 'بريطانيا تتكون من 4 دول: إنجلترا واسكتلندا وويلز وأيرلندا الشمالية! وفيها أقدم مترو في العالم!',
-                hint: 'بلد بيغ بن والملكية 🏰'
-            },
-            {
-                name: 'جنوب أفريقيا',
-                capital: 'بريتوريا',
-                continent: 'أفريقيا',
-                language: '11 لغة رسمية',
-                famous: 'السفاري ونيلسون مانديلا',
-                famousEmoji: '🦁',
-                flag: '🇿🇦',
-                image: 'https://image.qwenlm.ai/public_source/d835d875-d56c-4dd6-9c4f-41d9e069b1e4/1eb29fc13-f786-43c7-923c-7736be549326.png',
-                fact: 'جنوب أفريقيا هي البلد الوحيد في العالم الذي له 3 عواصم! وفيها حديقة كروجر الوطنية الشهيرة!',
-                hint: 'بلد السفاري والأسود 🦁'
-            }
+            // Arab Countries
+            { name: 'مصر', capital: 'القاهرة', continent: 'أفريقيا', region: 'arab', code: 'eg', lat: 26.8, lng: 30.8, zoom: 6, famous: 'الأهرامات ونهر النيل', famousEmoji: '🏛️', flag: '🇪🇬', fact: 'مصر بها أقدم حضارة في العالم، وأهرامات الجيزة هي الأعجوبة الوحيدة الباقية من عجائب الدنيا السبع القديمة!', hint: 'بلد الأهرامات والنيل ️' },
+            { name: 'السعودية', capital: 'الرياض', continent: 'آسيا', region: 'arab', code: 'sa', lat: 23.8, lng: 45.0, zoom: 5, famous: 'الحرمين الشريفين والكعبة', famousEmoji: '🕌', flag: '🇸🇦', fact: 'السعودية هي أكبر دولة في الشرق الأوسط، وفيها أطول برج في العالم: برج جدة!', hint: 'بلد الحرمين الشريفين ' },
+            { name: 'الإمارات', capital: 'أبوظبي', continent: 'آسيا', region: 'arab', code: 'ae', lat: 23.4, lng: 53.8, zoom: 7, famous: 'برج خليفة وجزر النخيل', famousEmoji: '🏙️', flag: '🇦🇪', fact: 'برج خليفة في دبي هو أطول مبنى في العالم بارتفاع 828 متراً!', hint: 'بلد برج خليفة 🏙️' },
+            { name: 'المغرب', capital: 'الرباط', continent: 'أفريقيا', region: 'arab', code: 'ma', lat: 31.7, lng: -7.0, zoom: 6, famous: 'جبال الأطلس والصحراء', famousEmoji: '️', flag: '🇲🇦', fact: 'المغرب هو البلد الوحيد في أفريقيا الذي يطل على البحر الأبيض المتوسط والمحيط الأطلسي معاً!', hint: 'بلد جبال الأطلس ️' },
+            { name: 'الجزائر', capital: 'الجزائر', continent: 'أفريقيا', region: 'arab', code: 'dz', lat: 28.0, lng: 1.6, zoom: 5, famous: 'الصحراء الكبرى', famousEmoji: '️', flag: '🇩🇿', fact: 'الجزائر هي أكبر دولة في أفريقيا مساحةً!', hint: 'أكبر دولة في أفريقيا ️' },
+            { name: 'تونس', capital: 'تونس', continent: 'أفريقيا', region: 'arab', code: 'tn', lat: 33.8, lng: 9.5, zoom: 7, famous: 'قرطاج القديمة', famousEmoji: '🏛️', flag: '🇹🇳', fact: 'تونس بها آثار مدينة قرطاج القديمة الشهيرة!', hint: 'بلد قرطاج التاريخية 🏛️' },
+            { name: 'ليبيا', capital: 'طرابلس', continent: 'أفريقيا', region: 'arab', code: 'ly', lat: 26.3, lng: 17.2, zoom: 6, famous: 'الصحراء والآثار الرومانية', famousEmoji: '️', flag: '🇱🇾', fact: 'ليبيا بها أكبر احتياطي نفطي في أفريقيا!', hint: 'بلد الصحراء الكبرى ️' },
+            { name: 'العراق', capital: 'بغداد', continent: 'آسيا', region: 'arab', code: 'iq', lat: 33.2, lng: 43.6, zoom: 6, famous: 'بلاد الرافدين', famousEmoji: '🏛️', flag: '🇮🇶', fact: 'العراق هو مهد الحضارة، وفيه بغداد عاصمة الخلافة العباسية!', hint: 'بلاد الرافدين 🏛️' },
+            { name: 'سوريا', capital: 'دمشق', continent: 'آسيا', region: 'arab', code: 'sy', lat: 34.8, lng: 38.9, zoom: 7, famous: 'دمشق أقدم عاصمة في العالم', famousEmoji: '🏛️', flag: '🇸🇾', fact: 'دمشق هي أقدم عاصمة مأهولة في العالم!', hint: 'دمشق أقدم عاصمة 🏛️' },
+            { name: 'لبنان', capital: 'بيروت', continent: 'آسيا', region: 'arab', code: 'lb', lat: 33.8, lng: 35.8, zoom: 8, famous: 'الأرز والجمال الطبيعي', famousEmoji: '🌲', flag: '🇱🇧', fact: 'لبنان معروف بأرزه الشهير وجباله الجميلة!', hint: 'بلد الأرز 🌲' },
+            { name: 'الأردن', capital: 'عمان', continent: 'آسيا', region: 'arab', code: 'jo', lat: 30.5, lng: 36.2, zoom: 7, famous: 'البتراء والبحر الميت', famousEmoji: '🏛️', flag: '🇯🇴', fact: 'الأردن بها مدينة البتراء الأثرية إحدى عجائب الدنيا الجديدة!', hint: 'بلد البتراء 🏛️' },
+            { name: 'فلسطين', capital: 'القدس', continent: 'آسيا', region: 'arab', code: 'ps', lat: 31.9, lng: 35.2, zoom: 9, famous: 'المسجد الأقصى', famousEmoji: '🕌', flag: '🇵🇸', fact: 'فلسطين بها المسجد الأقصى ثالث أقدس مكان في الإسلام!', hint: 'بلد المسجد الأقصى 🕌' },
+            { name: 'الكويت', capital: 'الكويت', continent: 'آسيا', region: 'arab', code: 'kw', lat: 29.3, lng: 47.4, zoom: 8, famous: 'أبراج الكويت', famousEmoji: '🏙️', flag: '🇰🇼', fact: 'الكويت معروفة بأبراجها الشهيرة!', hint: 'بلد أبراج الكويت 🏙️' },
+            { name: 'قطر', capital: 'الدوحة', continent: 'آسيا', region: 'arab', code: 'qa', lat: 25.3, lng: 51.1, zoom: 9, famous: 'كأس العالم 2022', famousEmoji: '⚽', flag: '🇶🇦', fact: 'قطر استضافت كأس العالم 2022!', hint: 'بلد كأس العالم 2022 ⚽' },
+            { name: 'البحرين', capital: 'المنامة', continent: 'آسيا', region: 'arab', code: 'bh', lat: 26.0, lng: 50.5, zoom: 10, famous: 'جزر وصيد اللؤلؤ', famousEmoji: '🏝️', flag: '🇧🇭', fact: 'البحرين جزيرة صغيرة معروفة بصيد اللؤلؤ!', hint: 'جزيرة اللؤلؤ 🏝️' },
+            { name: 'عُمان', capital: 'مسقط', continent: 'آسيا', region: 'arab', code: 'om', lat: 21.4, lng: 55.9, zoom: 6, famous: 'القلعات والصحراء', famousEmoji: '🏰', flag: '🇴🇲', fact: 'عُمان معروفة بقلعاتها التاريخية الجميلة!', hint: 'بلد القلعات 🏰' },
+            { name: 'اليمن', capital: 'صنعاء', continent: 'آسيا', region: 'arab', code: 'ye', lat: 15.5, lng: 48.5, zoom: 6, famous: 'تاريخ عريق ومدينة صنعاء القديمة', famousEmoji: '🏛️', flag: '🇾🇪', fact: 'اليمن بها مدينة صنعاء القديمة المدرجة في التراث العالمي!', hint: 'بلد صنعاء القديمة 🏛️' },
+            { name: 'موريتانيا', capital: 'نواكشوط', continent: 'أفريقيا', region: 'arab', code: 'mr', lat: 20.3, lng: -10.5, zoom: 6, famous: 'الصحراء', famousEmoji: '️', flag: '🇲🇷', fact: 'موريتانيا معروفة بصحرائها الشاسعة!', hint: 'بلد الصحراء ️' },
+            { name: 'الصومال', capital: 'مقديشو', continent: 'أفريقيا', region: 'arab', code: 'so', lat: 5.1, lng: 46.1, zoom: 6, famous: 'القرن الأفريقي', famousEmoji: '️', flag: '🇸🇴', fact: 'الصومال تقع في القرن الأفريقي!', hint: 'القرن الأفريقي ️' },
+            { name: 'السودان', capital: 'الخرطوم', continent: 'أفريقيا', region: 'arab', code: 'sd', lat: 12.8, lng: 30.2, zoom: 6, famous: 'الأهرامات السودانية', famousEmoji: '🏛️', flag: '🇸🇩', fact: 'السودان بها أهرامات أكثر من مصر!', hint: 'بلد الأهرامات السودانية 🏛️' },
+
+            // European Countries
+            { name: 'فرنسا', capital: 'باريس', continent: 'أوروبا', region: 'europe', code: 'fr', lat: 46.6, lng: 2.2, zoom: 6, famous: 'برج إيفل وقصر فرساي', famousEmoji: '🗼', flag: '🇫🇷', fact: 'برج إيفل في باريس يتوسع في الصيف بسبب الحرارة ويزداد طوله حوالي 15 سنتيمتراً!', hint: 'بلد برج إيفل ' },
+            { name: 'إيطاليا', capital: 'روما', continent: 'أوروبا', region: 'europe', code: 'it', lat: 41.8, lng: 12.5, zoom: 6, famous: 'الكولوسيوم والبيتزا', famousEmoji: '🍕', flag: '🇮🇹', fact: 'إيطاليا بها أكثر مواقع التراث العالمي في العالم (58 موقعاً)، وشكلها يشبه الحذاء!', hint: 'بلد البيتزا والمعكرونة 🍕' },
+            { name: 'ألمانيا', capital: 'برلين', continent: 'أوروبا', region: 'europe', code: 'de', lat: 51.1, lng: 10.4, zoom: 6, famous: 'بوابة براندنبورغ والسيارات', famousEmoji: '🚗', flag: '🇩🇪', fact: 'ألمانيا هي أكبر اقتصاد في أوروبا، وفيها أكثر من 1500 نوع من البيرة و25000 قلعة!', hint: 'بلد السيارات الفاخرة 🚗' },
+            { name: 'إسبانيا', capital: 'مدريد', continent: 'أوروبا', region: 'europe', code: 'es', lat: 40.4, lng: -3.7, zoom: 6, famous: 'الفلامنكو ومصارعة الثيران', famousEmoji: '💃', flag: '🇪🇸', fact: 'إسبانيا هي البلد الوحيد في أوروبا الذي يطل على البحر الأبيض المتوسط والمحيط الأطلسي!', hint: 'بلد الفلامنكو 💃' },
+            { name: 'بريطانيا', capital: 'لندن', continent: 'أوروبا', region: 'europe', code: 'gb', lat: 55.3, lng: -3.4, zoom: 6, famous: 'بيغ بن والقصر الملكي', famousEmoji: '🏰', flag: '🇬🇧', fact: 'بريطانيا تتكون من 4 دول: إنجلترا واسكتلندا وويلز وأيرلندا الشمالية!', hint: 'بلد بيغ بن والملكية 🏰' },
+            { name: 'روسيا', capital: 'موسكو', continent: 'أوروبا', region: 'europe', code: 'ru', lat: 61.5, lng: 105.3, zoom: 3, famous: 'الكرملين ومساحة شاسعة', famousEmoji: '', flag: '🇷', fact: 'روسيا هي أكبر دولة في العالم مساحةً، وتمتد عبر 11 منطقة زمنية مختلفة!', hint: 'أكبر دولة في العالم 🏰' },
+            { name: 'اليونان', capital: 'أثينا', continent: 'أوروبا', region: 'europe', code: 'gr', lat: 39.0, lng: 21.8, zoom: 7, famous: 'الأكروبوليس والأساطير', famousEmoji: '🏛️', flag: '🇬🇷', fact: 'اليونان مهد الحضارة الغربية والأولمبياد!', hint: 'مهد الحضارة والأولمبياد 🏛️' },
+            { name: 'هولندا', capital: 'أمستردام', continent: 'أوروبا', region: 'europe', code: 'nl', lat: 52.1, lng: 5.2, zoom: 7, famous: 'التوليب والطواحين', famousEmoji: '🌷', flag: '🇳🇱', fact: 'هولندا معروفة بالتوليب والطواحين الهوائية!', hint: 'بلد التوليب والطواحين 🌷' },
+            { name: 'سويسرا', capital: 'برن', continent: 'أوروبا', region: 'europe', code: 'ch', lat: 46.8, lng: 8.2, zoom: 8, famous: 'جبال الألب والشوكولاتة', famousEmoji: '⛰️', flag: '🇨🇭', fact: 'سويسرا معروفة بجبال الألب وشوكولاتتها الشهيرة!', hint: 'بلد جبال الألب والشوكولاتة ⛰️' },
+            { name: 'السويد', capital: 'ستوكهولم', continent: 'أوروبا', region: 'europe', code: 'se', lat: 60.1, lng: 18.6, zoom: 5, famous: 'الشفق القطبي', famousEmoji: '🌌', flag: '🇸🇪', fact: 'السويد معروفة بالشفق القطبي الجميل!', hint: 'بلد الشفق القطبي 🌌' },
+            { name: 'النرويج', capital: 'أوسلو', continent: 'أوروبا', region: 'europe', code: 'no', lat: 60.4, lng: 8.4, zoom: 5, famous: 'الفيوردات', famousEmoji: '️', flag: '🇳🇴', fact: 'النرويج معروفة بفيورداتها الجميلة!', hint: 'بلد الفيوردات ️' },
+            { name: 'بولندا', capital: 'وارسو', continent: 'أوروبا', region: 'europe', code: 'pl', lat: 51.9, lng: 19.1, zoom: 6, famous: 'العصر الذهبي', famousEmoji: '🏰', flag: '🇵🇱', fact: 'بولندا لها تاريخ عريق ومعالم جميلة!', hint: 'بلد القلاع الجميلة 🏰' },
+            { name: 'البرتغال', capital: 'لشبونة', continent: 'أوروبا', region: 'europe', code: 'pt', lat: 39.3, lng: -8.2, zoom: 7, famous: 'المستكشفين وكرة القدم', famousEmoji: '⚽', flag: '🇵🇹', fact: 'البرتغال كانت أكبر إمبراطورية بحرية في التاريخ!', hint: 'بلد المستكشفين ⚽' },
+            { name: 'النمسا', capital: 'فيينا', continent: 'أوروبا', region: 'europe', code: 'at', lat: 47.5, lng: 14.5, zoom: 7, famous: 'الموسيقى الكلاسيكية', famousEmoji: '🎵', flag: '🇦🇹', fact: 'النمسا هي مهد الموسيقى الكلاسيكية وموطن موزارت!', hint: 'بلد الموسيقى الكلاسيكية 🎵' },
+
+            // Asian Countries
+            { name: 'اليابان', capital: 'طوكيو', continent: 'آسيا', region: 'asia', code: 'jp', lat: 36.2, lng: 138.2, zoom: 5, famous: 'جبل فوجي والكرز', famousEmoji: '🗻', flag: '🇯🇵', fact: 'اليابان تتكون من 6852 جزيرة! وفيها قطارات فائقة السرعة تصل سرعتها إلى 320 كم/ساعة!', hint: 'بلد الساموراي والكرز ' },
+            { name: 'الصين', capital: 'بكين', continent: 'آسيا', region: 'asia', code: 'cn', lat: 35.8, lng: 104.1, zoom: 4, famous: 'سور الصين العظيم', famousEmoji: '🏯', flag: '🇨🇳', fact: 'الصين بها سور الصين العظيم الذي يمتد لأكثر من 21000 كيلومتر!', hint: 'بلد سور الصين العظيم 🏯' },
+            { name: 'الهند', capital: 'نيودلهي', continent: 'آسيا', region: 'asia', code: 'in', lat: 20.5, lng: 78.9, zoom: 5, famous: 'تاج محل والفيلة', famousEmoji: '', flag: '🇮🇳', fact: 'الهند هي ثاني أكبر دولة في العالم من حيث عدد السكان، وفيها أكثر من 22 لغة رسمية!', hint: 'بلد التاج محل 🕌' },
+            { name: 'كوريا الجنوبية', capital: 'سيول', continent: 'آسيا', region: 'asia', code: 'kr', lat: 35.9, lng: 127.7, zoom: 7, famous: 'الكيبوب والتكنولوجيا', famousEmoji: '🎤', flag: '🇰🇷', fact: 'كوريا الجنوبية معروفة بالموسيقى الكيبوب والتكنولوجيا المتقدمة!', hint: 'بلد الكيبوب 🎤' },
+            { name: 'تايلاند', capital: 'بانكوك', continent: 'آسيا', region: 'asia', code: 'th', lat: 15.8, lng: 100.9, zoom: 6, famous: 'المعابد والشواطئ', famousEmoji: '🏖️', flag: '🇹🇭', fact: 'تايلاند معروفة بمعابدها الذهبية وشواطئها الجميلة!', hint: 'بلد المعابد الذهبية 🏖️' },
+            { name: 'فيتنام', capital: 'هانوي', continent: 'آسيا', region: 'asia', code: 'vn', lat: 14.0, lng: 108.2, zoom: 6, famous: 'خليج ها لونغ', famousEmoji: '️', flag: '🇻🇳', fact: 'فيتنام معروفة بخليج ها لونغ الجميل!', hint: 'بلد خليج ها لونغ ️' },
+            { name: 'إندونيسيا', capital: 'جاكرتا', continent: 'آسيا', region: 'asia', code: 'id', lat: -0.7, lng: 113.9, zoom: 4, famous: 'جزر بالي', famousEmoji: '🏝️', flag: '🇮🇩', fact: 'إندونيسيا أكبر أرخبيل في العالم بأكثر من 17000 جزيرة!', hint: 'أكبر أرخبيل في العالم 🏝️' },
+            { name: 'ماليزيا', capital: 'كوالالمبور', continent: 'آسيا', region: 'asia', code: 'my', lat: 4.2, lng: 101.9, zoom: 6, famous: 'أبراج بتروناس', famousEmoji: '🏙️', flag: '🇲🇾', fact: 'ماليزيا معروفة بأبراج بتروناس التوأم!', hint: 'بلد أبراج بتروناس 🏙️' },
+            { name: 'باكستان', capital: 'إسلام آباد', continent: 'آسيا', region: 'asia', code: 'pk', lat: 30.3, lng: 69.3, zoom: 5, famous: 'جبال الهيمالايا', famousEmoji: '⛰️', flag: '🇵🇰', fact: 'باكستان بها جزء من جبال الهيمالايا!', hint: 'بلد جبال الهيمالايا ⛰️' },
+            { name: 'إيران', capital: 'طهران', continent: 'آسيا', region: 'asia', code: 'ir', lat: 32.4, lng: 53.6, zoom: 5, famous: 'الحضارة الفارسية', famousEmoji: '🏛️', flag: '🇮🇷', fact: 'إيران كانت مركز الإمبراطورية الفارسية العظيمة!', hint: 'بلد الحضارة الفارسية 🏛️' },
+            { name: 'تركيا', capital: 'أنقرة', continent: 'آسيا', region: 'asia', code: 'tr', lat: 38.9, lng: 35.2, zoom: 6, famous: 'آيا صوفيا والبازار الكبير', famousEmoji: '🕌', flag: '🇹🇷', fact: 'تركيا تقع في قارتين: آسيا وأوروبا!', hint: 'بلد آيا صوفيا 🕌' },
+
+            // African Countries
+            { name: 'جنوب أفريقيا', capital: 'بريتوريا', continent: 'أفريقيا', region: 'africa', code: 'za', lat: -30.5, lng: 22.9, zoom: 6, famous: 'السفاري ونيلسون مانديلا', famousEmoji: '🦁', flag: '🇿🇦', fact: 'جنوب أفريقيا هي البلد الوحيد في العالم الذي له 3 عواصم!', hint: 'بلد السفاري والأسود 🦁' },
+            { name: 'نيجيريا', capital: 'أبوجا', continent: 'أفريقيا', region: 'africa', code: 'ng', lat: 9.0, lng: 8.6, zoom: 6, famous: 'النفط والتنوع الثقافي', famousEmoji: '🛢️', flag: '🇳🇬', fact: 'نيجيريا هي أكبر دولة أفريقية من حيث عدد السكان!', hint: 'أكبر دولة أفريقية سكاناً 🛢️' },
+            { name: 'كينيا', capital: 'نيروبي', continent: 'أفريقيا', region: 'africa', code: 'ke', lat: -0.0, lng: 37.9, zoom: 6, famous: 'السافاري والحيوانات', famousEmoji: '🦒', flag: '🇰🇪', fact: 'كينيا معروفة بسافاريها الرائع وحياة البرية!', hint: 'بلد السافاري 🦒' },
+            { name: 'تنزانيا', capital: 'دودوما', continent: 'أفريقيا', region: 'africa', code: 'tz', lat: -6.3, lng: 34.8, zoom: 6, famous: 'جبل كلمنجارو', famousEmoji: '⛰️', flag: '🇹🇿', fact: 'تنزانيا بها أعلى جبل في أفريقيا: كلمنجارو!', hint: 'بلد جبل كلمنجارو ⛰️' },
+            { name: 'إثيوبيا', capital: 'أديس أبابا', continent: 'أفريقيا', region: 'africa', code: 'et', lat: 9.1, lng: 40.4, zoom: 6, famous: 'القهوة والتاريخ', famousEmoji: '☕', flag: '🇪🇹', fact: 'إثيوبيا هي مهد القهوة!', hint: 'مهد القهوة ☕' },
+            { name: 'غانا', capital: 'أكرا', continent: 'أفريقيا', region: 'africa', code: 'gh', lat: 7.9, lng: -1.0, zoom: 7, famous: 'الذهب والكاكاو', famousEmoji: '🍫', flag: '🇬🇭', fact: 'غانا معروفة بالذهب والكاكاو!', hint: 'بلد الذهب والكاكاو 🍫' },
+            { name: 'السنغال', capital: 'داكار', continent: 'أفريقيا', region: 'africa', code: 'sn', lat: 14.4, lng: -14.4, zoom: 7, famous: 'كرة القدم', famousEmoji: '⚽', flag: '🇸🇳', fact: 'السنغال معروفة بكرة القدم!', hint: 'بلد كرة القدم ⚽' },
+            { name: 'مدغشقر', capital: 'أنتاناناريفو', continent: 'أفريقيا', region: 'africa', code: 'mg', lat: -18.7, lng: 46.8, zoom: 6, famous: 'الحيوانات الفريدة', famousEmoji: '🦝', flag: '🇲🇬', fact: 'مدغشقر جزيرة بها حيوانات لا توجد في أي مكان آخر!', hint: 'جزيرة الحيوانات الفريدة 🦝' },
+            { name: 'أوغندا', capital: 'كامبالا', continent: 'أفريقيا', region: 'africa', code: 'ug', lat: 1.3, lng: 32.2, zoom: 7, famous: 'الغوريلا الجبلية', famousEmoji: '🦍', flag: '🇺🇬', fact: 'أوغندا معروفة بالغوريلا الجبلية النادرة!', hint: 'بلد الغوريلا 🦍' },
+            { name: 'المغرب', capital: 'الرباط', continent: 'أفريقيا', region: 'africa', code: 'ma', lat: 31.7, lng: -7.0, zoom: 6, famous: 'جبال الأطلس', famousEmoji: '️', flag: '🇲🇦', fact: 'المغرب به جبال الأطلس الشهيرة!', hint: 'بلد جبال الأطلس ️' },
+
+            // American Countries
+            { name: 'البرازيل', capital: 'برازيليا', continent: 'أمريكا الجنوبية', region: 'americas', code: 'br', lat: -14.2, lng: -51.9, zoom: 4, famous: 'الكرنفال وكرة القدم', famousEmoji: '⚽', flag: '🇧🇷', fact: 'البرازيل هي أكبر دولة في أمريكا الجنوبية، وفيها أكبر غابة استوائية في العالم: غابة الأمازون!', hint: 'بلد الكرنفال وكرة القدم ⚽' },
+            { name: 'الأرجنتين', capital: 'بوينس آيرس', continent: 'أمريكا الجنوبية', region: 'americas', code: 'ar', lat: -38.4, lng: -63.6, zoom: 4, famous: 'التانغو وكرة القدم', famousEmoji: '💃', flag: '🇦🇷', fact: 'الأرجنتين هي بلد ميسي ومارادونا!', hint: 'بلد التانغو وكرة القدم 💃' },
+            { name: 'كندا', capital: 'أوتاوا', continent: 'أمريكا الشمالية', region: 'americas', code: 'ca', lat: 56.1, lng: -106.3, zoom: 3, famous: 'شلالات نياغارا وشراب القيقب', famousEmoji: '', flag: '🇨🇦', fact: 'كندا بها أكثر من 2 مليون بحيرة!', hint: 'بلد شراب القيقب 🍁' },
+            { name: 'المكسيك', capital: 'مكسيكو سيتي', continent: 'أمريكا الشمالية', region: 'americas', code: 'mx', lat: 23.6, lng: -102.5, zoom: 5, famous: 'حضارة المايا والتاكو', famousEmoji: '🌮', flag: '🇲🇽', fact: 'المكسيك بها أكثر من 60 لغة مختلفة!', hint: 'بلد التاكو وحضارة المايا 🌮' },
+            { name: 'الولايات المتحدة', capital: 'واشنطن', continent: 'أمريكا الشمالية', region: 'americas', code: 'us', lat: 37.0, lng: -95.7, zoom: 4, famous: 'تمثال الحرية', famousEmoji: '🗽', flag: '🇺🇸', fact: 'الولايات المتحدة بها 50 ولاية!', hint: 'بلد تمثال الحرية 🗽' },
+            { name: 'كوبا', capital: 'هافانا', continent: 'أمريكا الشمالية', region: 'americas', code: 'cu', lat: 21.5, lng: -77.7, zoom: 7, famous: 'الموسيقى والسيارات القديمة', famousEmoji: '🎺', flag: '🇨🇺', fact: 'كوبا معروفة بالموسيقى والسيارات القديمة!', hint: 'بلد الموسيقى 🎺' },
+            { name: 'بيرو', capital: 'ليما', continent: 'أمريكا الجنوبية', region: 'americas', code: 'pe', lat: -9.1, lng: -75.0, zoom: 5, famous: 'مدينة ماتشو بيتشو', famousEmoji: '🏔️', flag: '🇵🇪', fact: 'بيرو بها مدينة ماتشو بيتشو الأثرية!', hint: 'بلد ماتشو بيتشو 🏔️' },
+            { name: 'تشيلي', capital: 'سانتياغو', continent: 'أمريكا الجنوبية', region: 'americas', code: 'cl', lat: -35.6, lng: -71.5, zoom: 5, famous: 'صحراء أتاكاما', famousEmoji: '️', flag: '🇨🇱', fact: 'تشيلي بها أطول صحراء في العالم: أتاكاما!', hint: 'بلد صحراء أتاكاما ️' },
+            { name: 'كولومبيا', capital: 'بوغوتا', continent: 'أمريكا الجنوبية', region: 'americas', code: 'co', lat: 4.5, lng: -74.2, zoom: 5, famous: 'القهوة والتنوع', famousEmoji: '☕', flag: '🇨🇴', fact: 'كولومبيا معروفة بالقهوة الممتازة!', hint: 'بلد القهوة ☕' },
+            { name: 'فنزويلا', capital: 'كاراكاس', continent: 'أمريكا الجنوبية', region: 'americas', code: 've', lat: 6.4, lng: -66.5, zoom: 6, famous: 'شلال أنجل', famousEmoji: '️', flag: '🇻🇪', fact: 'فنزويلا بها أعلى شلال في العالم: شلال أنجل!', hint: 'بلد أعلى شلال في العالم ️' },
+            { name: 'الإكوادور', capital: 'كيتو', continent: 'أمريكا الجنوبية', region: 'americas', code: 'ec', lat: -1.8, lng: -78.1, zoom: 7, famous: 'جزر غالاباغوس', famousEmoji: '🐢', flag: '🇪🇨', fact: 'الإكوادور بها جزر غالاباغوس الشهيرة!', hint: 'بلد جزر غالاباغوس 🐢' },
+            { name: 'أوروغواي', capital: 'مونتيفيديو', continent: 'أمريكا الجنوبية', region: 'americas', code: 'uy', lat: -32.5, lng: -55.7, zoom: 7, famous: 'كرة القدم والطبيعة', famousEmoji: '⚽', flag: '🇺🇾', fact: 'أوروغواي من أقوى منتخبات كرة القدم في التاريخ!', hint: 'بلد كرة القدم ⚽' },
+            { name: 'بنما', capital: 'بنما', continent: 'أمريكا الشمالية', region: 'americas', code: 'pa', lat: 8.5, lng: -80.7, zoom: 8, famous: 'قناة بنما', famousEmoji: '🚢', flag: '🇵🇦', fact: 'بنما بها قناة بنما التي تربط المحيط الأطلسي بالهادئ!', hint: 'بلد قناة بنما 🚢' },
+            { name: 'جامايكا', capital: 'كينغستون', continent: 'أمريكا الشمالية', region: 'americas', code: 'jm', lat: 18.1, lng: -77.2, zoom: 9, famous: 'موسيقى الريغي', famousEmoji: '🎵', flag: '🇯🇲', fact: 'جامايكا هي مهد موسيقى الريغي وبوب مارلي!', hint: 'بلد الريغي 🎵' },
+            { name: 'هايتي', capital: 'بورت أو برانس', continent: 'أمريكا الشمالية', region: 'americas', code: 'ht', lat: 18.9, lng: -72.2, zoom: 9, famous: 'التاريخ والثقافة', famousEmoji: '🎨', flag: '🇭🇹', fact: 'هايتي هي أول جمهورية سوداء مستقلة في العالم!', hint: 'أول جمهورية سوداء 🎨' },
+            { name: 'باراغواي', capital: 'أسونسيون', continent: 'أمريكا الجنوبية', region: 'americas', code: 'py', lat: -23.4, lng: -58.4, zoom: 7, famous: 'شلالات إغواسو', famousEmoji: '️', flag: '🇵🇾', fact: 'باراغواي بها شلالات إغواسو الرائعة!', hint: 'بلد الشلالات ️' },
+            { name: 'بوليفيا', capital: 'سوكري', continent: 'أمريكا الجنوبية', region: 'americas', code: 'bo', lat: -16.2, lng: -63.5, zoom: 6, famous: 'ملح أويوني', famousEmoji: '️', flag: '🇧🇴', fact: 'بوليفيا بها أكبر صحراء ملح في العالم!', hint: 'بلد صحراء الملح ️' },
+
+            // Oceania
+            { name: 'أستراليا', capital: 'كانبيرا', continent: 'أوقيانوسيا', region: 'oceania', code: 'au', lat: -25.2, lng: 133.7, zoom: 4, famous: 'الكنغر ودار الأوبرا', famousEmoji: '', flag: '🇦🇺', fact: 'أستراليا هي أكبر جزيرة وأصغر قارة في العالم، وفيها حيوانات لا توجد في أي مكان آخر!', hint: 'بلد الكنغر 🦘' },
+            { name: 'نيوزيلندا', capital: 'ويلينغتون', continent: 'أوقيانوسيا', region: 'oceania', code: 'nz', lat: -40.9, lng: 174.8, zoom: 5, famous: 'الطبيعة الخلابة', famousEmoji: '️', flag: '🇳🇿', fact: 'نيوزيلندا بها طبيعة خلابة وكانت موقع تصوير فيلم سيد الخواتم!', hint: 'بلد سيد الخواتم ️' }
         ];
 
         // ============ GAME STATE ============
@@ -640,10 +537,13 @@
         let hints = 3;
         let answered = false;
         let selectedLevel = 'easy';
+        let selectedContinent = 'world';
         let questions = [];
         let currentQuestionData = null;
         let badges = [];
         let startTime = null;
+        let gameMap = null;
+        let mapMarker = null;
 
         // ============ AUDIO ============
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -729,25 +629,49 @@
             return arr;
         }
 
-        function selectLevel(level) {
+        function selectContinent(continent, el) {
+            playSound('click');
+            selectedContinent = continent;
+            document.querySelectorAll('.continent-card').forEach(card => {
+                card.classList.remove('ring-4', 'ring-white', 'scale-105');
+            });
+            el.classList.add('ring-4', 'ring-white', 'scale-105');
+        }
+
+        function selectLevel(level, el) {
             playSound('click');
             selectedLevel = level;
             document.querySelectorAll('.level-btn').forEach(btn => {
                 btn.classList.remove('ring-4', 'ring-white', 'scale-105');
             });
-            document.getElementById('level' + level.charAt(0).toUpperCase() + level.slice(1)).classList.add('ring-4', 'ring-white', 'scale-105');
+            el.classList.add('ring-4', 'ring-white', 'scale-105');
         }
 
         // ============ QUESTION GENERATION ============
         function generateQuestions() {
-            const shuffled = shuffleArray(countries);
+            let filteredCountries = countries;
+            if (selectedContinent !== 'world') {
+                if (selectedContinent === 'arab') {
+                    filteredCountries = countries.filter(c => c.region === 'arab');
+                } else if (selectedContinent === 'asia') {
+                    filteredCountries = countries.filter(c => c.region === 'asia');
+                } else if (selectedContinent === 'europe') {
+                    filteredCountries = countries.filter(c => c.region === 'europe');
+                } else if (selectedContinent === 'africa') {
+                    filteredCountries = countries.filter(c => c.region === 'africa');
+                } else if (selectedContinent === 'americas') {
+                    filteredCountries = countries.filter(c => c.region === 'americas');
+                }
+            }
+
+            const shuffled = shuffleArray(filteredCountries);
             const qList = [];
             const types = getQuestionTypes();
             
             for (let i = 0; i < types.length && i < shuffled.length; i++) {
                 const country = shuffled[i % shuffled.length];
                 const type = types[i % types.length];
-                qList.push(createQuestion(country, type));
+                qList.push(createQuestion(country, type, filteredCountries));
             }
             
             return shuffleArray(qList);
@@ -761,14 +685,18 @@
                 for (let i = 0; i < total; i++) types.push('map');
             } else if (selectedLevel === 'medium') {
                 for (let i = 0; i < total; i++) {
-                    types.push(i < 6 ? 'map' : 'capital');
+                    const mod = i % 3;
+                    if (mod === 0) types.push('map');
+                    else if (mod === 1) types.push('capital');
+                    else types.push('flag');
                 }
             } else {
                 for (let i = 0; i < total; i++) {
-                    const mod = i % 4;
+                    const mod = i % 5;
                     if (mod === 0) types.push('map');
                     else if (mod === 1) types.push('capital');
-                    else if (mod === 2) types.push('famous');
+                    else if (mod === 2) types.push('flag');
+                    else if (mod === 3) types.push('famous');
                     else types.push('continent');
                 }
             }
@@ -776,8 +704,8 @@
             return types;
         }
 
-        function createQuestion(country, type) {
-            const otherCountries = countries.filter(c => c.name !== country.name);
+        function createQuestion(country, type, allCountries) {
+            const otherCountries = allCountries.filter(c => c.name !== country.name);
             const wrongOptions = shuffleArray(otherCountries).slice(0, 3);
             
             if (type === 'map') {
@@ -791,8 +719,20 @@
                     options: shuffleArray([country.name, ...wrongOptions.map(c => c.name)]),
                     hint: country.hint,
                     fact: country.fact,
-                    image: country.image,
-                    isImage: true
+                    displayType: 'map'
+                };
+            } else if (type === 'flag') {
+                return {
+                    type: 'flag',
+                    country: country,
+                    question: 'ما اسم هذا البلد؟',
+                    subtitle: 'انظر إلى العلم واختر الإجابة الصحيحة',
+                    badge: '🏳️ علم البلد',
+                    correctAnswer: country.name,
+                    options: shuffleArray([country.name, ...wrongOptions.map(c => c.name)]),
+                    hint: country.hint,
+                    fact: country.fact,
+                    displayType: 'flag'
                 };
             } else if (type === 'capital') {
                 const wrongCapitals = shuffleArray(otherCountries).slice(0, 3).map(c => c.capital);
@@ -806,8 +746,7 @@
                     options: shuffleArray([country.capital, ...wrongCapitals]),
                     hint: `العاصمة تبدأ بحرف "${country.capital.charAt(0)}"`,
                     fact: country.fact,
-                    emoji: country.flag,
-                    isImage: false
+                    displayType: 'emoji'
                 };
             } else if (type === 'famous') {
                 const wrongFamous = shuffleArray(otherCountries).slice(0, 3).map(c => c.famous);
@@ -821,8 +760,7 @@
                     options: shuffleArray([country.famous, ...wrongFamous]),
                     hint: `فكر في أشهر معلم أو شيء في ${country.name}`,
                     fact: country.fact,
-                    emoji: country.famousEmoji,
-                    isImage: false
+                    displayType: 'emoji'
                 };
             } else if (type === 'continent') {
                 const continents = ['أفريقيا', 'آسيا', 'أوروبا', 'أمريكا الشمالية', 'أمريكا الجنوبية', 'أوقيانوسيا'];
@@ -837,10 +775,76 @@
                     options: shuffleArray([country.continent, ...wrongContinents]),
                     hint: `فكر في موقع ${country.name} على الخريطة`,
                     fact: country.fact,
-                    emoji: '🌍',
-                    isImage: false
+                    displayType: 'emoji'
                 };
             }
+        }
+
+        // ============ MAP FUNCTIONS ============
+        function initMap(lat, lng, zoom, countryName, countryCode) {
+            const mapEl = document.getElementById('gameMap');
+            
+            // Destroy previous map if exists
+            if (gameMap) {
+                gameMap.remove();
+                gameMap = null;
+            }
+            
+            // Clear container
+            mapEl.innerHTML = '';
+            
+            // Create map
+            gameMap = L.map('gameMap', {
+                center: [lat, lng],
+                zoom: zoom,
+                zoomControl: true,
+                attributionControl: true
+            });
+            
+            // Add tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap',
+                maxZoom: 18
+            }).addTo(gameMap);
+            
+            // Add country marker with custom icon
+            const customIcon = L.divIcon({
+                html: `<div style="background: linear-gradient(135deg, #ef4444, #dc2626); width: 40px; height: 40px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 20px; animation: pulse 1.5s ease-in-out infinite;">📍</div>`,
+                className: 'custom-marker',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+            });
+            
+            mapMarker = L.marker([lat, lng], { icon: customIcon }).addTo(gameMap);
+            mapMarker.bindPopup(`<b>${countryName}</b>`).openPopup();
+            
+            // Force map to refresh
+            setTimeout(() => {
+                gameMap.invalidateSize();
+            }, 100);
+        }
+
+        function loadFlag(countryCode) {
+            const flagImg = document.getElementById('flagImage');
+            const preloader = document.getElementById('preloader');
+            
+            // Use flagcdn.com for flags
+            const flagUrl = `https://flagcdn.com/w640/${countryCode}.png`;
+            
+            const img = new Image();
+            img.onload = () => {
+                flagImg.src = flagUrl;
+                flagImg.classList.remove('hidden');
+                preloader.classList.add('hidden-preloader');
+            };
+            img.onerror = () => {
+                // Fallback: show emoji
+                flagImg.classList.add('hidden');
+                document.getElementById('questionEmoji').textContent = '🏳️';
+                document.getElementById('emojiDisplay').classList.remove('hidden');
+                preloader.classList.add('hidden-preloader');
+            };
+            img.src = flagUrl;
         }
 
         // ============ GAME FLOW ============
@@ -877,14 +881,16 @@
             document.getElementById('questionSubtitle').textContent = q.subtitle;
             document.getElementById('questionTypeBadge').innerHTML = `<span class="inline-block bg-white/90 backdrop-blur-sm rounded-full px-6 py-2 shadow-lg text-lg font-black text-purple-600">${q.badge}</span>`;
             
-            // Reset preloader and image
             const preloader = document.getElementById('preloader');
-            const mapImage = document.getElementById('mapImage');
+            const gameMapEl = document.getElementById('gameMap');
+            const flagImage = document.getElementById('flagImage');
             const emojiDisplay = document.getElementById('emojiDisplay');
             const mapContainer = document.getElementById('mapContainer');
             
+            // Hide everything first
             preloader.classList.remove('hidden-preloader');
-            mapImage.classList.add('hidden');
+            gameMapEl.classList.add('hidden');
+            flagImage.classList.add('hidden');
             emojiDisplay.classList.add('hidden');
             
             // Reset animation
@@ -892,32 +898,23 @@
             void mapContainer.offsetWidth;
             mapContainer.classList.add('map-container');
             
-            if (q.isImage) {
-                mapImage.style.display = 'none';
-                emojiDisplay.style.display = 'none';
-                mapImage.style.display = '';
-                
-                // Load image with preloader
-                const img = new Image();
-                img.onload = () => {
-                    mapImage.src = q.image;
-                    mapImage.classList.remove('hidden');
-                    preloader.classList.add('hidden-preloader');
-                };
-                img.onerror = () => {
-                    // Fallback to emoji
-                    document.getElementById('questionEmoji').textContent = q.country.flag;
-                    emojiDisplay.classList.remove('hidden');
-                    preloader.classList.add('hidden-preloader');
-                };
-                img.src = q.image;
+            if (q.displayType === 'map') {
+                gameMapEl.classList.remove('hidden');
+                // Initialize map with country location
+                setTimeout(() => {
+                    initMap(q.country.lat, q.country.lng, q.country.zoom, q.country.name, q.country.code);
+                    setTimeout(() => {
+                        preloader.classList.add('hidden-preloader');
+                    }, 800);
+                }, 100);
+            } else if (q.displayType === 'flag') {
+                loadFlag(q.country.code);
             } else {
-                document.getElementById('questionEmoji').textContent = q.emoji;
+                document.getElementById('questionEmoji').textContent = q.country.flag;
                 emojiDisplay.classList.remove('hidden');
                 preloader.classList.add('hidden-preloader');
             }
             
-            // Generate options
             const optionsContainer = document.getElementById('optionsContainer');
             optionsContainer.innerHTML = '';
             
@@ -937,12 +934,10 @@
                 optionsContainer.appendChild(btn);
             });
             
-            // Hide feedback, fact, next button
             document.getElementById('feedbackContainer').classList.add('hidden');
             document.getElementById('factContainer').classList.add('hidden');
             document.getElementById('nextBtnContainer').classList.add('hidden');
             
-            // Update hint button
             const hintBtn = document.getElementById('hintBtn');
             hintBtn.style.display = hints > 0 ? 'inline-block' : 'none';
             
@@ -977,8 +972,6 @@
                 
                 showFeedback(true, q);
                 createConfetti();
-                
-                // Check badges
                 checkBadges();
             } else {
                 btn.classList.add('wrong');
@@ -997,7 +990,6 @@
             updateScore();
             updateProgress();
             
-            // Show fun fact
             setTimeout(() => {
                 document.getElementById('factText').textContent = q.fact;
                 document.getElementById('factContainer').classList.remove('hidden');
@@ -1083,10 +1075,6 @@
                 badges.push('streak5');
                 newBadges.push({ emoji: '⚡', name: 'برق', desc: '5 إجابات صحيحة متتالية' });
             }
-            if (lives === 3 && currentQuestion === questions.length - 1 && !badges.includes('perfect')) {
-                badges.push('perfect');
-                newBadges.push({ emoji: '👑', name: 'مثالي', desc: 'لم تخسر أي حياة' });
-            }
             
             newBadges.forEach(badge => {
                 showBadgeNotification(badge);
@@ -1154,12 +1142,10 @@
             
             const total = questions.length;
             const percentage = (score / (total * 10)) * 100;
-            const correctAnswers = Math.round(score / 10);
             
             document.getElementById('finalScore').textContent = score;
             document.getElementById('finalTotal').textContent = total;
             
-            // Save best score
             const bestScore = parseInt(localStorage.getItem('bestScore') || '0');
             if (score > bestScore) {
                 localStorage.setItem('bestScore', score);
@@ -1194,7 +1180,6 @@
             document.getElementById('resultMessage').textContent = message;
             document.getElementById('starsDisplay').textContent = stars;
             
-            // Show badges
             const badgesContainer = document.getElementById('badgesContainer');
             const badgesList = document.getElementById('badgesList');
             if (badges.length > 0) {
@@ -1203,7 +1188,7 @@
                 const badgeData = [
                     { id: 'first50', emoji: '⭐', name: 'نجم صاعد' },
                     { id: 'century', emoji: '💯', name: 'مئة نقطة' },
-                    { id: 'streak3', emoji: '🔥', name: 'سلسلة نارية' },
+                    { id: 'streak3', emoji: '', name: 'سلسلة نارية' },
                     { id: 'streak5', emoji: '⚡', name: 'برق' },
                     { id: 'perfect', emoji: '', name: 'مثالي' }
                 ];
@@ -1233,6 +1218,12 @@
             document.getElementById('resultScreen').classList.add('hidden');
             document.getElementById('welcomeScreen').classList.remove('hidden');
             loadBestScore();
+            
+            // Clean up map
+            if (gameMap) {
+                gameMap.remove();
+                gameMap = null;
+            }
         }
 
         function loadBestScore() {
@@ -1264,15 +1255,8 @@
             }
         }
 
-        // Preload images
-        countries.forEach(country => {
-            const img = new Image();
-            img.src = country.image;
-        });
-
-        // Init
+        // Initialize
         loadBestScore();
-        selectLevel('easy');
     </script>
 </body>
 </html>
