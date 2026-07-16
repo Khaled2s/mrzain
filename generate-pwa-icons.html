@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate PWA Icons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #6C63FF 0%, #4ECDC4 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { color: #6C63FF; margin-bottom: 20px; }
+        button {
+            background: linear-gradient(135deg, #6C63FF 0%, #4ECDC4 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        button:hover { transform: translateY(-3px); }
+        .status { margin-top: 20px; color: #666; }
+        canvas { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PWA Icon Generator</h1>
+        <p>Click to generate 192x192 and 512x512 icons</p>
+        <button onclick="generateIcons()">Generate Icons</button>
+        <p class="status" id="status"></p>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script>
+        function generateIcons() {
+            const status = document.getElementById('status');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Icon sizes
+            const sizes = [192, 512];
+            
+            sizes.forEach((size, index) => {
+                setTimeout(() => {
+                    canvas.width = size;
+                    canvas.height = size;
+                    
+                    // Background gradient
+                    const gradient = ctx.createLinearGradient(0, 0, size, size);
+                    gradient.addColorStop(0, '#6C63FF');
+                    gradient.addColorStop(1, '#4ECDC4');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, size, size);
+                    
+                    // Add "MZ" text
+                    ctx.fillStyle = 'white';
+                    ctx.font = `bold ${size * 0.4}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('MZ', size / 2, size / 2);
+                    
+                    // Add border circle
+                    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                    ctx.lineWidth = size * 0.05;
+                    ctx.beginPath();
+                    ctx.arc(size / 2, size / 2, size * 0.45, 0, Math.PI * 2);
+                    ctx.stroke();
+                    
+                    // Download
+                    const link = document.createElement('a');
+                    link.download = `icon-${size}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    status.textContent = `Generated icon-${size}.png`;
+                }, index * 500);
+            });
+            
+            setTimeout(() => {
+                status.textContent = '✅ Both icons generated! Check your downloads folder.';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
