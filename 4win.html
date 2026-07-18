@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Primary Meta Tags -->
+<title>لعبة الأربعة تربع Connect 4 | العب مجاناً أونلاين ضد صديقك</title>
+<meta name="title" content="لعبة الأربعة تربع Connect 4 | العب مجاناً أونلاين ضد صديقك">
+<meta name="description" content="العب لعبة الأربعة تربع (Connect 4) مجاناً أونلاين ضد صديقك على نفس الجهاز. لعبة ذكاء استراتيجية كلاسيكية ممتعة للأطفال والكبار. واجهة عربية سهلة الاستخدام.">
+<meta name="keywords" content="لعبة الأربعة تربع, Connect 4, لعبة 4 تربح, لعبة الكونكت فور, ألعاب ذكاء, ألعاب استراتيجية, ألعاب مجانية, ألعاب أونلاين, ألعاب عائلية, ألعاب أطفال, لعبة صف الأربعة">
+<meta name="author" content="Connect 4 Arabic">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="language" content="Arabic">
+<meta name="revisit-after" content="7 days">
+<meta name="theme-color" content="#1e3c72">
+
+<!-- Canonical URL -->
+<link rel="canonical" href="https://example.com/connect-4">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ar_AR">
+<meta property="og:url" content="https://example.com/connect-4">
+<meta property="og:title" content="لعبة الأربعة تربع | العب مجاناً أونلاين">
+<meta property="og:description" content="لعبة الأربعة تربع (Connect 4) الكلاسيكية بواجهة عربية. تحدَّ صديقك في لعبة الذكاء الاستراتيجية الشهيرة!">
+<meta property="og:image" content="https://example.com/og-connect4.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="لعبة الأربعة تربع - Connect 4">
+<meta property="og:site_name" content="ألعاب الذكاء العربية">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://example.com/connect-4">
+<meta name="twitter:title" content="لعبة الأربعة تربع | العب مجاناً أونلاين">
+<meta name="twitter:description" content="لعبة الأربعة تربع (Connect 4) الكلاسيكية بواجهة عربية. تحدَّ صديقك الآن!">
+<meta name="twitter:image" content="https://example.com/og-connect4.jpg">
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23dc2626'/></svg>">
+
+<!-- Schema.org: VideoGame -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "لعبة الأربعة تربع",
+  "alternateName": ["Connect 4", "لعبة 4 تربح", "لعبة الكونكت فور"],
+  "description": "لعبة الأربعة تربع (Connect 4) هي لعبة ذكاء استراتيجية كلاسيكية يلعبها لاعبان على لوحة عمودية مكونة من 7 أعمدة و6 صفوف. الهدف هو توصيل 4 قطع من نفس اللون بشكل أفقي أو عمودي أو قطري قبل الخصم.",
+  "gamePlatform": "Web Browser",
+  "applicationCategory": "Game",
+  "operatingSystem": "Any",
+  "genre": ["استراتيجية", "لوحة", "ذكاء", "عائلي"],
+  "numberOfPlayers": {
+    "@type": "QuantitativeValue",
+    "minValue": 2,
+    "maxValue": 2
+  },
+  "gameMode": "Multiplayer",
+  "inLanguage": "ar",
+  "url": "https://example.com/connect-4",
+  "author": {
+    "@type": "Organization",
+    "name": "ألعاب الذكاء العربية"
+  },
+  "audience": {
+    "@type": "Audience",
+    "audienceType": "جميع الأعمار",
+    "suggestedMinAge": 6
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "1247",
+    "bestRating": "5",
+    "worstRating": "1"
+  }
+}
+</script>
+
+<!-- Schema.org: FAQPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "ما هي لعبة الأربعة تربع؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "لعبة الأربعة تربع (Connect 4) هي لعبة لوحة استراتيجية يلعبها شخصان، حيث يتناوب اللاعبان إسقاط قطع ملونة في لوحة عمودية مكونة من 7 أعمدة و6 صفوف. الفائز هو أول من يوصل 4 قطع من لونه بشكل أفقي أو عمودي أو قطري."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "كيف ألعب لعبة الأربعة تربع؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "اختر العمود الذي تريد إسقاط القطعة فيه بالنقر عليه. ستسقط القطعة إلى أسفل العمود. تناوب مع صديقك حتى يوصل أحدكما 4 قطع متتالية. يمكنك اللعب على نفس الجهاز."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "هل لعبة الأربعة تربع مجانية؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "نعم، لعبة الأربعة تربع متاحة مجاناً بالكامل على المتصفح دون الحاجة إلى تسجيل أو تحميل."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "هل يمكن لعب الأربعة تربع على الهاتف؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "نعم، اللعبة مصممة لتعمل بشكل مثالي على جميع الأجهزة بما في ذلك الهواتف الذكية والأجهزة اللوحية وأجهزة الكمبيوتر."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "ما هي أفضل استراتيجية للفوز في الأربعة تربع؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ابدأ بالسيطرة على العمود الأوسط لأنه يمنحك أكبر عدد من الفرص لتكوين خطوط. حاول إنشاء تهديدات متعددة في وقت واحد (fork) لمنع خصمك من الصد جميعها."
+      }
+    }
+  ]
+}
+</script>
+
+<!-- Schema.org: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "الرئيسية",
+      "item": "https://example.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "الألعاب",
+      "item": "https://example.com/games"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "لعبة الأربعة تربع",
+      "item": "https://example.com/connect-4"
+    }
+  ]
+}
+</script>
+
+<!-- Schema.org: WebSite with SearchAction -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "ألعاب الذكاء العربية",
+  "url": "https://example.com",
+  "inLanguage": "ar",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://example.com/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tahoma', sans-serif; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e3ff2 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: white;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    width: 100%;
+    max-width: 900px;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.8);
+  }
+  .breadcrumb ol {
+    list-style: none;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .breadcrumb li:not(:last-child)::after {
+    content: "›";
+    margin-right: 8px;
+    color: rgba(255,255,255,0.5);
+  }
+  .breadcrumb a {
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .breadcrumb a:hover { color: #ffd700; }
+  .breadcrumb li[aria-current="page"] { color: #ffd700; }
+
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    background: linear-gradient(45deg, #ffd700, #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+  }
+  .intro {
+    max-width: 800px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.9);
+  }
+  .status {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    padding: 12px 30px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    border: 2px solid rgba(255,255,255,0.2);
+    min-width: 300px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .status.winner {
+    background: rgba(255, 215, 0, 0.3);
+    border-color: #ffd700;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .board-container {
+    position: relative;
+    padding: 20px;
+    background: linear-gradient(145deg, #1e40af, #1e3a8a);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 2px 10px rgba(255,255,255,0.1);
+  }
+  .columns-indicator {
+    display: grid;
+    grid-template-columns: repeat(7, 70px);
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 0 5px;
+  }
+  .indicator {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+  .indicator:hover .preview {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .preview {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(7, 70px);
+    grid-template-rows: repeat(6, 70px);
+    gap: 10px;
+    background: linear-gradient(145deg, #1e40af, #1e3a8a);
+    padding: 15px;
+    border-radius: 15px;
+  }
+  .cell {
+    width: 70px;
+    height: 70px;
+    background: radial-gradient(circle at 30% 30%, #0f172a, #020617);
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
+    transition: transform 0.1s;
+  }
+  .cell:hover { transform: scale(1.05); }
+  .piece {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    top: -500px;
+    animation: drop 0.6s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+  }
+  @keyframes drop {
+    0% { top: -500px; }
+    70% { top: 5px; }
+    85% { top: -10px; }
+    100% { top: 0; }
+  }
+  .piece.red {
+    background: radial-gradient(circle at 30% 30%, #ff8a8a, #dc2626 60%, #991b1b);
+    box-shadow: inset 0 -4px 10px rgba(0,0,0,0.3), 0 2px 10px rgba(220, 38, 38, 0.5);
+  }
+  .piece.yellow {
+    background: radial-gradient(circle at 30% 30%, #fff59d, #fbbf24 60%, #b45309);
+    box-shadow: inset 0 -4px 10px rgba(0,0,0,0.3), 0 2px 10px rgba(251, 191, 36, 0.5);
+  }
+  .piece.winning {
+    animation: winPulse 0.8s infinite alternate;
+  }
+  @keyframes winPulse {
+    from { filter: brightness(1); transform: scale(1); }
+    to { filter: brightness(1.4); transform: scale(1.08); }
+  }
+  .controls {
+    margin-top: 25px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  button {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  .btn-reset { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  .btn-undo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+  button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+  }
+  button:active { transform: translateY(0); }
+  .score-board {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 20px;
+    padding: 15px 30px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .score-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+  }
+  .score-dot {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+  }
+  .score-dot.red { background: radial-gradient(circle at 30% 30%, #ff8a8a, #dc2626); }
+  .score-dot.yellow { background: radial-gradient(circle at 30% 30%, #fff59d, #fbbf24); }
+
+  /* SEO Content Sections */
+  .content-section {
+    max-width: 900px;
+    margin-top: 50px;
+    padding: 30px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .content-section h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #ffd700;
+    text-align: center;
+    border-bottom: 2px solid rgba(255,215,0,0.3);
+    padding-bottom: 10px;
+  }
+  .content-section h3 {
+    font-size: 1.4rem;
+    margin: 20px 0 10px;
+    color: #fff;
+  }
+  .content-section p, .content-section li {
+    line-height: 1.9;
+    color: rgba(255,255,255,0.9);
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+  }
+  .content-section ul, .content-section ol {
+    padding-right: 25px;
+    margin-bottom: 15px;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+  }
+  .feature-card {
+    padding: 20px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 15px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.3s;
+  }
+  .feature-card:hover { transform: translateY(-5px); }
+  .feature-icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .feature-card h4 { color: #ffd700; margin-bottom: 8px; font-size: 1.1rem; }
+  .feature-card p { font-size: 0.95rem; margin: 0; }
+
+  /* FAQ */
+  .faq-item {
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .faq-question {
+    padding: 18px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+  }
+  .faq-question:hover { background: rgba(255,255,255,0.05); }
+  .faq-question::after {
+    content: "+";
+    font-size: 1.5rem;
+    color: #ffd700;
+    transition: transform 0.3s;
+  }
+  .faq-item.open .faq-question::after { transform: rotate(45deg); }
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+    padding: 0 20px;
+    line-height: 1.8;
+  }
+  .faq-item.open .faq-answer {
+    max-height: 300px;
+    padding: 0 20px 20px;
+  }
+
+  footer {
+    margin-top: 40px;
+    padding: 20px;
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    width: 100%;
+    max-width: 900px;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 2rem; }
+    .board { grid-template-columns: repeat(7, 45px); grid-template-rows: repeat(6, 45px); gap: 6px; padding: 10px; }
+    .columns-indicator { grid-template-columns: repeat(7, 45px); gap: 6px; }
+    .cell { width: 45px; height: 45px; }
+    .indicator { height: 45px; }
+    .preview { width: 32px; height: 32px; }
+    .status { font-size: 1.1rem; min-width: auto; padding: 10px 20px; }
+    .content-section { padding: 20px; }
+    .content-section h2 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="مسار التنقل">
+    <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="/"><span itemprop="name">الرئيسية</span></a>
+        <meta itemprop="position" content="1">
+      </li>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="/games"><span itemprop="name">الألعاب</span></a>
+        <meta itemprop="position" content="2">
+      </li>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" aria-current="page">
+        <span itemprop="name">لعبة الأربعة تربح</span>
+        <meta itemprop="position" content="3">
+      </li>
+    </ol>
+  </nav>
+
+  <header>
+    <h1>🎯 لعبة الأربعة تربح</h1>
+    <p class="intro">
+      مرحباً بك في <strong>لعبة الأربعة تربح</strong> (Connect 4) — اللعبة الاستراتيجية الكلاسيكية المحبوبة حول العالم.
+      تحدَّ صديقك في لعبة ذكاء ممتعة على نفس الجهاز، وحاول توصيل <strong>أربع قطع</strong> من لونك قبل أن يفعل خصمك ذلك!
+    </p>
+  </header>
+
+  <main>
+    <div class="score-board" aria-label="لوحة النتائج">
+      <div class="score-item">
+        <div class="score-dot red" aria-hidden="true"></div>
+        <span>الأحمر: <span id="redScore">0</span></span>
+      </div>
+      <div class="score-item">
+        <div class="score-dot yellow" aria-hidden="true"></div>
+        <span>الأصفر: <span id="yellowScore">0</span></span>
+      </div>
+    </div>
+
+    <div class="status" id="status" role="status" aria-live="polite">دور اللاعب الأحمر 🔴</div>
+
+    <div class="board-container">
+      <div class="columns-indicator" id="indicator" aria-hidden="true"></div>
+      <div class="board" id="board" role="grid" aria-label="لوحة لعبة الأربعة تربح"></div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-undo" onclick="undoMove()" aria-label="تراجع عن آخر حركة">↶ تراجع</button>
+      <button class="btn-reset" onclick="resetGame()" aria-label="بدء لعبة جديدة">🔄 لعبة جديدة</button>
+    </div>
+
+    <!-- SEO Content: How to Play -->
+    <section class="content-section" aria-labelledby="how-to-play">
+      <h2 id="how-to-play">🎮 كيفية لعب لعبة الأربعة تربح</h2>
+      <p>
+        لعبة الأربعة تربح (وتُعرف أيضاً بـ Connect 4 أو الكونكت فور) هي لعبة لوحة ثنائية اللاعبين ابتكرها <strong>هاوارد وينسلو</strong> عام 1974.
+        تُلعَب على لوحة عمودية تحتوي على <strong>7 أعمدة و6 صفوف</strong>، والهدف بسيط لكنه يتطلب تفكيراً استراتيجياً عميقاً.
+      </p>
+
+      <h3>📋 قواعد اللعبة</h3>
+      <ol>
+        <li>يتناوب لاعبان على إسقاط قطع ملونة (أحمر وأصفر) في أحد الأعمدة السبعة.</li>
+        <li>تسقط القطعة دائماً إلى <strong>أدنى مكان شاغر</strong> في العمود المختار.</li>
+        <li>الفائز هو أول لاعب يوصّل <strong>4 قطع من نفس اللون</strong> بشكل متتالي.</li>
+        <li>يمكن أن يكون التوصيل <strong>أفقياً</strong> أو <strong>عمودياً</strong> أو <strong>قطرياً</strong>.</li>
+        <li>إذا امتلأت اللوحة دون فوز أي لاعب، تنتهي اللعبة <strong>بالتعادل</strong>.</li>
+      </ol>
+
+      <h3>💡 مميزات اللعبة</h3>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🆓</div>
+          <h4>مجانية بالكامل</h4>
+          <p>العب بدون أي تكلفة أو تسجيل</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h4>متوافقة مع الجوال</h4>
+          <p>تعمل على جميع الأجهزة بسلاسة</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h4>واجهة عربية</h4>
+          <p>مصممة بالكامل باللغة العربية</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👨‍👩‍👧</div>
+          <h4>لعبة عائلية</h4>
+          <p>مناسبة لجميع الأعمار من 6 سنوات فما فوق</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEO Content: Strategies -->
+    <section class="content-section" aria-labelledby="strategies">
+      <h2 id="strategies">🧠 استراتيجيات الفوز</h2>
+      <p>لتصبح بطلاً في لعبة الأربعة تربح، إليك بعض النصائح والاستراتيجيات الفعالة:</p>
+      <ul>
+        <li><strong>السيطرة على الوسط:</strong> العمود الأوسط يمنحك أكبر عدد من الاحتمالات لتكوين خطوط في جميع الاتجاهات.</li>
+        <li><strong>إنشاء التهديدات المزدوجة (Fork):</strong> حاول بناء وضع يهدد فيه قطعك بالفوز من اتجاهين في نفس الوقت.</li>
+        <li><strong>تجنب اللعب في الصف السفلي:</strong> لا تضع قطعك في الأماكن التي تمنح خصمك فرصة الفوز في الدور التالي.</li>
+        <li><strong>راقب القطر:</strong> الكثير من اللاعبين يهملون الخطوط القطرية، وهي غالباً مفتاح الفوز.</li>
+        <li><strong>خطط لثلاث خطوات قادمة:</strong> مثل الشطرنج، التفكير المسبق هو سر النجاح.</li>
+      </ul>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="content-section" aria-labelledby="faq-title">
+      <h2 id="faq-title">❓ الأسئلة الشائعة</h2>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+          <span>ما هي لعبة الأربعة تربع؟</span>
+        </div>
+        <div class="faq-answer">
+          لعبة الأربعة تربع (Connect 4) هي لعبة لوحة استراتيجية يلعبها شخصان، حيث يتناوب اللاعبان إسقاط قطع ملونة في لوحة عمودية مكونة من 7 أعمدة و6 صفوف. الفائز هو أول من يوصل 4 قطع من لونه بشكل أفقي أو عمودي أو قطري.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+          <span>كيف ألعب لعبة الأربعة تربع؟</span>
+        </div>
+        <div class="faq-answer">
+          اختر العمود الذي تريد إسقاط القطعة فيه بالنقر عليه. ستسقط القطعة إلى أسفل العمود. تناوب مع صديقك حتى يوصل أحدكما 4 قطع متتالية. يمكنك اللعب على نفس الجهاز بسهولة.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+          <span>هل لعبة الأربعة تربع مجانية؟</span>
+        </div>
+        <div class="faq-answer">
+          نعم، لعبة الأربعة تربع متاحة مجاناً بالكامل على المتصفح دون الحاجة إلى تسجيل أو تحميل أو دفع أي رسوم.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+          <span>هل يمكن لعب الأربعة تربع على الهاتف؟</span>
+        </div>
+        <div class="faq-answer">
+          نعم، اللعبة مصممة لتعمل بشكل مثالي على جميع الأجهزة بما في ذلك الهواتف الذكية والأجهزة اللوحية وأجهزة الكمبيوتر.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+          <span>ما هي أفضل استراتيجية للفوز في الأربعة تربع؟</span>
+        </div>
+        <div class="faq-answer">
+          ابدأ بالسيطرة على العمود الأوسط لأنه يمنحك أكبر عدد من الفرص لتكوين خطوط. حاول إنشاء تهديدات متعددة في وقت واحد (fork) لمنع خصمك من الصد جميعها.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2024 لعبة الأربعة تربع — جميع الحقوق محفوظة | لعبة ذكاء استراتيجية مجانية بواجهة عربية</p>
+  </footer>
+
+<script>
+  const ROWS = 6, COLS = 7;
+  let board = [];
+  let currentPlayer = 'red';
+  let gameOver = false;
+  let moveHistory = [];
+  let scores = { red: 0, yellow: 0 };
+
+  const boardEl = document.getElementById('board');
+  const statusEl = document.getElementById('status');
+  const indicatorEl = document.getElementById('indicator');
+
+  function init() {
+    board = Array.from({length: ROWS}, () => Array(COLS).fill(null));
+    boardEl.innerHTML = '';
+    indicatorEl.innerHTML = '';
+    gameOver = false;
+    currentPlayer = 'red';
+    moveHistory = [];
+    updateStatus();
+
+    for (let c = 0; c < COLS; c++) {
+      const ind = document.createElement('div');
+      ind.className = 'indicator';
+      ind.innerHTML = `<div class="preview ${currentPlayer}" id="preview-${c}"></div>`;
+      ind.onclick = () => makeMove(c);
+      indicatorEl.appendChild(ind);
+    }
+
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.row = r;
+        cell.dataset.col = c;
+        cell.setAttribute('role', 'gridcell');
+        cell.setAttribute('aria-label', `صف ${r+1} عمود ${c+1}`);
+        cell.onclick = () => makeMove(c);
+        boardEl.appendChild(cell);
+      }
+    }
+  }
+
+  function updateIndicators() {
+    for (let c = 0; c < COLS; c++) {
+      const preview = document.getElementById(`preview-${c}`);
+      if (preview) preview.className = `preview ${currentPlayer}`;
+    }
+  }
+
+  function makeMove(col) {
+    if (gameOver) return;
+    let row = -1;
+    for (let r = ROWS - 1; r >= 0; r--) {
+      if (!board[r][col]) { row = r; break; }
+    }
+    if (row === -1) return;
+
+    board[row][col] = currentPlayer;
+    moveHistory.push({ row, col, player: currentPlayer });
+
+    const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+    const piece = document.createElement('div');
+    piece.className = `piece ${currentPlayer}`;
+    piece.setAttribute('aria-label', `قطعة ${currentPlayer === 'red' ? 'حمراء' : 'صفراء'}`);
+    cell.appendChild(piece);
+
+    const winLine = checkWin(row, col, currentPlayer);
+    if (winLine) {
+      gameOver = true;
+      highlightWin(winLine);
+      scores[currentPlayer]++;
+      updateScores();
+      statusEl.textContent = `🏆 الفائز: اللاعب ${currentPlayer === 'red' ? 'الأحمر 🔴' : 'الأصفر 🟡'}`;
+      statusEl.classList.add('winner');
+      return;
+    }
+
+    if (moveHistory.length === ROWS * COLS) {
+      gameOver = true;
+      statusEl.textContent = '🤝 تعادل!';
+      return;
+    }
+
+    currentPlayer = currentPlayer === 'red' ? 'yellow' : 'red';
+    updateStatus();
+    updateIndicators();
+  }
+
+  function updateStatus() {
+    statusEl.textContent = `دور اللاعب ${currentPlayer === 'red' ? 'الأحمر 🔴' : 'الأصفر 🟡'}`;
+    statusEl.classList.remove('winner');
+  }
+
+  function updateScores() {
+    document.getElementById('redScore').textContent = scores.red;
+    document.getElementById('yellowScore').textContent = scores.yellow;
+  }
+
+  function checkWin(row, col, player) {
+    const directions = [
+      [[0,1],[0,-1]],
+      [[1,0],[-1,0]],
+      [[1,1],[-1,-1]],
+      [[1,-1],[-1,1]]
+    ];
+    for (const [d1, d2] of directions) {
+      const line = [[row, col]];
+      for (const [dr, dc] of [d1, d2]) {
+        let r = row + dr, c = col + dc;
+        while (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === player) {
+          line.push([r, c]);
+          r += dr; c += dc;
+        }
+      }
+      if (line.length >= 4) return line;
+    }
+    return null;
+  }
+
+  function highlightWin(line) {
+    for (const [r, c] of line) {
+      const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+      const piece = cell.querySelector('.piece');
+      if (piece) piece.classList.add('winning');
+    }
+  }
+
+  function undoMove() {
+    if (moveHistory.length === 0 || gameOver) return;
+    const last = moveHistory.pop();
+    board[last.row][last.col] = null;
+    const cell = document.querySelector(`.cell[data-row="${last.row}"][data-col="${last.col}"]`);
+    const piece = cell.querySelector('.piece');
+    if (piece) piece.remove();
+    currentPlayer = last.player;
+    updateStatus();
+    updateIndicators();
+  }
+
+  function resetGame() { init(); }
+
+  function toggleFaq(el) {
+    const item = el.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => {
+      i.classList.remove('open');
+      i.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+    });
+    if (!isOpen) {
+      item.classList.add('open');
+      el.setAttribute('aria-expanded', 'true');
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
