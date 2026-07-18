@@ -1,1375 +1,1599 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>مختبر الكهرباء المرح - Circuit Fun Lab</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cairo@5.0.0/index.css">
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    height: 100%;
-    overflow: hidden;
-    font-family: 'Cairo', sans-serif;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    color: #e2e8f0;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: none;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مختبر الكهرباء المرح - Circuit Fun Lab</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cairo@5.0.0/index.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
 
-  .app {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    height: 100dvh;
-    width: 100vw;
-    overflow: hidden;
-  }
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+        }
 
-  /* ===== Header ===== */
-  .header {
-    flex-shrink: 0;
-    background: linear-gradient(90deg, #1e3a8a 0%, #7c3aed 100%);
-    padding: 8px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    z-index: 20;
-  }
-  .header h1 {
-    font-size: 16px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .header .stats {
-    display: flex;
-    gap: 10px;
-    font-size: 12px;
-    background: rgba(255,255,255,0.15);
-    padding: 4px 10px;
-    border-radius: 20px;
-  }
-  .header .stats span b { color: #fbbf24; }
+        /* ===== Header ===== */
+        .header {
+            flex-shrink: 0;
+            background: linear-gradient(90deg, #1e3a8a 0%, #7c3aed 100%);
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            z-index: 20;
+        }
+        .header h1 {
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .header .stats {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .header .stats span b {
+            color: #fbbf24;
+        }
 
-  /* ===== Main Layout ===== */
-  .main {
-    flex: 1;
-    display: flex;
-    min-height: 0;
-    position: relative;
-  }
+        /* ===== Main Layout ===== */
+        .main {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+            position: relative;
+        }
 
-  /* ===== Sidebar (Desktop) ===== */
-  .sidebar {
-    width: 220px;
-    background: rgba(15, 23, 42, 0.95);
-    border-left: 1px solid rgba(255,255,255,0.08);
-    overflow-y: auto;
-    padding: 10px;
-    flex-shrink: 0;
-    scrollbar-width: thin;
-  }
-  .sidebar::-webkit-scrollbar { width: 6px; }
-  .sidebar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        /* ===== Sidebar (Desktop) ===== */
+        .sidebar {
+            width: 220px;
+            background: rgba(15, 23, 42, 0.95);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            overflow-y: auto;
+            padding: 10px;
+            flex-shrink: 0;
+            scrollbar-width: thin;
+        }
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
 
-  .cat {
-    margin-bottom: 12px;
-  }
-  .cat-title {
-    font-size: 12px;
-    color: #94a3b8;
-    margin-bottom: 6px;
-    padding: 0 4px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .comp-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-  }
-  .comp-item {
-    background: linear-gradient(135deg, #334155, #1e293b);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-    padding: 8px 4px;
-    text-align: center;
-    cursor: grab;
-    transition: transform 0.15s, box-shadow 0.15s;
-    font-size: 11px;
-    touch-action: none;
-  }
-  .comp-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(124,58,237,0.3);
-    border-color: #7c3aed;
-  }
-  .comp-item:active { cursor: grabbing; }
-  .comp-item .icon {
-    font-size: 22px;
-    display: block;
-    margin-bottom: 2px;
-  }
+        .cat {
+            margin-bottom: 12px;
+        }
+        .cat-title {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+            padding: 0 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .comp-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        .comp-item {
+            background: linear-gradient(135deg, #334155, #1e293b);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 8px 4px;
+            text-align: center;
+            cursor: grab;
+            transition: transform 0.15s, box-shadow 0.15s;
+            font-size: 11px;
+            touch-action: none;
+        }
+        .comp-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+            border-color: #7c3aed;
+        }
+        .comp-item:active {
+            cursor: grabbing;
+        }
+        .comp-item .icon {
+            font-size: 22px;
+            display: block;
+            margin-bottom: 2px;
+        }
 
-  /* ===== Canvas Area ===== */
-  .canvas-wrap {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    background:
-      radial-gradient(circle at 20% 20%, rgba(124,58,237,0.1), transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(59,130,246,0.1), transparent 50%),
-      #0b1220;
-  }
-  .canvas {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-    background-size: 25px 25px;
-  }
-  .canvas.simulating {
-    background-image:
-      linear-gradient(rgba(251,191,36,0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(251,191,36,0.08) 1px, transparent 1px);
-  }
+        /* ===== Canvas Area ===== */
+        .canvas-wrap {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.1), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1), transparent 50%),
+                #0b1220;
+            touch-action: none;
+        }
+        .canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 25px 25px;
+            touch-action: none;
+        }
+        .canvas.simulating {
+            background-image:
+                linear-gradient(rgba(251, 191, 36, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(251, 191, 36, 0.08) 1px, transparent 1px);
+        }
 
-  /* ===== Toolbar ===== */
-  .toolbar {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    z-index: 10;
-  }
-  .tool-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: rgba(30, 41, 59, 0.95);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #e2e8f0;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    backdrop-filter: blur(10px);
-  }
-  .tool-btn:hover { background: #334155; transform: scale(1.05); }
-  .tool-btn.active {
-    background: linear-gradient(135deg, #7c3aed, #3b82f6);
-    box-shadow: 0 0 15px rgba(124,58,237,0.5);
-  }
-  .tool-btn.run {
-    background: linear-gradient(135deg, #10b981, #059669);
-  }
-  .tool-btn.run.active {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-  }
+        /* ===== Toolbar ===== */
+        .toolbar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 10;
+        }
+        .tool-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+            touch-action: manipulation;
+        }
+        .tool-btn:hover {
+            background: #334155;
+            transform: scale(1.05);
+        }
+        .tool-btn.active {
+            background: linear-gradient(135deg, #7c3aed, #3b82f6);
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.5);
+        }
+        .tool-btn.run {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .tool-btn.run.active {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
 
-  /* ===== Readings Panel ===== */
-  .readings {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(15, 23, 42, 0.95);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    padding: 10px 14px;
-    font-size: 12px;
-    backdrop-filter: blur(10px);
-    z-index: 10;
-    min-width: 160px;
-  }
-  .readings h4 {
-    font-size: 11px;
-    color: #94a3b8;
-    margin-bottom: 6px;
-  }
-  .reading-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 3px 0;
-    gap: 10px;
-  }
-  .reading-row b { color: #fbbf24; font-family: monospace; }
+        /* ===== Readings Panel ===== */
+        .readings {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+            min-width: 160px;
+        }
+        .readings h4 {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+        .reading-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            gap: 10px;
+        }
+        .reading-row b {
+            color: #fbbf24;
+            font-family: monospace;
+        }
 
-  /* ===== Components on canvas ===== */
-  .placed {
-    position: absolute;
-    min-width: 60px;
-    min-height: 60px;
-    background: linear-gradient(135deg, #1e293b, #334155);
-    border: 2px solid #475569;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: grab;
-    touch-action: none;
-    transition: box-shadow 0.2s, border-color 0.2s;
-    padding: 4px;
-    z-index: 2;
-  }
-  .placed:hover { border-color: #7c3aed; }
-  .placed.selected {
-    border-color: #fbbf24;
-    box-shadow: 0 0 20px rgba(251,191,36,0.4);
-    z-index: 5;
-  }
-  .placed.dragging {
-    cursor: grabbing;
-    opacity: 0.85;
-    z-index: 100;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  }
-  .placed .p-icon { font-size: 22px; }
-  .placed .p-label { font-size: 10px; color: #cbd5e1; margin-top: 2px; }
-  .placed .p-value { font-size: 9px; color: #fbbf24; font-family: monospace; }
+        /* ===== Components on canvas ===== */
+        .placed {
+            position: absolute;
+            min-width: 60px;
+            min-height: 60px;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border: 2px solid #475569;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            touch-action: none;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            padding: 4px;
+            z-index: 2;
+            will-change: transform, left, top;
+        }
+        .placed:hover {
+            border-color: #7c3aed;
+        }
+        .placed.selected {
+            border-color: #fbbf24;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+            z-index: 5;
+        }
+        .placed.dragging {
+            cursor: grabbing;
+            opacity: 0.85;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .placed .p-icon {
+            font-size: 22px;
+            pointer-events: none;
+        }
+        .placed .p-label {
+            font-size: 10px;
+            color: #cbd5e1;
+            margin-top: 2px;
+            pointer-events: none;
+        }
+        .placed .p-value {
+            font-size: 9px;
+            color: #fbbf24;
+            font-family: monospace;
+            pointer-events: none;
+        }
 
-  /* Connection points */
-  .node {
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #3b82f6;
-    border: 2px solid #1e3a8a;
-    cursor: crosshair;
-    z-index: 3;
-    transition: transform 0.15s;
-  }
-  .node:hover, .node.hot {
-    transform: scale(1.4);
-    background: #fbbf24;
-    box-shadow: 0 0 10px #fbbf24;
-  }
+        /* Connection points */
+        .node {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #3b82f6;
+            border: 2px solid #1e3a8a;
+            cursor: crosshair;
+            z-index: 3;
+            transition: transform 0.15s;
+            touch-action: none;
+        }
+        .node:hover,
+        .node.hot {
+            transform: scale(1.4);
+            background: #fbbf24;
+            box-shadow: 0 0 10px #fbbf24;
+        }
 
-  /* Wires */
-  .wire-svg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
-  }
-  .wire {
-    stroke: #60a5fa;
-    stroke-width: 3;
-    fill: none;
-    stroke-linecap: round;
-    filter: drop-shadow(0 0 3px rgba(96,165,250,0.5));
-  }
-  .wire.active {
-    stroke: #fbbf24;
-    stroke-dasharray: 8 4;
-    animation: flow 0.6s linear infinite;
-    filter: drop-shadow(0 0 6px #fbbf24);
-  }
-  @keyframes flow {
-    to { stroke-dashoffset: -12; }
-  }
+        /* Wires */
+        .wire-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .wire {
+            stroke: #60a5fa;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 3px rgba(96, 165, 250, 0.5));
+        }
+        .wire.active {
+            stroke: #fbbf24;
+            stroke-dasharray: 8 4;
+            animation: flow 0.6s linear infinite;
+            filter: drop-shadow(0 0 6px #fbbf24);
+        }
+        @keyframes flow {
+            to {
+                stroke-dashoffset: -12;
+            }
+        }
 
-  /* ===== Properties Panel ===== */
-  .props-panel {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(15, 23, 42, 0.95);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    padding: 12px;
-    width: 220px;
-    z-index: 15;
-    backdrop-filter: blur(10px);
-    display: none;
-  }
-  .props-panel.show { display: block; }
-  .props-panel h3 {
-    font-size: 13px;
-    margin-bottom: 8px;
-    color: #fbbf24;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .prop-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 12px;
-  }
-  .prop-row input {
-    width: 80px;
-    padding: 4px 6px;
-    background: #1e293b;
-    border: 1px solid #475569;
-    border-radius: 6px;
-    color: #e2e8f0;
-    font-family: monospace;
-    font-size: 12px;
-  }
-  .prop-actions {
-    display: flex;
-    gap: 4px;
-    margin-top: 8px;
-  }
-  .prop-actions button {
-    flex: 1;
-    padding: 6px;
-    background: #334155;
-    border: none;
-    border-radius: 6px;
-    color: #e2e8f0;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  .prop-actions button:hover { background: #475569; }
-  .prop-actions button.del { background: #7f1d1d; }
-  .prop-actions button.del:hover { background: #991b1b; }
+        /* ===== Properties Panel ===== */
+        .props-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            width: 220px;
+            z-index: 15;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+        .props-panel.show {
+            display: block;
+        }
+        .props-panel h3 {
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .prop-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .prop-row input {
+            width: 80px;
+            padding: 4px 6px;
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .prop-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        .prop-actions button {
+            flex: 1;
+            padding: 6px;
+            background: #334155;
+            border: none;
+            border-radius: 6px;
+            color: #e2e8f0;
+            cursor: pointer;
+            font-size: 14px;
+            touch-action: manipulation;
+        }
+        .prop-actions button:hover {
+            background: #475569;
+        }
+        .prop-actions button.del {
+            background: #7f1d1d;
+        }
+        .prop-actions button.del:hover {
+            background: #991b1b;
+        }
 
-  /* ===== Mobile Bottom Sheet ===== */
-  .mobile-toggle {
-    display: none;
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, #7c3aed, #3b82f6);
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 30px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    z-index: 15;
-    box-shadow: 0 4px 15px rgba(124,58,237,0.5);
-    font-family: inherit;
-  }
+        /* ===== Mobile Bottom Sheet ===== */
+        .mobile-toggle {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #7c3aed, #3b82f6);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 15;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.5);
+            font-family: inherit;
+            touch-action: manipulation;
+        }
 
-  .mobile-sheet {
-    display: none;
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    background: rgba(15, 23, 42, 0.98);
-    border-top: 2px solid #7c3aed;
-    border-radius: 20px 20px 0 0;
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: 16px;
-    z-index: 30;
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
-    backdrop-filter: blur(20px);
-  }
-  .mobile-sheet.open { transform: translateY(0); }
-  .sheet-handle {
-    width: 40px;
-    height: 4px;
-    background: #475569;
-    border-radius: 2px;
-    margin: 0 auto 12px;
-  }
+        .mobile-sheet {
+            display: none;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.98);
+            border-top: 2px solid #7c3aed;
+            border-radius: 20px 20px 0 0;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 16px;
+            z-index: 30;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(20px);
+            touch-action: pan-y;
+        }
+        .mobile-sheet.open {
+            transform: translateY(0);
+        }
+        .sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: #475569;
+            border-radius: 2px;
+            margin: 0 auto 12px;
+        }
 
-  /* ===== Drag Ghost ===== */
-  .drag-ghost {
-    position: fixed;
-    pointer-events: none;
-    z-index: 1000;
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1.1);
-    background: linear-gradient(135deg, #7c3aed, #3b82f6);
-    border-radius: 12px;
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 10px 30px rgba(124,58,237,0.5);
-    font-size: 14px;
-    font-weight: 700;
-  }
-  .drag-ghost .icon { font-size: 24px; }
+        /* ===== Drag Ghost ===== */
+        .drag-ghost {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.9;
+            transform: translate(-50%, -50%) scale(1.05);
+            background: linear-gradient(135deg, #7c3aed, #3b82f6);
+            border-radius: 12px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.6);
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            will-change: transform, left, top;
+            transition: none;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .drag-ghost .icon {
+            font-size: 24px;
+        }
 
-  /* ===== Drop indicator ===== */
-  .drop-indicator {
-    position: absolute;
-    width: 70px;
-    height: 70px;
-    border: 2px dashed #fbbf24;
-    border-radius: 10px;
-    pointer-events: none;
-    z-index: 4;
-    background: rgba(251,191,36,0.1);
-    transform: translate(-50%, -50%);
-    display: none;
-  }
-  .drop-indicator.invalid {
-    border-color: #ef4444;
-    background: rgba(239,68,68,0.1);
-  }
+        /* ===== Drop indicator ===== */
+        .drop-indicator {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border: 2px dashed #fbbf24;
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 4;
+            background: rgba(251, 191, 36, 0.1);
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+        .drop-indicator.invalid {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
 
-  /* ===== Modal ===== */
-  .modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 20px;
-    backdrop-filter: blur(5px);
-  }
-  .modal.show { display: flex; }
-  .modal-content {
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 24px;
-    max-width: 400px;
-    width: 100%;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-  .modal-content h2 {
-    color: #fbbf24;
-    margin-bottom: 12px;
-    font-size: 18px;
-  }
-  .modal-content p {
-    font-size: 13px;
-    line-height: 1.8;
-    color: #cbd5e1;
-    margin-bottom: 8px;
-  }
-  .modal-content .tip {
-    background: rgba(124,58,237,0.15);
-    border-right: 3px solid #7c3aed;
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin: 8px 0;
-    font-size: 12px;
-  }
-  .modal-content button {
-    width: 100%;
-    padding: 10px;
-    background: linear-gradient(135deg, #7c3aed, #3b82f6);
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-weight: 700;
-    font-size: 14px;
-    margin-top: 12px;
-    cursor: pointer;
-    font-family: inherit;
-  }
+        /* ===== Modal ===== */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-content h2 {
+            color: #fbbf24;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+        .modal-content p {
+            font-size: 13px;
+            line-height: 1.8;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+        .modal-content .tip {
+            background: rgba(124, 58, 237, 0.15);
+            border-right: 3px solid #7c3aed;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 8px 0;
+            font-size: 12px;
+        }
+        .modal-content button {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #7c3aed, #3b82f6);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            touch-action: manipulation;
+        }
 
-  /* ===== Toast ===== */
-  .toast {
-    position: fixed;
-    top: 70px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-100px);
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 30px;
-    font-size: 13px;
-    font-weight: 700;
-    z-index: 200;
-    transition: transform 0.3s;
-    box-shadow: 0 4px 15px rgba(16,185,129,0.4);
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            z-index: 200;
+            transition: transform 0.3s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
 
-  /* ===== Mobile Responsive ===== */
-  @media (max-width: 768px) {
-    .header h1 { font-size: 13px; }
-    .header .stats { font-size: 10px; padding: 3px 8px; gap: 6px; }
-    .sidebar { display: none; }
-    .mobile-toggle { display: block; }
-    .mobile-sheet { display: block; }
+        /* ===== Mobile Responsive ===== */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 13px;
+            }
+            .header .stats {
+                font-size: 10px;
+                padding: 3px 8px;
+                gap: 6px;
+            }
+            .sidebar {
+                display: none;
+            }
+            .mobile-toggle {
+                display: block;
+            }
+            .mobile-sheet {
+                display: block;
+            }
 
-    .toolbar {
-      top: auto;
-      bottom: 60px;
-      right: 10px;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      max-width: 200px;
-    }
-    .tool-btn {
-      width: 40px;
-      height: 40px;
-      font-size: 16px;
-    }
-    .readings {
-      bottom: 60px;
-      right: auto;
-      left: 10px;
-      font-size: 11px;
-      padding: 8px 10px;
-      min-width: 140px;
-    }
-    .props-panel {
-      top: auto;
-      bottom: 110px;
-      left: 10px;
-      right: 10px;
-      width: auto;
-    }
-    .placed { min-width: 50px; min-height: 50px; }
-    .placed .p-icon { font-size: 18px; }
-    .placed .p-label { font-size: 9px; }
-    .placed .p-value { font-size: 8px; }
-    .node { width: 18px; height: 18px; }
-  }
+            .toolbar {
+                top: auto;
+                bottom: 60px;
+                right: 10px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+                max-width: 200px;
+                gap: 4px;
+            }
+            .tool-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            .readings {
+                bottom: 60px;
+                right: auto;
+                left: 10px;
+                font-size: 11px;
+                padding: 8px 10px;
+                min-width: 140px;
+            }
+            .props-panel {
+                top: auto;
+                bottom: 110px;
+                left: 10px;
+                right: 10px;
+                width: auto;
+            }
+            .placed {
+                min-width: 50px;
+                min-height: 50px;
+            }
+            .placed .p-icon {
+                font-size: 18px;
+            }
+            .placed .p-label {
+                font-size: 9px;
+            }
+            .placed .p-value {
+                font-size: 8px;
+            }
+            .node {
+                width: 18px;
+                height: 18px;
+            }
+        }
 
-  @media (max-width: 400px) {
-    .header h1 { font-size: 12px; }
-    .readings { font-size: 10px; }
-  }
+        @media (max-width: 400px) {
+            .header h1 {
+                font-size: 12px;
+            }
+            .readings {
+                font-size: 10px;
+                min-width: 120px;
+                padding: 6px 8px;
+            }
+            .tool-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+        }
 
-  /* ===== Animations ===== */
-  @keyframes pop {
-    0% { transform: scale(0); opacity: 0; }
-    60% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-  .placed { animation: pop 0.3s ease-out; }
+        /* ===== Animations ===== */
+        @keyframes pop {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            60% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .placed {
+            animation: pop 0.3s ease-out;
+        }
 
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 10px rgba(251,191,36,0.4); }
-    50% { box-shadow: 0 0 20px rgba(251,191,36,0.8); }
-  }
-  .placed.active { animation: pulse 1s ease-in-out infinite; }
-</style>
+        @keyframes pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(251, 191, 36, 0.8);
+            }
+        }
+        .placed.active {
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        /* ===== Scrollbar for mobile sheet ===== */
+        .mobile-sheet::-webkit-scrollbar {
+            width: 4px;
+        }
+        .mobile-sheet::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 2px;
+        }
+    </style>
 </head>
 <body>
-<div class="app">
-  <!-- Header -->
-  <div class="header">
-    <h1>🤖 مختبر الكهرباء المرح</h1>
-    <div class="stats">
-      <span>🧩 <b id="compCount">0</b></span>
-      <span>🔌 <b id="wireCount">0</b></span>
+    <div class="app">
+        <!-- Header -->
+        <div class="header">
+            <h1>🤖 مختبر الكهرباء المرح</h1>
+            <div class="stats">
+                <span>🧩 <b id="compCount">0</b></span>
+                <span>🔌 <b id="wireCount">0</b></span>
+            </div>
+        </div>
+
+        <!-- Main -->
+        <div class="main">
+            <!-- Sidebar (Desktop) -->
+            <aside class="sidebar" id="sidebar">
+                <div class="cat">
+                    <div class="cat-title">⚡ مصادر الطاقة</div>
+                    <div class="comp-grid">
+                        <div class="comp-item" draggable="true" data-type="battery"><span class="icon">🔋</span>بطارية</div>
+                        <div class="comp-item" draggable="true" data-type="ground"><span class="icon">🌍</span>أرضي</div>
+                    </div>
+                </div>
+                <div class="cat">
+                    <div class="cat-title">🔧 مكونات التحكم</div>
+                    <div class="comp-grid">
+                        <div class="comp-item" draggable="true" data-type="switch"><span class="icon">🔘</span>مفتاح</div>
+                        <div class="comp-item" draggable="true" data-type="resistor"><span class="icon">🎯</span>مقاومة</div>
+                        <div class="comp-item" draggable="true" data-type="capacitor"><span class="icon">📦</span>مكثف</div>
+                        <div class="comp-item" draggable="true" data-type="inductor"><span class="icon">🌀</span>ملف</div>
+                        <div class="comp-item" draggable="true" data-type="diode"><span class="icon">➡️</span>دايود</div>
+                        <div class="comp-item" draggable="true" data-type="fuse"><span class="icon">🛡️</span>فيوز</div>
+                        <div class="comp-item" draggable="true" data-type="sensor"><span class="icon">☀️</span>حساس</div>
+                    </div>
+                </div>
+                <div class="cat">
+                    <div class="cat-title">💡 الأجهزة</div>
+                    <div class="comp-grid">
+                        <div class="comp-item" draggable="true" data-type="led"><span class="icon">💡</span>LED</div>
+                        <div class="comp-item" draggable="true" data-type="lamp"><span class="icon">🔆</span>مصباح</div>
+                        <div class="comp-item" draggable="true" data-type="motor"><span class="icon">⚙️</span>محرك</div>
+                        <div class="comp-item" draggable="true" data-type="buzzer"><span class="icon">🔔</span>صافرة</div>
+                    </div>
+                </div>
+                <div class="cat">
+                    <div class="cat-title">🔌 القياس</div>
+                    <div class="comp-grid">
+                        <div class="comp-item" draggable="true" data-type="voltmeter"><span class="icon">📊</span>فولتميتر</div>
+                        <div class="comp-item" draggable="true" data-type="ammeter"><span class="icon">📈</span>أميتر</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Canvas -->
+            <div class="canvas-wrap" id="canvasWrap">
+                <div class="canvas" id="canvas">
+                    <svg class="wire-svg" id="wireSvg"></svg>
+                    <div class="drop-indicator" id="dropIndicator"></div>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <button class="tool-btn active" id="btnSelect" title="وضع التحديد">🖱️</button>
+                    <button class="tool-btn" id="btnWire" title="رسم سلك">🔗</button>
+                    <button class="tool-btn run" id="btnRun" title="تشغيل">▶️</button>
+                    <button class="tool-btn" id="btnClear" title="مسح الكل">🗑️</button>
+                    <button class="tool-btn" id="btnHelp" title="مساعدة">❓</button>
+                </div>
+
+                <!-- Readings -->
+                <div class="readings">
+                    <h4>📊 القراءات</h4>
+                    <div class="reading-row"><span>⚡ الجهد</span><b><span id="rVolt">0</span> V</b></div>
+                    <div class="reading-row"><span>🌊 التيار</span><b><span id="rCurr">0</span> mA</b></div>
+                    <div class="reading-row"><span>🎯 المقاومة</span><b><span id="rRes">0</span> Ω</b></div>
+                    <div class="reading-row"><span>💪 القدرة</span><b><span id="rPow">0</span> W</b></div>
+                </div>
+
+                <!-- Properties Panel -->
+                <div class="props-panel" id="propsPanel">
+                    <h3>🎛️ <span id="propTitle">خصائص</span></h3>
+                    <div class="prop-row">
+                        <span id="propLabel">القيمة</span>
+                        <div>
+                            <input type="number" id="propValue" value="0" step="0.1">
+                            <span id="propUnit" style="margin-right:4px;font-size:11px;color:#94a3b8"></span>
+                        </div>
+                    </div>
+                    <div class="prop-actions">
+                        <button id="btnRotate" title="تدوير">🔄</button>
+                        <button id="btnCopy" title="نسخ">📋</button>
+                        <button class="del" id="btnDelete" title="حذف">🗑️</button>
+                    </div>
+                </div>
+
+                <!-- Mobile Toggle -->
+                <button class="mobile-toggle" id="mobileToggle">🧩 المكونات</button>
+
+                <!-- Mobile Bottom Sheet -->
+                <div class="mobile-sheet" id="mobileSheet">
+                    <div class="sheet-handle"></div>
+                    <div class="cat">
+                        <div class="cat-title">⚡ مصادر الطاقة</div>
+                        <div class="comp-grid">
+                            <div class="comp-item" data-type="battery"><span class="icon">🔋</span>بطارية</div>
+                            <div class="comp-item" data-type="ground"><span class="icon">🌍</span>أرضي</div>
+                        </div>
+                    </div>
+                    <div class="cat">
+                        <div class="cat-title">🔧 مكونات التحكم</div>
+                        <div class="comp-grid">
+                            <div class="comp-item" data-type="switch"><span class="icon">🔘</span>مفتاح</div>
+                            <div class="comp-item" data-type="resistor"><span class="icon">🎯</span>مقاومة</div>
+                            <div class="comp-item" data-type="capacitor"><span class="icon">📦</span>مكثف</div>
+                            <div class="comp-item" data-type="inductor"><span class="icon">🌀</span>ملف</div>
+                            <div class="comp-item" data-type="diode"><span class="icon">➡️</span>دايود</div>
+                            <div class="comp-item" data-type="fuse"><span class="icon">🛡️</span>فيوز</div>
+                            <div class="comp-item" data-type="sensor"><span class="icon">☀️</span>حساس</div>
+                        </div>
+                    </div>
+                    <div class="cat">
+                        <div class="cat-title">💡 الأجهزة</div>
+                        <div class="comp-grid">
+                            <div class="comp-item" data-type="led"><span class="icon">💡</span>LED</div>
+                            <div class="comp-item" data-type="lamp"><span class="icon">🔆</span>مصباح</div>
+                            <div class="comp-item" data-type="motor"><span class="icon">⚙️</span>محرك</div>
+                            <div class="comp-item" data-type="buzzer"><span class="icon">🔔</span>صافرة</div>
+                        </div>
+                    </div>
+                    <div class="cat">
+                        <div class="cat-title">🔌 القياس</div>
+                        <div class="comp-grid">
+                            <div class="comp-item" data-type="voltmeter"><span class="icon">📊</span>فولتميتر</div>
+                            <div class="comp-item" data-type="ammeter"><span class="icon">📈</span>أميتر</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Main -->
-  <div class="main">
-    <!-- Sidebar (Desktop) -->
-    <aside class="sidebar" id="sidebar">
-      <div class="cat">
-        <div class="cat-title">⚡ مصادر الطاقة</div>
-        <div class="comp-grid">
-          <div class="comp-item" draggable="true" data-type="battery"><span class="icon">🔋</span>بطارية</div>
-          <div class="comp-item" draggable="true" data-type="ground"><span class="icon">🌍</span>أرضي</div>
+    <!-- Help Modal -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <h2>🤖✨ مرحباً بك في المختبر!</h2>
+            <div class="tip">🎨 <b>إضافة مكون:</b> اسحب أي مكون من الشريط الجانبي أو القائمة السفلية (على الجوال) إلى لوحة التصميم.</div>
+            <div class="tip">🔗 <b>التوصيل:</b> فعّل أداة "رسم سلك" ثم انقر على نقطتي توصيل (الدوائر الزرقاء).</div>
+            <div class="tip">🖱️ <b>التحديد:</b> في وضع التحديد، اسحب المكون لتغيير مكانه.</div>
+            <div class="tip">🔄 <b>التدوير:</b> اختر المكون ثم اضغط زر التدوير 🔄.</div>
+            <div class="tip">🎛️ <b>القيم:</b> انقر على المكون ثم عدّل قيمته من لوحة الخصائص.</div>
+            <div class="tip">▶️ <b>المحاكاة:</b> اضغط "تشغيل" لرؤية التيار يتدفق!</div>
+            <div class="tip">🔘 <b>المفتاح:</b> انقر مرتين على المفتاح لفتحه/إغلاقه.</div>
+            <div class="tip">🎉 <b>التحدي:</b> حاول إضاءة المصباح أو تشغيل المحرك!</div>
+            <button onclick="document.getElementById('helpModal').classList.remove('show')">🚀 هيا نبدأ!</button>
         </div>
-      </div>
-      <div class="cat">
-        <div class="cat-title">🔧 مكونات التحكم</div>
-        <div class="comp-grid">
-          <div class="comp-item" draggable="true" data-type="switch"><span class="icon">🔘</span>مفتاح</div>
-          <div class="comp-item" draggable="true" data-type="resistor"><span class="icon">🎯</span>مقاومة</div>
-          <div class="comp-item" draggable="true" data-type="capacitor"><span class="icon">📦</span>مكثف</div>
-          <div class="comp-item" draggable="true" data-type="inductor"><span class="icon">🌀</span>ملف</div>
-          <div class="comp-item" draggable="true" data-type="diode"><span class="icon">➡️</span>دايود</div>
-          <div class="comp-item" draggable="true" data-type="fuse"><span class="icon">🛡️</span>فيوز</div>
-          <div class="comp-item" draggable="true" data-type="sensor"><span class="icon">☀️</span>حساس</div>
-        </div>
-      </div>
-      <div class="cat">
-        <div class="cat-title">💡 الأجهزة</div>
-        <div class="comp-grid">
-          <div class="comp-item" draggable="true" data-type="led"><span class="icon">💡</span>LED</div>
-          <div class="comp-item" draggable="true" data-type="lamp"><span class="icon">🔆</span>مصباح</div>
-          <div class="comp-item" draggable="true" data-type="motor"><span class="icon">⚙️</span>محرك</div>
-          <div class="comp-item" draggable="true" data-type="buzzer"><span class="icon">🔔</span>صافرة</div>
-        </div>
-      </div>
-      <div class="cat">
-        <div class="cat-title">🔌 القياس</div>
-        <div class="comp-grid">
-          <div class="comp-item" draggable="true" data-type="voltmeter"><span class="icon">📊</span>فولتميتر</div>
-          <div class="comp-item" draggable="true" data-type="ammeter"><span class="icon">📈</span>أميتر</div>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Canvas -->
-    <div class="canvas-wrap" id="canvasWrap">
-      <div class="canvas" id="canvas">
-        <svg class="wire-svg" id="wireSvg"></svg>
-        <div class="drop-indicator" id="dropIndicator"></div>
-      </div>
-
-      <!-- Toolbar -->
-      <div class="toolbar">
-        <button class="tool-btn active" id="btnSelect" title="وضع التحديد">🖱️</button>
-        <button class="tool-btn" id="btnWire" title="رسم سلك">🔗</button>
-        <button class="tool-btn run" id="btnRun" title="تشغيل">▶️</button>
-        <button class="tool-btn" id="btnClear" title="مسح الكل">🗑️</button>
-        <button class="tool-btn" id="btnHelp" title="مساعدة">❓</button>
-      </div>
-
-      <!-- Readings -->
-      <div class="readings">
-        <h4>📊 القراءات</h4>
-        <div class="reading-row"><span>⚡ الجهد</span><b><span id="rVolt">0</span> V</b></div>
-        <div class="reading-row"><span>🌊 التيار</span><b><span id="rCurr">0</span> mA</b></div>
-        <div class="reading-row"><span>🎯 المقاومة</span><b><span id="rRes">0</span> Ω</b></div>
-        <div class="reading-row"><span>💪 القدرة</span><b><span id="rPow">0</span> W</b></div>
-      </div>
-
-      <!-- Properties Panel -->
-      <div class="props-panel" id="propsPanel">
-        <h3>🎛️ <span id="propTitle">خصائص</span></h3>
-        <div class="prop-row">
-          <span id="propLabel">القيمة</span>
-          <div>
-            <input type="number" id="propValue" value="0" step="0.1">
-            <span id="propUnit" style="margin-right:4px;font-size:11px;color:#94a3b8"></span>
-          </div>
-        </div>
-        <div class="prop-actions">
-          <button id="btnRotate" title="تدوير">🔄</button>
-          <button id="btnCopy" title="نسخ">📋</button>
-          <button class="del" id="btnDelete" title="حذف">🗑️</button>
-        </div>
-      </div>
-
-      <!-- Mobile Toggle -->
-      <button class="mobile-toggle" id="mobileToggle">🧩 المكونات</button>
-
-      <!-- Mobile Bottom Sheet -->
-      <div class="mobile-sheet" id="mobileSheet">
-        <div class="sheet-handle"></div>
-        <div class="cat">
-          <div class="cat-title">⚡ مصادر الطاقة</div>
-          <div class="comp-grid">
-            <div class="comp-item" data-type="battery"><span class="icon">🔋</span>بطارية</div>
-            <div class="comp-item" data-type="ground"><span class="icon">🌍</span>أرضي</div>
-          </div>
-        </div>
-        <div class="cat">
-          <div class="cat-title">🔧 مكونات التحكم</div>
-          <div class="comp-grid">
-            <div class="comp-item" data-type="switch"><span class="icon">🔘</span>مفتاح</div>
-            <div class="comp-item" data-type="resistor"><span class="icon">🎯</span>مقاومة</div>
-            <div class="comp-item" data-type="capacitor"><span class="icon">📦</span>مكثف</div>
-            <div class="comp-item" data-type="inductor"><span class="icon">🌀</span>ملف</div>
-            <div class="comp-item" data-type="diode"><span class="icon">➡️</span>دايود</div>
-            <div class="comp-item" data-type="fuse"><span class="icon">🛡️</span>فيوز</div>
-            <div class="comp-item" data-type="sensor"><span class="icon">☀️</span>حساس</div>
-          </div>
-        </div>
-        <div class="cat">
-          <div class="cat-title">💡 الأجهزة</div>
-          <div class="comp-grid">
-            <div class="comp-item" data-type="led"><span class="icon">💡</span>LED</div>
-            <div class="comp-item" data-type="lamp"><span class="icon">🔆</span>مصباح</div>
-            <div class="comp-item" data-type="motor"><span class="icon">⚙️</span>محرك</div>
-            <div class="comp-item" data-type="buzzer"><span class="icon">🔔</span>صافرة</div>
-          </div>
-        </div>
-        <div class="cat">
-          <div class="cat-title">🔌 القياس</div>
-          <div class="comp-grid">
-            <div class="comp-item" data-type="voltmeter"><span class="icon">📊</span>فولتميتر</div>
-            <div class="comp-item" data-type="ammeter"><span class="icon">📈</span>أميتر</div>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
-</div>
 
-<!-- Help Modal -->
-<div class="modal" id="helpModal">
-  <div class="modal-content">
-    <h2>🤖✨ مرحباً بك في المختبر!</h2>
-    <div class="tip">🎨 <b>إضافة مكون:</b> اسحب أي مكون من الشريط الجانبي إلى لوحة التصميم (على الجوال: اضغط زر "المكونات" ثم اسحب).</div>
-    <div class="tip">🔗 <b>التوصيل:</b> فعّل أداة "رسم سلك" ثم انقر على نقطتي توصيل (الدوائر الزرقاء).</div>
-    <div class="tip">🖱️ <b>التحديد:</b> في وضع التحديد، اسحب المكون لتغيير مكانه.</div>
-    <div class="tip">🔄 <b>التدوير:</b> اختر المكون ثم اضغط زر التدوير 🔄.</div>
-    <div class="tip">🎛️ <b>القيم:</b> انقر على المكون ثم عدّل قيمته من لوحة الخصائص.</div>
-    <div class="tip">▶️ <b>المحاكاة:</b> اضغط "تشغيل" لرؤية التيار يتدفق!</div>
-    <div class="tip">🔘 <b>المفتاح:</b> انقر مرتين على المفتاح لفتحه/إغلاقه.</div>
-    <div class="tip">🎉 <b>التحدي:</b> حاول إضاءة المصباح أو تشغيل المحرك!</div>
-    <button onclick="document.getElementById('helpModal').classList.remove('show')">🚀 هيا نبدأ!</button>
-  </div>
-</div>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+    <script>
+        // ===== Component Definitions =====
+        const COMPONENTS = {
+            battery: { icon: '🔋', label: 'بطارية', value: 9, unit: 'V', nodes: 2 },
+            ground: { icon: '🌍', label: 'أرضي', value: 0, unit: '', nodes: 1 },
+            switch: { icon: '🔘', label: 'مفتاح', value: 0, unit: '', nodes: 2, toggle: true },
+            resistor: { icon: '🎯', label: 'مقاومة', value: 1000, unit: 'Ω', nodes: 2 },
+            capacitor: { icon: '📦', label: 'مكثف', value: 100, unit: 'µF', nodes: 2 },
+            inductor: { icon: '🌀', label: 'ملف', value: 10, unit: 'mH', nodes: 2 },
+            diode: { icon: '➡️', label: 'دايود', value: 0.7, unit: 'V', nodes: 2 },
+            fuse: { icon: '🛡️', label: 'فيوز', value: 1, unit: 'A', nodes: 2 },
+            sensor: { icon: '☀️', label: 'حساس', value: 500, unit: 'Ω', nodes: 2 },
+            led: { icon: '💡', label: 'LED', value: 2, unit: 'V', nodes: 2 },
+            lamp: { icon: '🔆', label: 'مصباح', value: 100, unit: 'Ω', nodes: 2 },
+            motor: { icon: '⚙️', label: 'محرك', value: 50, unit: 'Ω', nodes: 2 },
+            buzzer: { icon: '🔔', label: 'صافرة', value: 100, unit: 'Ω', nodes: 2 },
+            voltmeter: { icon: '📊', label: 'فولتميتر', value: 0, unit: 'V', nodes: 2 },
+            ammeter: { icon: '📈', label: 'أميتر', value: 0, unit: 'mA', nodes: 2 }
+        };
 
-<script>
-// ===== Component Definitions =====
-const COMPONENTS = {
-  battery:    { icon: '🔋', label: 'بطارية',  value: 9,    unit: 'V',  nodes: 2 },
-  ground:     { icon: '🌍', label: 'أرضي',    value: 0,    unit: '',   nodes: 1 },
-  switch:     { icon: '🔘', label: 'مفتاح',   value: 0,    unit: '',   nodes: 2, toggle: true },
-  resistor:   { icon: '🎯', label: 'مقاومة',  value: 1000, unit: 'Ω',  nodes: 2 },
-  capacitor:  { icon: '📦', label: 'مكثف',    value: 100,  unit: 'µF', nodes: 2 },
-  inductor:   { icon: '🌀', label: 'ملف',     value: 10,   unit: 'mH', nodes: 2 },
-  diode:      { icon: '➡️', label: 'دايود',   value: 0.7,  unit: 'V',  nodes: 2 },
-  fuse:       { icon: '🛡️', label: 'فيوز',    value: 1,    unit: 'A',  nodes: 2 },
-  sensor:     { icon: '☀️', label: 'حساس',    value: 500,  unit: 'Ω',  nodes: 2 },
-  led:        { icon: '💡', label: 'LED',     value: 2,    unit: 'V',  nodes: 2 },
-  lamp:       { icon: '🔆', label: 'مصباح',   value: 100,  unit: 'Ω',  nodes: 2 },
-  motor:      { icon: '⚙️', label: 'محرك',    value: 50,   unit: 'Ω',  nodes: 2 },
-  buzzer:     { icon: '🔔', label: 'صافرة',   value: 100,  unit: 'Ω',  nodes: 2 },
-  voltmeter:  { icon: '📊', label: 'فولتميتر',value: 0,    unit: 'V',  nodes: 2 },
-  ammeter:    { icon: '📈', label: 'أميتر',   value: 0,    unit: 'mA', nodes: 2 }
-};
+        const GRID = 25;
+        const COMP_SIZE = 70;
 
-const GRID = 25; // snap grid
-const COMP_SIZE = 70;
+        // ===== State =====
+        let components = [];
+        let wires = [];
+        let selectedId = null;
+        let mode = 'select';
+        let wireStart = null;
+        let simulating = false;
+        let idCounter = 0;
 
-// ===== State =====
-let components = []; // {id, type, x, y, rotation, value, el, nodes[]}
-let wires = [];      // {id, from:{compId, nodeIdx}, to:{compId, nodeIdx}, el}
-let selectedId = null;
-let mode = 'select'; // 'select' | 'wire'
-let wireStart = null;
-let simulating = false;
-let idCounter = 0;
-let dragGhost = null;
-let dragType = null;
+        // Drag state (unified for both desktop & mobile)
+        let dragState = {
+            active: false,
+            type: null,
+            ghost: null,
+            source: null // 'sidebar' | 'sheet'
+        };
 
-// ===== DOM =====
-const canvas = document.getElementById('canvas');
-const canvasWrap = document.getElementById('canvasWrap');
-const wireSvg = document.getElementById('wireSvg');
-const dropIndicator = document.getElementById('dropIndicator');
-const propsPanel = document.getElementById('propsPanel');
-const mobileSheet = document.getElementById('mobileSheet');
-const mobileToggle = document.getElementById('mobileToggle');
-const toast = document.getElementById('toast');
+        // ===== DOM =====
+        const canvas = document.getElementById('canvas');
+        const canvasWrap = document.getElementById('canvasWrap');
+        const wireSvg = document.getElementById('wireSvg');
+        const dropIndicator = document.getElementById('dropIndicator');
+        const propsPanel = document.getElementById('propsPanel');
+        const mobileSheet = document.getElementById('mobileSheet');
+        const mobileToggle = document.getElementById('mobileToggle');
+        const toast = document.getElementById('toast');
 
-// ===== Utilities =====
-function snap(v) { return Math.round(v / GRID) * GRID; }
-function showToast(msg, isError) {
-  toast.textContent = msg;
-  toast.classList.toggle('error', !!isError);
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2000);
-}
+        // ===== Utilities =====
+        function snap(v) { return Math.round(v / GRID) * GRID; }
 
-// ===== Smart Placement: find nearest empty slot =====
-function findEmptySlot(targetX, targetY) {
-  const rect = canvas.getBoundingClientRect();
-  const maxX = rect.width - COMP_SIZE - 10;
-  const maxY = rect.height - COMP_SIZE - 10;
-
-  let x = snap(Math.max(10, Math.min(targetX, maxX)));
-  let y = snap(Math.max(10, Math.min(targetY, maxY)));
-
-  // Check overlap and search nearby
-  for (let radius = 0; radius < 400; radius += GRID) {
-    for (let dx = -radius; dx <= radius; dx += GRID) {
-      for (let dy = -radius; dy <= radius; dy += GRID) {
-        if (Math.abs(dx) !== radius && Math.abs(dy) !== radius) continue;
-        const tx = x + dx;
-        const ty = y + dy;
-        if (tx < 10 || ty < 10 || tx > maxX || ty > maxY) continue;
-        if (!isOccupied(tx, ty)) return { x: tx, y: ty };
-      }
-    }
-  }
-  return { x, y };
-}
-
-function isOccupied(x, y, ignoreId) {
-  const pad = 8;
-  return components.some(c => {
-    if (c.id === ignoreId) return false;
-    return Math.abs(c.x - x) < COMP_SIZE + pad && Math.abs(c.y - y) < COMP_SIZE + pad;
-  });
-}
-
-// ===== Create Component =====
-function createComponent(type, x, y) {
-  const def = COMPONENTS[type];
-  if (!def) return null;
-  const id = 'c' + (++idCounter);
-  const slot = findEmptySlot(x, y);
-
-  const el = document.createElement('div');
-  el.className = 'placed';
-  el.dataset.id = id;
-  el.style.left = slot.x + 'px';
-  el.style.top = slot.y + 'px';
-  el.innerHTML = `
-    <div class="p-icon">${def.icon}</div>
-    <div class="p-label">${def.label}</div>
-    <div class="p-value">${def.value} ${def.unit}</div>
-  `;
-  canvas.appendChild(el);
-
-  const comp = {
-    id, type, x: slot.x, y: slot.y,
-    rotation: 0, value: def.value, el,
-    nodes: []
-  };
-
-  // Create connection nodes
-  const nodePositions = getNodePositions(type);
-  nodePositions.forEach((pos, idx) => {
-    const node = document.createElement('div');
-    node.className = 'node';
-    node.dataset.compId = id;
-    node.dataset.nodeIdx = idx;
-    node.style.left = (pos.x - 7) + 'px';
-    node.style.top = (pos.y - 7) + 'px';
-    el.appendChild(node);
-    comp.nodes.push({ el: node, x: pos.x, y: pos.y });
-  });
-
-  components.push(comp);
-  updateCounts();
-  attachComponentEvents(comp);
-  return comp;
-}
-
-function getNodePositions(type) {
-  // Nodes relative to component (70x70)
-  if (COMPONENTS[type].nodes === 1) {
-    return [{ x: 35, y: 60 }];
-  }
-  // Default: two nodes left/right
-  return [{ x: 0, y: 35 }, { x: 70, y: 35 }];
-}
-
-// ===== Component Events =====
-function attachComponentEvents(comp) {
-  let startX, startY, startCompX, startCompY;
-  let isDragging = false;
-  let moved = false;
-
-  const onStart = (e) => {
-    if (mode === 'wire') return;
-    if (e.target.classList.contains('node')) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const pt = getPoint(e);
-    startX = pt.x; startY = pt.y;
-    startCompX = comp.x; startCompY = comp.y;
-    isDragging = true;
-    moved = false;
-    comp.el.classList.add('dragging');
-    selectComponent(comp.id);
-  };
-
-  const onMove = (e) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    const pt = getPoint(e);
-    const dx = pt.x - startX;
-    const dy = pt.y - startY;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
-    if (!moved) return;
-
-    const rect = canvas.getBoundingClientRect();
-    let nx = snap(startCompX + dx);
-    let ny = snap(startCompY + dy);
-    nx = Math.max(0, Math.min(nx, rect.width - COMP_SIZE));
-    ny = Math.max(0, Math.min(ny, rect.height - COMP_SIZE));
-
-    // Check collision - show indicator
-    const occupied = isOccupied(nx, ny, comp.id);
-    if (occupied) {
-      // Try to find nearby empty slot
-      const slot = findEmptySlot(nx, ny);
-      nx = slot.x; ny = slot.y;
-    }
-
-    comp.x = nx; comp.y = ny;
-    comp.el.style.left = nx + 'px';
-    comp.el.style.top = ny + 'px';
-    updateWires();
-  };
-
-  const onEnd = (e) => {
-    if (!isDragging) return;
-    isDragging = false;
-    comp.el.classList.remove('dragging');
-    if (!moved) {
-      // Click - show properties
-      showProperties(comp);
-    }
-  };
-
-  comp.el.addEventListener('pointerdown', onStart);
-  window.addEventListener('pointermove', onMove);
-  window.addEventListener('pointerup', onEnd);
-
-  // Node events
-  comp.nodes.forEach((node, idx) => {
-    node.el.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (mode === 'wire') {
-        handleNodeClick(comp.id, idx);
-      }
-    });
-  });
-
-  // Double-click for toggle (switch)
-  comp.el.addEventListener('dblclick', (e) => {
-    if (comp.type === 'switch') {
-      comp.value = comp.value === 0 ? 1 : 0;
-      updateComponentDisplay(comp);
-      showToast(comp.value ? '🔘 المفتاح مغلق' : '🔘 المفتاح مفتوح');
-      if (simulating) simulate();
-    }
-  });
-}
-
-function getPoint(e) {
-  const rect = canvas.getBoundingClientRect();
-  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-  const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-  return { x, y };
-}
-
-// ===== Selection =====
-function selectComponent(id) {
-  selectedId = id;
-  components.forEach(c => c.el.classList.toggle('selected', c.id === id));
-  const comp = components.find(c => c.id === id);
-  if (comp) showProperties(comp);
-  else propsPanel.classList.remove('show');
-}
-
-function showProperties(comp) {
-  const def = COMPONENTS[comp.type];
-  document.getElementById('propTitle').textContent = def.label;
-  document.getElementById('propLabel').textContent = 'القيمة';
-  document.getElementById('propValue').value = comp.value;
-  document.getElementById('propUnit').textContent = def.unit;
-  propsPanel.classList.add('show');
-}
-
-document.getElementById('propValue').addEventListener('input', (e) => {
-  const comp = components.find(c => c.id === selectedId);
-  if (!comp) return;
-  comp.value = parseFloat(e.target.value) || 0;
-  updateComponentDisplay(comp);
-  if (simulating) simulate();
-});
-
-document.getElementById('btnRotate').addEventListener('click', () => {
-  const comp = components.find(c => c.id === selectedId);
-  if (!comp) return;
-  comp.rotation = (comp.rotation + 90) % 360;
-  comp.el.style.transform = `rotate(${comp.rotation}deg)`;
-  updateWires();
-});
-
-document.getElementById('btnCopy').addEventListener('click', () => {
-  const comp = components.find(c => c.id === selectedId);
-  if (!comp) return;
-  createComponent(comp.type, comp.x + 30, comp.y + 30);
-  showToast('📋 تم النسخ');
-});
-
-document.getElementById('btnDelete').addEventListener('click', () => {
-  const comp = components.find(c => c.id === selectedId);
-  if (!comp) return;
-  deleteComponent(comp.id);
-});
-
-function deleteComponent(id) {
-  const comp = components.find(c => c.id === id);
-  if (!comp) return;
-  // Remove connected wires
-  wires = wires.filter(w => {
-    if (w.from.compId === id || w.to.compId === id) {
-      w.el.remove();
-      return false;
-    }
-    return true;
-  });
-  comp.el.remove();
-  components = components.filter(c => c.id !== id);
-  if (selectedId === id) {
-    selectedId = null;
-    propsPanel.classList.remove('show');
-  }
-  updateCounts();
-}
-
-function updateComponentDisplay(comp) {
-  const def = COMPONENTS[comp.type];
-  comp.el.querySelector('.p-value').textContent = `${comp.value} ${def.unit}`;
-  if (comp.type === 'switch') {
-    comp.el.style.opacity = comp.value === 0 ? '0.6' : '1';
-  }
-}
-
-// ===== Wire Drawing =====
-function handleNodeClick(compId, nodeIdx) {
-  if (!wireStart) {
-    wireStart = { compId, nodeIdx };
-    const comp = components.find(c => c.id === compId);
-    comp.nodes[nodeIdx].el.classList.add('hot');
-    showToast('🔗 انقر على النقطة الثانية');
-  } else {
-    if (wireStart.compId === compId && wireStart.nodeIdx === nodeIdx) {
-      // Cancel
-      const comp = components.find(c => c.id === wireStart.compId);
-      comp.nodes[wireStart.nodeIdx].el.classList.remove('hot');
-      wireStart = null;
-      return;
-    }
-    // Check if wire already exists
-    const exists = wires.some(w =>
-      (w.from.compId === wireStart.compId && w.from.nodeIdx === wireStart.nodeIdx &&
-       w.to.compId === compId && w.to.nodeIdx === nodeIdx) ||
-      (w.from.compId === compId && w.from.nodeIdx === nodeIdx &&
-       w.to.compId === wireStart.compId && w.to.nodeIdx === wireStart.nodeIdx)
-    );
-    if (exists) {
-      showToast('⚠️ السلك موجود مسبقاً', true);
-    } else {
-      createWire(wireStart, { compId, nodeIdx });
-    }
-    const comp = components.find(c => c.id === wireStart.compId);
-    comp.nodes[wireStart.nodeIdx].el.classList.remove('hot');
-    wireStart = null;
-  }
-}
-
-function createWire(from, to) {
-  const id = 'w' + (++idCounter);
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute('class', 'wire');
-  path.dataset.id = id;
-  wireSvg.appendChild(path);
-  const wire = { id, from, to, el: path };
-  wires.push(wire);
-  updateWirePath(wire);
-  updateCounts();
-  showToast('✅ تم التوصيل');
-}
-
-function updateWirePath(wire) {
-  const c1 = components.find(c => c.id === wire.from.compId);
-  const c2 = components.find(c => c.id === wire.to.compId);
-  if (!c1 || !c2) return;
-  const n1 = c1.nodes[wire.from.nodeIdx];
-  const n2 = c2.nodes[wire.to.nodeIdx];
-  const x1 = c1.x + n1.x, y1 = c1.y + n1.y;
-  const x2 = c2.x + n2.x, y2 = c2.y + n2.y;
-  // Smooth curve
-  const mx = (x1 + x2) / 2;
-  wire.el.setAttribute('d', `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`);
-}
-
-function updateWires() {
-  wires.forEach(updateWirePath);
-}
-
-// ===== Toolbar =====
-document.getElementById('btnSelect').addEventListener('click', () => setMode('select'));
-document.getElementById('btnWire').addEventListener('click', () => setMode('wire'));
-document.getElementById('btnClear').addEventListener('click', () => {
-  if (components.length === 0 && wires.length === 0) return;
-  if (!confirm('مسح كل المكونات والأسلاك؟')) return;
-  components.forEach(c => c.el.remove());
-  wires.forEach(w => w.el.remove());
-  components = []; wires = [];
-  selectedId = null;
-  propsPanel.classList.remove('show');
-  updateCounts();
-  showToast('🗑️ تم المسح');
-});
-document.getElementById('btnHelp').addEventListener('click', () => {
-  document.getElementById('helpModal').classList.add('show');
-});
-document.getElementById('btnRun').addEventListener('click', toggleSimulation);
-
-function setMode(m) {
-  mode = m;
-  document.getElementById('btnSelect').classList.toggle('active', m === 'select');
-  document.getElementById('btnWire').classList.toggle('active', m === 'wire');
-  if (m === 'select' && wireStart) {
-    const comp = components.find(c => c.id === wireStart.compId);
-    if (comp) comp.nodes[wireStart.nodeIdx].el.classList.remove('hot');
-    wireStart = null;
-  }
-  // Close mobile sheet when switching mode
-  if (window.innerWidth <= 768) {
-    mobileSheet.classList.remove('open');
-  }
-}
-
-// ===== Simulation =====
-function toggleSimulation() {
-  simulating = !simulating;
-  document.getElementById('btnRun').classList.toggle('active', simulating);
-  document.getElementById('btnRun').textContent = simulating ? '⏸️' : '▶️';
-  canvas.classList.toggle('simulating', simulating);
-  if (simulating) {
-    simulate();
-    showToast('▶️ المحاكاة تعمل');
-  } else {
-    wires.forEach(w => w.el.classList.remove('active'));
-    components.forEach(c => c.el.classList.remove('active'));
-    document.getElementById('rVolt').textContent = '0';
-    document.getElementById('rCurr').textContent = '0';
-    document.getElementById('rRes').textContent = '0';
-    document.getElementById('rPow').textContent = '0';
-    showToast('⏸️ المحاكاة متوقفة');
-  }
-}
-
-function simulate() {
-  // Simple simulation: find battery, calculate current through connected loop
-  const battery = components.find(c => c.type === 'battery');
-  let totalV = 0, totalR = 0, totalI = 0;
-
-  if (battery) {
-    totalV = battery.value;
-    // Find connected components (simple: any component connected via wires to battery)
-    const connected = findConnected(battery.id);
-    connected.forEach(cid => {
-      const c = components.find(x => x.id === cid);
-      if (!c) return;
-      if (['resistor', 'lamp', 'motor', 'buzzer', 'sensor'].includes(c.type)) {
-        totalR += c.value;
-      } else if (c.type === 'switch' && c.value === 0) {
-        totalR = Infinity; // open switch
-      }
-    });
-
-    if (totalR > 0 && totalR !== Infinity) {
-      totalI = totalV / totalR * 1000; // mA
-      // Activate wires and components
-      wires.forEach(w => {
-        if (connected.includes(w.from.compId) && connected.includes(w.to.compId)) {
-          w.el.classList.add('active');
-        } else {
-          w.el.classList.remove('active');
+        function showToast(msg, isError) {
+            toast.textContent = msg;
+            toast.classList.toggle('error', !!isError);
+            toast.classList.add('show');
+            clearTimeout(toast._hide);
+            toast._hide = setTimeout(() => toast.classList.remove('show'), 2000);
         }
-      });
-      connected.forEach(cid => {
-        const c = components.find(x => x.id === cid);
-        if (c && c.type !== 'battery') c.el.classList.add('active');
-      });
-      // Light up LEDs/lamps
-      components.filter(c => ['led', 'lamp'].includes(c.type) && connected.includes(c.id))
-        .forEach(c => c.el.style.filter = 'drop-shadow(0 0 10px #fbbf24)');
-      components.filter(c => ['led', 'lamp'].includes(c.type) && !connected.includes(c.id))
-        .forEach(c => c.el.style.filter = '');
-    } else {
-      totalI = 0;
-      wires.forEach(w => w.el.classList.remove('active'));
-      components.forEach(c => c.el.classList.remove('active'));
-    }
-  }
 
-  document.getElementById('rVolt').textContent = totalV.toFixed(1);
-  document.getElementById('rCurr').textContent = totalI.toFixed(1);
-  document.getElementById('rRes').textContent = totalR === Infinity ? '∞' : totalR.toFixed(0);
-  document.getElementById('rPow').textContent = (totalV * totalI / 1000).toFixed(2);
-}
+        function getCanvasPoint(clientX, clientY) {
+            const rect = canvasWrap.getBoundingClientRect(); // use wrap for full area
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
 
-function findConnected(startId) {
-  const visited = new Set([startId]);
-  const queue = [startId];
-  while (queue.length) {
-    const cur = queue.shift();
-    wires.forEach(w => {
-      if (w.from.compId === cur && !visited.has(w.to.compId)) {
-        visited.add(w.to.compId);
-        queue.push(w.to.compId);
-      }
-      if (w.to.compId === cur && !visited.has(w.from.compId)) {
-        visited.add(w.from.compId);
-        queue.push(w.from.compId);
-      }
-    });
-  }
-  return [...visited];
-}
+        function isInCanvas(clientX, clientY) {
+            const rect = canvasWrap.getBoundingClientRect();
+            return clientX >= rect.left && clientX <= rect.right &&
+                clientY >= rect.top && clientY <= rect.bottom;
+        }
 
-// ===== Drag & Drop from Sidebar =====
-function setupDragDrop() {
-  const items = document.querySelectorAll('.comp-item');
-  items.forEach(item => {
-    // Desktop: HTML5 drag
-    item.addEventListener('dragstart', (e) => {
-      dragType = item.dataset.type;
-      e.dataTransfer.setData('text/plain', dragType);
-      e.dataTransfer.effectAllowed = 'copy';
-    });
+        function findEmptySlot(targetX, targetY) {
+            const rect = canvasWrap.getBoundingClientRect();
+            const maxX = rect.width - COMP_SIZE - 10;
+            const maxY = rect.height - COMP_SIZE - 10;
+            let x = snap(Math.max(10, Math.min(targetX, maxX)));
+            let y = snap(Math.max(10, Math.min(targetY, maxY)));
 
-    // Mobile/Touch: pointer-based drag with ghost
-    item.addEventListener('pointerdown', (e) => {
-      if (window.innerWidth > 768) return; // desktop uses HTML5 drag
-      e.preventDefault();
-      dragType = item.dataset.type;
-      const def = COMPONENTS[dragType];
-      dragGhost = document.createElement('div');
-      dragGhost.className = 'drag-ghost';
-      dragGhost.innerHTML = `<span class="icon">${def.icon}</span>${def.label}`;
-      document.body.appendChild(dragGhost);
-      moveGhost(e);
-      canvas.setPointerCapture(e.pointerId);
-    });
-  });
+            for (let radius = 0; radius < 400; radius += GRID) {
+                for (let dx = -radius; dx <= radius; dx += GRID) {
+                    for (let dy = -radius; dy <= radius; dy += GRID) {
+                        if (Math.abs(dx) !== radius && Math.abs(dy) !== radius) continue;
+                        const tx = x + dx;
+                        const ty = y + dy;
+                        if (tx < 10 || ty < 10 || tx > maxX || ty > maxY) continue;
+                        if (!isOccupied(tx, ty)) return { x: tx, y: ty };
+                    }
+                }
+            }
+            return { x, y };
+        }
 
-  // Desktop drop
-  canvas.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-    showDropIndicator(e);
-  });
-  canvas.addEventListener('dragleave', () => {
-    dropIndicator.style.display = 'none';
-  });
-  canvas.addEventListener('drop', (e) => {
-    e.preventDefault();
-    const type = e.dataTransfer.getData('text/plain') || dragType;
-    dropIndicator.style.display = 'none';
-    if (!type || !COMPONENTS[type]) return;
-    const pt = getPoint(e);
-    createComponent(type, pt.x - COMP_SIZE/2, pt.y - COMP_SIZE/2);
-  });
+        function isOccupied(x, y, ignoreId) {
+            const pad = 8;
+            return components.some(c => {
+                if (c.id === ignoreId) return false;
+                return Math.abs(c.x - x) < COMP_SIZE + pad && Math.abs(c.y - y) < COMP_SIZE + pad;
+            });
+        }
 
-  // Mobile pointer move for ghost
-  window.addEventListener('pointermove', (e) => {
-    if (dragGhost) moveGhost(e);
-  });
-  window.addEventListener('pointerup', (e) => {
-    if (dragGhost) {
-      // Find drop position
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height && dragType) {
-        createComponent(dragType, x - COMP_SIZE/2, y - COMP_SIZE/2);
-      }
-      dragGhost.remove();
-      dragGhost = null;
-      dragType = null;
-      dropIndicator.style.display = 'none';
-    }
-  });
-}
+        // ===== Create Component =====
+        function createComponent(type, x, y) {
+            const def = COMPONENTS[type];
+            if (!def) return null;
+            const id = 'c' + (++idCounter);
+            const slot = findEmptySlot(x, y);
 
-function moveGhost(e) {
-  if (!dragGhost) return;
-  dragGhost.style.left = e.clientX + 'px';
-  dragGhost.style.top = e.clientY + 'px';
-  // Show indicator on canvas
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height) {
-    const slot = findEmptySlot(x - COMP_SIZE/2, y - COMP_SIZE/2);
-    dropIndicator.style.display = 'block';
-    dropIndicator.style.left = (slot.x + COMP_SIZE/2) + 'px';
-    dropIndicator.style.top = (slot.y + COMP_SIZE/2) + 'px';
-    dropIndicator.classList.toggle('invalid', isOccupied(slot.x, slot.y));
-  } else {
-    dropIndicator.style.display = 'none';
-  }
-}
+            const el = document.createElement('div');
+            el.className = 'placed';
+            el.dataset.id = id;
+            el.style.left = slot.x + 'px';
+            el.style.top = slot.y + 'px';
+            el.innerHTML = `
+                <div class="p-icon">${def.icon}</div>
+                <div class="p-label">${def.label}</div>
+                <div class="p-value">${def.value} ${def.unit}</div>
+              `;
+            canvas.appendChild(el);
 
-function showDropIndicator(e) {
-  const pt = getPoint(e);
-  const slot = findEmptySlot(pt.x - COMP_SIZE/2, pt.y - COMP_SIZE/2);
-  dropIndicator.style.display = 'block';
-  dropIndicator.style.left = (slot.x + COMP_SIZE/2) + 'px';
-  dropIndicator.style.top = (slot.y + COMP_SIZE/2) + 'px';
-  dropIndicator.classList.toggle('invalid', isOccupied(slot.x, slot.y));
-}
+            const comp = {
+                id,
+                type,
+                x: slot.x,
+                y: slot.y,
+                rotation: 0,
+                value: def.value,
+                el,
+                nodes: []
+            };
 
-// ===== Mobile Sheet =====
-mobileToggle.addEventListener('click', () => {
-  mobileSheet.classList.toggle('open');
-});
+            const nodePositions = getNodePositions(type);
+            nodePositions.forEach((pos, idx) => {
+                const node = document.createElement('div');
+                node.className = 'node';
+                node.dataset.compId = id;
+                node.dataset.nodeIdx = idx;
+                node.style.left = (pos.x - 7) + 'px';
+                node.style.top = (pos.y - 7) + 'px';
+                el.appendChild(node);
+                comp.nodes.push({ el: node, x: pos.x, y: pos.y });
+            });
 
-// Close sheet when clicking outside
-canvasWrap.addEventListener('pointerdown', (e) => {
-  if (window.innerWidth <= 768 && mobileSheet.classList.contains('open')) {
-    if (!mobileSheet.contains(e.target) && e.target !== mobileToggle) {
-      mobileSheet.classList.remove('open');
-    }
-  }
-});
+            components.push(comp);
+            updateCounts();
+            attachComponentEvents(comp);
+            return comp;
+        }
 
-// Mobile sheet items: use pointer drag instead of HTML5 drag
-function setupMobileSheetDrag() {
-  mobileSheet.querySelectorAll('.comp-item').forEach(item => {
-    item.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      dragType = item.dataset.type;
-      const def = COMPONENTS[dragType];
-      dragGhost = document.createElement('div');
-      dragGhost.className = 'drag-ghost';
-      dragGhost.innerHTML = `<span class="icon">${def.icon}</span>${def.label}`;
-      document.body.appendChild(dragGhost);
-      dragGhost.style.left = e.clientX + 'px';
-      dragGhost.style.top = e.clientY + 'px';
-    });
-  });
-}
+        function getNodePositions(type) {
+            if (COMPONENTS[type].nodes === 1) {
+                return [{ x: 35, y: 60 }];
+            }
+            return [{ x: 0, y: 35 }, { x: 70, y: 35 }];
+        }
 
-// ===== Counts =====
-function updateCounts() {
-  document.getElementById('compCount').textContent = components.length;
-  document.getElementById('wireCount').textContent = wires.length;
-}
+        // ===== Component Events =====
+        function attachComponentEvents(comp) {
+            let startX, startY, startCompX, startCompY;
+            let isDragging = false;
+            let moved = false;
 
-// ===== Click on empty canvas to deselect =====
-canvas.addEventListener('pointerdown', (e) => {
-  if (e.target === canvas || e.target === wireSvg) {
-    if (mode === 'select') {
-      selectComponent(null);
-    }
-  }
-});
+            const onStart = (e) => {
+                if (mode === 'wire') return;
+                if (e.target.classList.contains('node')) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const pt = getCanvasPoint(e.clientX, e.clientY);
+                startX = pt.x;
+                startY = pt.y;
+                startCompX = comp.x;
+                startCompY = comp.y;
+                isDragging = true;
+                moved = false;
+                comp.el.classList.add('dragging');
+                selectComponent(comp.id);
+            };
 
-// ===== Init =====
-setupDragDrop();
-setupMobileSheetDrag();
+            const onMove = (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                const pt = getCanvasPoint(e.clientX, e.clientY);
+                const dx = pt.x - startX;
+                const dy = pt.y - startY;
+                if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+                if (!moved) return;
 
-// Welcome
-setTimeout(() => {
-  if (!localStorage.getItem('electricLabSeen')) {
-    document.getElementById('helpModal').classList.add('show');
-    localStorage.setItem('electricLabSeen', '1');
-  }
-}, 500);
+                const rect = canvasWrap.getBoundingClientRect();
+                let nx = snap(startCompX + dx);
+                let ny = snap(startCompY + dy);
+                nx = Math.max(0, Math.min(nx, rect.width - COMP_SIZE));
+                ny = Math.max(0, Math.min(ny, rect.height - COMP_SIZE));
 
-// Handle resize
-window.addEventListener('resize', () => {
-  updateWires();
-});
-</script>
+                if (isOccupied(nx, ny, comp.id)) {
+                    const slot = findEmptySlot(nx, ny);
+                    nx = slot.x;
+                    ny = slot.y;
+                }
+
+                comp.x = nx;
+                comp.y = ny;
+                comp.el.style.left = nx + 'px';
+                comp.el.style.top = ny + 'px';
+                updateWires();
+            };
+
+            const onEnd = (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                comp.el.classList.remove('dragging');
+                if (!moved) {
+                    showProperties(comp);
+                }
+            };
+
+            comp.el.addEventListener('pointerdown', onStart);
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onEnd);
+
+            // Node events
+            comp.nodes.forEach((node, idx) => {
+                node.el.addEventListener('pointerdown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (mode === 'wire') {
+                        handleNodeClick(comp.id, idx);
+                    }
+                });
+            });
+
+            // Double-click for toggle (switch)
+            comp.el.addEventListener('dblclick', (e) => {
+                if (comp.type === 'switch') {
+                    comp.value = comp.value === 0 ? 1 : 0;
+                    updateComponentDisplay(comp);
+                    showToast(comp.value ? '🔘 المفتاح مغلق' : '🔘 المفتاح مفتوح');
+                    if (simulating) simulate();
+                }
+            });
+        }
+
+        // ===== Selection =====
+        function selectComponent(id) {
+            selectedId = id;
+            components.forEach(c => c.el.classList.toggle('selected', c.id === id));
+            const comp = components.find(c => c.id === id);
+            if (comp) showProperties(comp);
+            else propsPanel.classList.remove('show');
+        }
+
+        function showProperties(comp) {
+            const def = COMPONENTS[comp.type];
+            document.getElementById('propTitle').textContent = def.label;
+            document.getElementById('propLabel').textContent = 'القيمة';
+            document.getElementById('propValue').value = comp.value;
+            document.getElementById('propUnit').textContent = def.unit;
+            propsPanel.classList.add('show');
+        }
+
+        document.getElementById('propValue').addEventListener('input', (e) => {
+            const comp = components.find(c => c.id === selectedId);
+            if (!comp) return;
+            comp.value = parseFloat(e.target.value) || 0;
+            updateComponentDisplay(comp);
+            if (simulating) simulate();
+        });
+
+        document.getElementById('btnRotate').addEventListener('click', () => {
+            const comp = components.find(c => c.id === selectedId);
+            if (!comp) return;
+            comp.rotation = (comp.rotation + 90) % 360;
+            comp.el.style.transform = `rotate(${comp.rotation}deg)`;
+            updateWires();
+        });
+
+        document.getElementById('btnCopy').addEventListener('click', () => {
+            const comp = components.find(c => c.id === selectedId);
+            if (!comp) return;
+            createComponent(comp.type, comp.x + 30, comp.y + 30);
+            showToast('📋 تم النسخ');
+        });
+
+        document.getElementById('btnDelete').addEventListener('click', () => {
+            const comp = components.find(c => c.id === selectedId);
+            if (!comp) return;
+            deleteComponent(comp.id);
+        });
+
+        function deleteComponent(id) {
+            const comp = components.find(c => c.id === id);
+            if (!comp) return;
+            wires = wires.filter(w => {
+                if (w.from.compId === id || w.to.compId === id) {
+                    w.el.remove();
+                    return false;
+                }
+                return true;
+            });
+            comp.el.remove();
+            components = components.filter(c => c.id !== id);
+            if (selectedId === id) {
+                selectedId = null;
+                propsPanel.classList.remove('show');
+            }
+            updateCounts();
+            if (simulating) simulate();
+        }
+
+        function updateComponentDisplay(comp) {
+            const def = COMPONENTS[comp.type];
+            comp.el.querySelector('.p-value').textContent = `${comp.value} ${def.unit}`;
+            if (comp.type === 'switch') {
+                comp.el.style.opacity = comp.value === 0 ? '0.6' : '1';
+            }
+        }
+
+        // ===== Wire Drawing =====
+        function handleNodeClick(compId, nodeIdx) {
+            if (!wireStart) {
+                wireStart = { compId, nodeIdx };
+                const comp = components.find(c => c.id === compId);
+                comp.nodes[nodeIdx].el.classList.add('hot');
+                showToast('🔗 انقر على النقطة الثانية');
+            } else {
+                if (wireStart.compId === compId && wireStart.nodeIdx === nodeIdx) {
+                    const comp = components.find(c => c.id === wireStart.compId);
+                    comp.nodes[wireStart.nodeIdx].el.classList.remove('hot');
+                    wireStart = null;
+                    return;
+                }
+                const exists = wires.some(w =>
+                    (w.from.compId === wireStart.compId && w.from.nodeIdx === wireStart.nodeIdx &&
+                        w.to.compId === compId && w.to.nodeIdx === nodeIdx) ||
+                    (w.from.compId === compId && w.from.nodeIdx === nodeIdx &&
+                        w.to.compId === wireStart.compId && w.to.nodeIdx === wireStart.nodeIdx)
+                );
+                if (exists) {
+                    showToast('⚠️ السلك موجود مسبقاً', true);
+                } else {
+                    createWire(wireStart, { compId, nodeIdx });
+                }
+                const comp = components.find(c => c.id === wireStart.compId);
+                comp.nodes[wireStart.nodeIdx].el.classList.remove('hot');
+                wireStart = null;
+            }
+        }
+
+        function createWire(from, to) {
+            const id = 'w' + (++idCounter);
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('class', 'wire');
+            path.dataset.id = id;
+            wireSvg.appendChild(path);
+            const wire = { id, from, to, el: path };
+            wires.push(wire);
+            updateWirePath(wire);
+            updateCounts();
+            showToast('✅ تم التوصيل');
+            if (simulating) simulate();
+        }
+
+        function updateWirePath(wire) {
+            const c1 = components.find(c => c.id === wire.from.compId);
+            const c2 = components.find(c => c.id === wire.to.compId);
+            if (!c1 || !c2) return;
+            const n1 = c1.nodes[wire.from.nodeIdx];
+            const n2 = c2.nodes[wire.to.nodeIdx];
+            const x1 = c1.x + n1.x,
+                y1 = c1.y + n1.y;
+            const x2 = c2.x + n2.x,
+                y2 = c2.y + n2.y;
+            const mx = (x1 + x2) / 2;
+            wire.el.setAttribute('d', `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`);
+        }
+
+        function updateWires() {
+            wires.forEach(updateWirePath);
+        }
+
+        // ===== Toolbar =====
+        document.getElementById('btnSelect').addEventListener('click', () => setMode('select'));
+        document.getElementById('btnWire').addEventListener('click', () => setMode('wire'));
+        document.getElementById('btnClear').addEventListener('click', () => {
+            if (components.length === 0 && wires.length === 0) return;
+            if (!confirm('مسح كل المكونات والأسلاك؟')) return;
+            components.forEach(c => c.el.remove());
+            wires.forEach(w => w.el.remove());
+            components = [];
+            wires = [];
+            selectedId = null;
+            propsPanel.classList.remove('show');
+            updateCounts();
+            showToast('🗑️ تم المسح');
+            if (simulating) { simulating = false;
+                document.getElementById('btnRun').classList.remove('active');
+                document.getElementById('btnRun').textContent = '▶️';
+                canvas.classList.remove('simulating'); }
+            document.getElementById('rVolt').textContent = '0';
+            document.getElementById('rCurr').textContent = '0';
+            document.getElementById('rRes').textContent = '0';
+            document.getElementById('rPow').textContent = '0';
+        });
+        document.getElementById('btnHelp').addEventListener('click', () => {
+            document.getElementById('helpModal').classList.add('show');
+        });
+        document.getElementById('btnRun').addEventListener('click', toggleSimulation);
+
+        function setMode(m) {
+            mode = m;
+            document.getElementById('btnSelect').classList.toggle('active', m === 'select');
+            document.getElementById('btnWire').classList.toggle('active', m === 'wire');
+            if (m === 'select' && wireStart) {
+                const comp = components.find(c => c.id === wireStart.compId);
+                if (comp) comp.nodes[wireStart.nodeIdx].el.classList.remove('hot');
+                wireStart = null;
+            }
+            if (window.innerWidth <= 768) {
+                mobileSheet.classList.remove('open');
+            }
+        }
+
+        // ===== Simulation =====
+        function toggleSimulation() {
+            simulating = !simulating;
+            document.getElementById('btnRun').classList.toggle('active', simulating);
+            document.getElementById('btnRun').textContent = simulating ? '⏸️' : '▶️';
+            canvas.classList.toggle('simulating', simulating);
+            if (simulating) {
+                simulate();
+                showToast('▶️ المحاكاة تعمل');
+            } else {
+                wires.forEach(w => w.el.classList.remove('active'));
+                components.forEach(c => c.el.classList.remove('active'));
+                components.forEach(c => { if (['led', 'lamp'].includes(c.type)) c.el.style.filter = ''; });
+                document.getElementById('rVolt').textContent = '0';
+                document.getElementById('rCurr').textContent = '0';
+                document.getElementById('rRes').textContent = '0';
+                document.getElementById('rPow').textContent = '0';
+                showToast('⏸️ المحاكاة متوقفة');
+            }
+        }
+
+        function simulate() {
+            const battery = components.find(c => c.type === 'battery');
+            let totalV = 0,
+                totalR = 0,
+                totalI = 0;
+
+            if (battery) {
+                totalV = battery.value;
+                const connected = findConnected(battery.id);
+                connected.forEach(cid => {
+                    const c = components.find(x => x.id === cid);
+                    if (!c) return;
+                    if (['resistor', 'lamp', 'motor', 'buzzer', 'sensor'].includes(c.type)) {
+                        totalR += c.value;
+                    } else if (c.type === 'switch' && c.value === 0) {
+                        totalR = Infinity;
+                    }
+                });
+
+                if (totalR > 0 && totalR !== Infinity) {
+                    totalI = totalV / totalR * 1000;
+                    wires.forEach(w => {
+                        if (connected.includes(w.from.compId) && connected.includes(w.to.compId)) {
+                            w.el.classList.add('active');
+                        } else {
+                            w.el.classList.remove('active');
+                        }
+                    });
+                    connected.forEach(cid => {
+                        const c = components.find(x => x.id === cid);
+                        if (c && c.type !== 'battery') c.el.classList.add('active');
+                    });
+                    components.filter(c => ['led', 'lamp'].includes(c.type) && connected.includes(c.id))
+                        .forEach(c => c.el.style.filter = 'drop-shadow(0 0 10px #fbbf24)');
+                    components.filter(c => ['led', 'lamp'].includes(c.type) && !connected.includes(c.id))
+                        .forEach(c => c.el.style.filter = '');
+                } else {
+                    totalI = 0;
+                    wires.forEach(w => w.el.classList.remove('active'));
+                    components.forEach(c => c.el.classList.remove('active'));
+                    components.forEach(c => { if (['led', 'lamp'].includes(c.type)) c.el.style.filter = ''; });
+                }
+            } else {
+                wires.forEach(w => w.el.classList.remove('active'));
+                components.forEach(c => c.el.classList.remove('active'));
+                components.forEach(c => { if (['led', 'lamp'].includes(c.type)) c.el.style.filter = ''; });
+            }
+
+            document.getElementById('rVolt').textContent = totalV.toFixed(1);
+            document.getElementById('rCurr').textContent = totalI.toFixed(1);
+            document.getElementById('rRes').textContent = totalR === Infinity ? '∞' : totalR.toFixed(0);
+            document.getElementById('rPow').textContent = (totalV * totalI / 1000).toFixed(2);
+        }
+
+        function findConnected(startId) {
+            const visited = new Set([startId]);
+            const queue = [startId];
+            while (queue.length) {
+                const cur = queue.shift();
+                wires.forEach(w => {
+                    if (w.from.compId === cur && !visited.has(w.to.compId)) {
+                        visited.add(w.to.compId);
+                        queue.push(w.to.compId);
+                    }
+                    if (w.to.compId === cur && !visited.has(w.from.compId)) {
+                        visited.add(w.from.compId);
+                        queue.push(w.from.compId);
+                    }
+                });
+            }
+            return [...visited];
+        }
+
+        // ===== Unified Drag System (works on both desktop & mobile) =====
+        function initDragSystem() {
+            // For sidebar items (desktop) - use HTML5 drag
+            const sidebarItems = document.querySelectorAll('#sidebar .comp-item');
+            sidebarItems.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    dragState.type = item.dataset.type;
+                    e.dataTransfer.setData('text/plain', dragState.type);
+                    e.dataTransfer.effectAllowed = 'copy';
+                });
+            });
+
+            // For all comp-item elements (including mobile sheet) - use pointer drag
+            const allItems = document.querySelectorAll('.comp-item');
+            allItems.forEach(item => {
+                // Skip sidebar items on desktop (they use HTML5 drag)
+                if (item.closest('#sidebar') && window.innerWidth > 768) return;
+
+                item.addEventListener('pointerdown', (e) => {
+                    // On desktop, sidebar uses HTML5 drag, so skip
+                    if (item.closest('#sidebar') && window.innerWidth > 768) return;
+
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const type = item.dataset.type;
+                    if (!type || !COMPONENTS[type]) return;
+
+                    // Clean up any existing drag
+                    cleanupDrag();
+
+                    const def = COMPONENTS[type];
+                    dragState.active = true;
+                    dragState.type = type;
+                    dragState.source = item.closest('#mobileSheet') ? 'sheet' : 'sidebar';
+
+                    // Create ghost
+                    const ghost = document.createElement('div');
+                    ghost.className = 'drag-ghost';
+                    ghost.innerHTML = `<span class="icon">${def.icon}</span>${def.label}`;
+                    ghost.style.left = e.clientX + 'px';
+                    ghost.style.top = e.clientY + 'px';
+                    document.body.appendChild(ghost);
+                    dragState.ghost = ghost;
+
+                    // Show drop indicator if on canvas
+                    updateDropIndicator(e.clientX, e.clientY);
+
+                    // Close mobile sheet if open
+                    if (window.innerWidth <= 768) {
+                        mobileSheet.classList.remove('open');
+                    }
+                });
+            });
+
+            // Global pointer move
+            window.addEventListener('pointermove', (e) => {
+                if (!dragState.active || !dragState.ghost) return;
+
+                // Move ghost
+                dragState.ghost.style.left = e.clientX + 'px';
+                dragState.ghost.style.top = e.clientY + 'px';
+
+                // Update drop indicator
+                updateDropIndicator(e.clientX, e.clientY);
+            });
+
+            // Global pointer up / cancel
+            const endDrag = (e) => {
+                if (!dragState.active) return;
+
+                // Determine if we're dropping on canvas
+                const onCanvas = isInCanvas(e.clientX, e.clientY);
+                let placed = false;
+
+                if (onCanvas && dragState.type) {
+                    const pt = getCanvasPoint(e.clientX, e.clientY);
+                    const comp = createComponent(dragState.type, pt.x - COMP_SIZE / 2, pt.y - COMP_SIZE / 2);
+                    if (comp) {
+                        placed = true;
+                        showToast(`✅ تم إضافة ${COMPONENTS[dragState.type].label}`);
+                        if (simulating) simulate();
+                    } else {
+                        showToast('⚠️ لا توجد مساحة كافية', true);
+                    }
+                }
+
+                cleanupDrag();
+            };
+
+            window.addEventListener('pointerup', endDrag);
+            window.addEventListener('pointercancel', (e) => {
+                cleanupDrag();
+            });
+
+            // Canvas drop for HTML5 drag (desktop)
+            canvas.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+                const pt = getCanvasPoint(e.clientX, e.clientY);
+                const slot = findEmptySlot(pt.x - COMP_SIZE / 2, pt.y - COMP_SIZE / 2);
+                dropIndicator.style.display = 'block';
+                dropIndicator.style.left = (slot.x + COMP_SIZE / 2) + 'px';
+                dropIndicator.style.top = (slot.y + COMP_SIZE / 2) + 'px';
+                dropIndicator.classList.toggle('invalid', isOccupied(slot.x, slot.y));
+            });
+
+            canvas.addEventListener('dragleave', () => {
+                dropIndicator.style.display = 'none';
+            });
+
+            canvas.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropIndicator.style.display = 'none';
+                const type = e.dataTransfer.getData('text/plain') || dragState.type;
+                if (!type || !COMPONENTS[type]) return;
+                const pt = getCanvasPoint(e.clientX, e.clientY);
+                const comp = createComponent(type, pt.x - COMP_SIZE / 2, pt.y - COMP_SIZE / 2);
+                if (comp) {
+                    showToast(`✅ تم إضافة ${COMPONENTS[type].label}`);
+                    if (simulating) simulate();
+                } else {
+                    showToast('⚠️ لا توجد مساحة كافية', true);
+                }
+                dragState.type = null;
+            });
+        }
+
+        function updateDropIndicator(clientX, clientY) {
+            const onCanvas = isInCanvas(clientX, clientY);
+            if (onCanvas && dragState.type) {
+                const pt = getCanvasPoint(clientX, clientY);
+                const slot = findEmptySlot(pt.x - COMP_SIZE / 2, pt.y - COMP_SIZE / 2);
+                dropIndicator.style.display = 'block';
+                dropIndicator.style.left = (slot.x + COMP_SIZE / 2) + 'px';
+                dropIndicator.style.top = (slot.y + COMP_SIZE / 2) + 'px';
+                dropIndicator.classList.toggle('invalid', isOccupied(slot.x, slot.y));
+            } else {
+                dropIndicator.style.display = 'none';
+            }
+        }
+
+        function cleanupDrag() {
+            if (dragState.ghost) {
+                dragState.ghost.remove();
+                dragState.ghost = null;
+            }
+            dragState.active = false;
+            dragState.type = null;
+            dragState.source = null;
+            dropIndicator.style.display = 'none';
+        }
+
+        // ===== Mobile Sheet =====
+        mobileToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mobileSheet.classList.toggle('open');
+        });
+
+        canvasWrap.addEventListener('pointerdown', (e) => {
+            if (window.innerWidth <= 768 && mobileSheet.classList.contains('open')) {
+                if (!mobileSheet.contains(e.target) && e.target !== mobileToggle) {
+                    mobileSheet.classList.remove('open');
+                }
+            }
+        });
+
+        // Close sheet when selecting a mode
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    mobileSheet.classList.remove('open');
+                }
+            });
+        });
+
+        // ===== Counts =====
+        function updateCounts() {
+            document.getElementById('compCount').textContent = components.length;
+            document.getElementById('wireCount').textContent = wires.length;
+        }
+
+        // ===== Click on empty canvas to deselect =====
+        canvas.addEventListener('pointerdown', (e) => {
+            if (e.target === canvas || e.target === wireSvg) {
+                if (mode === 'select') {
+                    selectComponent(null);
+                }
+            }
+        });
+
+        // ===== Init =====
+        initDragSystem();
+
+        // Welcome
+        setTimeout(() => {
+            if (!localStorage.getItem('electricLabSeen')) {
+                document.getElementById('helpModal').classList.add('show');
+                localStorage.setItem('electricLabSeen', '1');
+            }
+        }, 500);
+
+        // Handle resize
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                updateWires();
+            }, 150);
+        });
+
+        window.addEventListener('orientationchange', () => {
+            setTimeout(updateWires, 300);
+        });
+
+        console.log('🔌 Circuit Fun Lab loaded!');
+        console.log('📱 Drag from sidebar or mobile sheet to add components.');
+        console.log('🔗 Switch to wire mode (🔗) to connect components.');
+        console.log('▶️ Press play to simulate!');
+    </script>
 </body>
 </html>
