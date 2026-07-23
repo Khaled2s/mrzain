@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مونوبولي الحلال - لعبة عقارات تعليمية بدون ربا</title>
+    <!-- تحسين SEO: وصف مختصر -->
+    <meta name="description" content="مونوبولي الحلال: لعبة عقارات علمية وتعليمية، بدون نرد وبدون ربا وفوائد. تعلم واربح بأسئلة ثقافية، اشترِ وابنِ عقاراتك." />
+    <meta name="keywords" content="مونوبولي, لعبة حلال, عقارات, تعليم, أسئلة, ثقافة, بدون ربا, بدون نرد" />
+    <link rel="canonical" href="https://example.com/monopoly-halal" />
+
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cairo@4.5.0/index.min.css" />
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: 1.5fr repeat(9, 1fr) 1.5fr;
+            grid-template-rows: 1.5fr repeat(9, 1fr) 1.5fr;
+            gap: 2px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            padding: 8px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            aspect-ratio: 1;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .cell {
+            position: relative;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2px;
+            font-size: 11px;
+            /* تكبير الخط الأساسي */
+            font-weight: 600;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .cell:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .cell.corner {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            font-size: 12px;
+        }
+        .cell .color-bar {
+            width: 100%;
+            height: 25%;
+            min-height: 14px;
+            border-radius: 2px 2px 0 0;
+        }
+        .cell .cell-name {
+            font-size: 10px;
+            /* تكبير اسم العقار */
+            line-height: 1.2;
+            text-align: center;
+            padding: 1px 0;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        .cell .cell-price {
+            font-size: 9px;
+            /* تكبير السعر */
+            color: #059669;
+            font-weight: bold;
+            padding: 1px 0;
+        }
+        .cell .cell-icon {
+            font-size: 16px;
+            margin: 2px 0;
+        }
+        .tokens-area {
+            position: absolute;
+            bottom: 1px;
+            left: 1px;
+            right: 1px;
+            display: flex;
+            gap: 1px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .token {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: white;
+            font-weight: bold;
+            animation: tokenPulse 2s infinite;
+            position: relative;
+        }
+        .token.active {
+            animation: tokenBounce 1s infinite;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        @keyframes tokenPulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        @keyframes tokenBounce {
+            0%,
+            100% {
+                transform: translateY(0) scale(1.1);
+            }
+            50% {
+                transform: translateY(-3px) scale(1.15);
+            }
+        }
+        .owner-flag {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1.5px solid white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            z-index: 5;
+        }
+        .buildings {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            display: flex;
+            gap: 1px;
+            z-index: 5;
+            flex-wrap: wrap;
+            max-width: 20px;
+        }
+        .house-icon {
+            width: 7px;
+            height: 7px;
+            background: #16a34a;
+            border: 1px solid white;
+            border-radius: 1px;
+        }
+        .hotel-icon {
+            width: 11px;
+            height: 11px;
+            background: #dc2626;
+            border: 1px solid white;
+            border-radius: 1px;
+        }
+        .board-center {
+            grid-column: 2 / 11;
+            grid-row: 2 / 11;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            position: relative;
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .player-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            background: white;
+            transition: all 0.3s;
+        }
+        .player-bar.active {
+            transform: scale(1.03);
+            box-shadow: 0 0 0 3px currentColor;
+        }
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+        .answer-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-weight: bold;
+            text-align: right;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        .answer-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        .answer-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .answer-btn.correct {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #065f46;
+        }
+        .answer-btn.wrong {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: #991b1b;
+        }
+        .log-entry {
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            border-right: 3px solid;
+            animation: slideIn 0.3s;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @media (max-width: 768px) {
+            .cell {
+                font-size: 9px;
+            }
+            .cell .cell-name {
+                font-size: 8px;
+            }
+            .cell .cell-price {
+                font-size: 7px;
+            }
+            .cell .cell-icon {
+                font-size: 12px;
+            }
+            .token {
+                width: 14px;
+                height: 14px;
+                font-size: 8px;
+            }
+            .owner-flag {
+                width: 9px;
+                height: 9px;
+            }
+            .house-icon {
+                width: 5px;
+                height: 5px;
+            }
+            .hotel-icon {
+                width: 8px;
+                height: 8px;
+            }
+            .board {
+                padding: 4px;
+                gap: 1px;
+            }
+        }
+        .scroll-thin::-webkit-scrollbar {
+            width: 4px;
+        }
+        .scroll-thin::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+        .player-count-btn {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .player-count-btn:hover {
+            background: #3b82f6;
+        }
+        .player-count-btn.active {
+            background: #f59e0b;
+            color: #1f2937;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        .btn-success:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+        .btn-gray {
+            background: #9ca3af;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-gray:hover {
+            background: #b0b8c4;
+        }
+        .btn-yellow {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1f2937;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-yellow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+        }
+        /* فقرة تعريفية */
+        .intro-text {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-right: 4px solid #fbbf24;
+        }
+        .intro-text p {
+            line-height: 1.8;
+            color: #e5e7eb;
+            font-size: 0.95rem;
+        }
+        .intro-text strong {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body class="p-2 md:p-4">
+
+    <!-- شاشة البداية -->
+    <div id="startScreen" class="max-w-2xl mx-auto bg-white/10 backdrop-blur rounded-3xl p-6 md:p-8 text-white">
+        <div class="text-center mb-4">
+            <div class="text-6xl mb-2">🕌</div>
+            <h1 class="text-3xl md:text-5xl font-bold text-yellow-300 mb-2">مونوبولي الحلال</h1>
+            <p class="text-gray-200 text-sm md:text-base">لعبة العقارات العلمية — بدون نرد، بدون ربا</p>
+        </div>
+
+        <!-- فقرة تعريفية (SEO & توضيح) -->
+        <div class="intro-text">
+            <p>
+                <strong>مرحباً بك في مونوبولي الحلال</strong> — نسخة معدلة من لعبة المونوبولي التقليدية،
+                صُممت لتكون <strong>حلالاً ١٠٠٪</strong> بفضل إزالة عنصر النرد (الميسر) والربا والفوائد.
+                تعتمد اللعبة على <strong>الأسئلة الثقافية والعلمية</strong> لتحديد تقدمك،
+                مما يضفي طابعاً <strong>تعليمياً</strong> ممتعاً.
+                الهدف: بناء إمبراطورية عقارية مع اختبار معلوماتك، والفوز بالمنافسة الشريفة.
+            </p>
+        </div>
+
+        <div class="bg-white/5 rounded-2xl p-4 mb-6 text-sm">
+            <h2 class="text-lg font-bold mb-2 text-yellow-200">📜 قواعد اللعبة (المعدلة)</h2>
+            <ul class="space-y-1.5 text-gray-200">
+                <li>✅ <b>إجابة صحيحة</b> = تقدم <b>3 خانات</b> إلى الأمام</li>
+                <li>❌ <b>إجابة خاطئة</b> = تراجع <b>خطوة واحدة</b> إلى الخلف</li>
+                <li>🏠 اشتروا العقارات وابنوا المنازل والفنادق</li>
+                <li>💰 ادفعوا الإيجار عند النزول على عقار مملوك</li>
+                <li>🏆 الفائز من يصمد حتى إفلاس الآخرين</li>
+            </ul>
+        </div>
+
+        <div class="mb-4">
+            <label class="block mb-2 font-bold">عدد اللاعبين:</label>
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="setPlayers(2)" class="player-count-btn active" data-pcount="2">2</button>
+                <button onclick="setPlayers(3)" class="player-count-btn" data-pcount="3">3</button>
+                <button onclick="setPlayers(4)" class="player-count-btn" data-pcount="4">4</button>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label class="block mb-2 font-bold">أسماء اللاعبين:</label>
+            <div id="nameInputs" class="space-y-2"></div>
+        </div>
+
+        <button onclick="startGame()" class="w-full btn-yellow text-lg py-4 rounded-2xl shadow-lg">
+            🚀 ابدأ اللعبة
+        </button>
+    </div>
+
+    <!-- شاشة اللعبة -->
+    <div id="gameScreen" class="hidden">
+        <div class="flex flex-col xl:flex-row gap-3 max-w-[1600px] mx-auto">
+
+            <!-- اللوحة -->
+            <div class="flex-1 flex items-start justify-center">
+                <div id="board" class="board"></div>
+            </div>
+
+            <!-- اللوحة الجانبية -->
+            <div class="xl:w-96 space-y-3">
+
+                <!-- اللاعب الحالي -->
+                <div id="currentPlayerCard" class="bg-white rounded-2xl p-4 shadow-xl border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-lg">دور اللاعب</h3>
+                        <span id="turnCounter" class="text-xs bg-gray-100 px-3 py-1 rounded-full font-bold">الدور 1</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div id="currentAvatar" class="player-avatar"></div>
+                        <div class="flex-1">
+                            <div id="currentName" class="font-bold text-xl"></div>
+                            <div class="text-sm text-gray-500">المال: <span id="currentMoney" class="font-bold text-green-600"></span> ج.م</div>
+                            <div class="text-xs text-gray-400">العقارات: <span id="currentProps" class="font-bold">0</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- السؤال -->
+                <div id="questionCard" class="bg-white rounded-2xl p-4 shadow-xl">
+                    <h3 class="font-bold mb-3 flex items-center gap-2">
+                        <span class="text-2xl">🧠</span>
+                        <span>السؤال العلمي</span>
+                    </h3>
+                    <div id="questionText" class="text-lg font-bold mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl min-h-[80px]"></div>
+                    <div id="answersContainer" class="grid grid-cols-1 gap-2"></div>
+                </div>
+
+                <!-- معلومات الخانة -->
+                <div id="cellInfoCard" class="bg-white rounded-2xl p-4 shadow-xl hidden">
+                    <div id="cellInfoContent"></div>
+                </div>
+
+                <!-- اللاعبون -->
+                <div class="bg-white rounded-2xl p-4 shadow-xl">
+                    <h3 class="font-bold mb-3">👥 اللاعبون</h3>
+                    <div id="playersList" class="space-y-2"></div>
+                </div>
+
+                <!-- سجل الأحداث -->
+                <div class="bg-white rounded-2xl p-4 shadow-xl">
+                    <h3 class="font-bold mb-2">📜 سجل الأحداث</h3>
+                    <div id="eventLog" class="space-y-1.5 max-h-48 overflow-y-auto scroll-thin"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال -->
+    <div id="modal" class="hidden modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <script>
+        // ============ البيانات ============
+        const PLAYER_COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b'];
+        const PLAYER_SYMBOLS = ['♟', '♞', '♜', '♛'];
+        const PLAYER_NAMES_DEFAULT = ['أحمد', 'فاطمة', 'خالد', 'عائشة'];
+
+        const BOARD_CELLS = [
+            { id: 0, name: 'انطلق', type: 'go', icon: '🚀' },
+            { id: 1, name: 'شارع النخيل', type: 'property', color: '#8B4513', price: 60, rent: [2, 10, 30, 90, 160, 250],
+                house: 50 },
+            { id: 2, name: 'خزينة', type: 'chest', icon: '💰' },
+            { id: 3, name: 'شارع الزيتون', type: 'property', color: '#8B4513', price: 60, rent: [4, 20, 60, 180, 320, 450],
+                house: 50 },
+            { id: 4, name: 'ضريبة الزكاة', type: 'tax', icon: '💸', amount: 200 },
+            { id: 5, name: 'محطة الشمال', type: 'station', icon: '🚂', price: 200 },
+            { id: 6, name: 'شارع الياسمين', type: 'property', color: '#87CEEB', price: 100, rent: [6, 30, 90, 270, 400,
+                    550], house: 50 },
+            { id: 7, name: 'فرصة', type: 'chance', icon: '❓' },
+            { id: 8, name: 'شارع الورد', type: 'property', color: '#87CEEB', price: 100, rent: [6, 30, 90, 270, 400, 550],
+                house: 50 },
+            { id: 9, name: 'شارع اللوتس', type: 'property', color: '#87CEEB', price: 120, rent: [8, 40, 100, 300, 450,
+                    600], house: 50 },
+            { id: 10, name: 'السجن', type: 'jail', icon: '🔒' },
+            { id: 11, name: 'شارع الصنوبر', type: 'property', color: '#FF69B4', price: 140, rent: [10, 50, 150, 450, 625,
+                    750], house: 100 },
+            { id: 12, name: 'شركة الكهرباء', type: 'utility', icon: '💡', price: 150 },
+            { id: 13, name: 'شارع الريحان', type: 'property', color: '#FF69B4', price: 140, rent: [10, 50, 150, 450, 625,
+                    750], house: 100 },
+            { id: 14, name: 'شارع البنفسج', type: 'property', color: '#FF69B4', price: 160, rent: [12, 60, 180, 500, 700,
+                    900], house: 100 },
+            { id: 15, name: 'محطة الجنوب', type: 'station', icon: '🚂', price: 200 },
+            { id: 16, name: 'شارع الأقصر', type: 'property', color: '#FFA500', price: 180, rent: [14, 70, 200, 550, 750,
+                    950], house: 100 },
+            { id: 17, name: 'خزينة', type: 'chest', icon: '💰' },
+            { id: 18, name: 'شارع أسوان', type: 'property', color: '#FFA500', price: 180, rent: [14, 70, 200, 550, 750,
+                    950], house: 100 },
+            { id: 19, name: 'شارع الفيوم', type: 'property', color: '#FFA500', price: 200, rent: [16, 80, 220, 600, 800,
+                    1000], house: 100 },
+            { id: 20, name: 'المبيت', type: 'parking', icon: '🅿️' },
+            { id: 21, name: 'شارع القدس', type: 'property', color: '#DC143C', price: 220, rent: [18, 90, 250, 700, 875,
+                    1050], house: 150 },
+            { id: 22, name: 'فرصة', type: 'chance', icon: '❓' },
+            { id: 23, name: 'شارع دمشق', type: 'property', color: '#DC143C', price: 220, rent: [18, 90, 250, 700, 875,
+                    1050], house: 150 },
+            { id: 24, name: 'شارع بغداد', type: 'property', color: '#DC143C', price: 240, rent: [20, 100, 300, 750, 925,
+                    1100], house: 150 },
+            { id: 25, name: 'محطة الشرق', type: 'station', icon: '🚂', price: 200 },
+            { id: 26, name: 'شارع الرباط', type: 'property', color: '#FFD700', price: 260, rent: [22, 110, 330, 800, 975,
+                    1150], house: 150 },
+            { id: 27, name: 'شارع القاهرة', type: 'property', color: '#FFD700', price: 260, rent: [22, 110, 330, 800, 975,
+                    1150], house: 150 },
+            { id: 28, name: 'شركة المياه', type: 'utility', icon: '💧', price: 150 },
+            { id: 29, name: 'شارع تونس', type: 'property', color: '#FFD700', price: 280, rent: [24, 120, 360, 850, 1025,
+                    1200], house: 150 },
+            { id: 30, name: 'السجن!', type: 'gotojail', icon: '👮' },
+            { id: 31, name: 'شارع بيروت', type: 'property', color: '#228B22', price: 300, rent: [26, 130, 390, 900, 1100,
+                    1275], house: 200 },
+            { id: 32, name: 'شارع عمّان', type: 'property', color: '#228B22', price: 300, rent: [26, 130, 390, 900, 1100,
+                    1275], house: 200 },
+            { id: 33, name: 'خزينة', type: 'chest', icon: '💰' },
+            { id: 34, name: 'شارع الجزائر', type: 'property', color: '#228B22', price: 320, rent: [28, 150, 450, 1000,
+                    1200, 1400], house: 200 },
+            { id: 35, name: 'محطة الغرب', type: 'station', icon: '🚂', price: 200 },
+            { id: 36, name: 'فرصة', type: 'chance', icon: '❓' },
+            { id: 37, name: 'شارع الرياض', type: 'property', color: '#00008B', price: 350, rent: [35, 175, 500, 1100, 1300,
+                    1500], house: 200 },
+            { id: 38, name: 'ضريبة الرفاهية', type: 'tax', icon: '💸', amount: 100 },
+            { id: 39, name: 'شارع دبي', type: 'property', color: '#00008B', price: 400, rent: [50, 200, 600, 1400, 1700,
+                    2000], house: 200 }
+        ];
+
+        const QUESTIONS = [
+            { q: 'ما هو العنصر الكيميائي رمزه O؟', a: ['الأكسجين', 'الذهب', 'الحديد', 'الفضة'], correct: 0 },
+            { q: 'كم يساوي 15 × 8؟', a: ['100', '110', '120', '130'], correct: 2 },
+            { q: 'ما هو أكبر كوكب في المجموعة الشمسية؟', a: ['الأرض', 'المريخ', 'المشتري', 'زحل'], correct: 2 },
+            { q: 'ما ناتج √144؟', a: ['10', '11', '12', '14'], correct: 2 },
+            { q: 'ما هو الغاز الذي تتنفسه النباتات؟', a: ['الأكسجين', 'ثاني أكسيد الكربون', 'النيتروجين', 'الهيدروجين'],
+            correct: 1 },
+            { q: 'كم يساوي 2⁵؟', a: ['16', '32', '64', '128'], correct: 1 },
+            { q: 'ما هو أصلب معدن طبيعي؟', a: ['الحديد', 'الذهب', 'الألماس', 'الفضة'], correct: 2 },
+            { q: 'ما هو الحيوان الذي يُلقب بسفينة الصحراء؟', a: ['الحصان', 'الجمل', 'الحمار', 'الغزال'], correct: 1 },
+            { q: 'كم يساوي 144 ÷ 12؟', a: ['10', '11', '12', '14'], correct: 2 },
+            { q: 'ما هو العضو الذي يضخ الدم؟', a: ['الكبد', 'القلب', 'الرئة', 'الكلى'], correct: 1 },
+            { q: 'ما هو أطول نهر في العالم؟', a: ['النيل', 'الأمازون', 'المسيسبي', 'الدانوب'], correct: 0 },
+            { q: 'كم يساوي 7 × 9؟', a: ['56', '63', '72', '81'], correct: 1 },
+            { q: 'ما هو الكوكب الأحمر؟', a: ['الزهرة', 'المريخ', 'المشتري', 'عطارد'], correct: 1 },
+            { q: 'ما هو العنصر الأكثر وفرة في الكون؟', a: ['الأكسجين', 'الكربون', 'الهيدروجين', 'الهيليوم'], correct: 2 },
+            { q: 'كم يساوي 25% من 200؟', a: ['25', '50', '75', '100'], correct: 1 },
+            { q: 'كم عدد عظام جسم الإنسان البالغ؟', a: ['186', '206', '226', '246'], correct: 1 },
+            { q: 'ما هو الفيتامين الذي ينتجه الجسم من الشمس؟', a: ['A', 'B', 'C', 'D'], correct: 3 },
+            { q: 'كم يساوي 13 × 13؟', a: ['159', '169', '179', '189'], correct: 1 },
+            { q: 'ما هو الحيوان الأسرع على الأرض؟', a: ['الأسد', 'الفهد', 'النمر', 'الحصان'], correct: 1 },
+            { q: 'ما هو المعدن السائل في درجة حرارة الغرفة؟', a: ['الحديد', 'الزئبق', 'الألمنيوم', 'النحاس'], correct: 1 },
+            { q: 'كم يساوي 1000 - 387؟', a: ['613', '623', '633', '643'], correct: 0 },
+            { q: 'ما هي وحدة قياس القوة؟', a: ['الجول', 'النيوتن', 'الواط', 'الباسكال'], correct: 1 },
+            { q: 'ما هو أكبر عضو في جسم الإنسان؟', a: ['الكبد', 'الجلد', 'الرئة', 'المعدة'], correct: 1 },
+            { q: 'كم يساوي 3³؟', a: ['9', '18', '27', '81'], correct: 2 },
+            { q: 'ما هي عاصمة اليابان؟', a: ['أوساكا', 'كيوتو', 'طوكيو', 'هيروشيما'], correct: 2 },
+            { q: 'ما هو العنصر الكيميائي رمزه Fe؟', a: ['الفلور', 'الحديد', 'الفوسفور', 'الفرانسيوم'], correct: 1 },
+            { q: 'كم يساوي 45 + 67؟', a: ['102', '112', '122', '132'], correct: 1 },
+            { q: 'كم عدد أيام السنة الكبيسة؟', a: ['364', '365', '366', '367'], correct: 2 },
+            { q: 'كم يساوي 8 × 7 - 6؟', a: ['48', '50', '52', '54'], correct: 1 },
+            { q: 'ما هو الغاز الذي تحتاجه النار؟', a: ['النيتروجين', 'الأكسجين', 'الهيدروجين', 'الهيليوم'], correct: 1 },
+            { q: 'كم يساوي 50% من 450؟', a: ['200', '225', '250', '275'], correct: 1 },
+            { q: 'ما هو أكبر محيط في العالم؟', a: ['الأطلسي', 'الهندي', 'الهادئ', 'المتجمد'], correct: 2 },
+            { q: 'كم عدد أحرف اللغة العربية؟', a: ['26', '28', '29', '30'], correct: 1 },
+            { q: 'ما هو أسرع حيوان بحري؟', a: ['القرش', 'التونة', 'سمك الشراع', 'الدولفين'], correct: 2 },
+            { q: 'كم عدد قارات العالم؟', a: ['5', '6', '7', '8'], correct: 2 },
+            { q: 'ما هي عاصمة مصر؟', a: ['الإسكندرية', 'القاهرة', 'الجيزة', 'الأقصر'], correct: 1 }
+        ];
+
+        const CHEST_CARDS = [
+            { text: 'ربحت مسابقة علمية! +200 ج.م', effect: (p) => { p.money += 200; } },
+            { text: 'دفعت زكاة مالك. -100 ج.م', effect: (p) => { p.money -= 100; } },
+            { text: 'منحة دراسية! +150 ج.م', effect: (p) => { p.money += 150; } },
+            { text: 'تبرعت للخير. -50 ج.م', effect: (p) => { p.money -= 50; } },
+            { text: 'ميراث من قريب! +300 ج.م', effect: (p) => { p.money += 300; } }
+        ];
+
+        const CHANCE_CARDS = [
+            { text: 'إجابة ممتازة! تقدم 3 خانات إضافية', effect: 'advance3' },
+            { text: 'ارجع للبداية واحصل على 200 ج.م', effect: 'gotoStart' },
+            { text: 'غرامة! ادفع 50 ج.م', effect: (p) => { p.money -= 50; } },
+            { text: 'جائزة تفوق! +100 ج.م', effect: (p) => { p.money += 100; } },
+            { text: 'ارجع 3 خانات', effect: 'back3' }
+        ];
+
+        // ============ حالة اللعبة ============
+        let state = {
+            players: [],
+            currentPlayer: 0,
+            turn: 1,
+            numPlayers: 2,
+            gameOver: false,
+            usedQuestions: new Set(),
+            awaitingAction: false
+        };
+
+        // ============ إعداد اللاعبين ============
+        function setPlayers(n) {
+            state.numPlayers = n;
+            document.querySelectorAll('.player-count-btn').forEach((b) => {
+                const val = parseInt(b.dataset.pcount);
+                if (val === n) {
+                    b.classList.add('active');
+                } else {
+                    b.classList.remove('active');
+                }
+            });
+            renderNameInputs();
+        }
+
+        function renderNameInputs() {
+            const c = document.getElementById('nameInputs');
+            c.innerHTML = '';
+            for (let i = 0; i < state.numPlayers; i++) {
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-3 bg-white/5 rounded-xl p-2';
+                div.innerHTML = `
+              <div class="player-avatar" style="background:${PLAYER_COLORS[i]}; width:36px; height:36px; font-size:16px;">
+                ${PLAYER_SYMBOLS[i]}
+              </div>
+              <input type="text" placeholder="اسم اللاعب ${i+1}" value="${PLAYER_NAMES_DEFAULT[i]}" 
+                class="flex-1 bg-white/10 border border-white/30 rounded-lg px-3 py-2 text-white placeholder-gray-400" data-name="${i}">
+            `;
+                c.appendChild(div);
+            }
+        }
+
+        // ============ بدء اللعبة ============
+        function startGame() {
+            state.players = [];
+            for (let i = 0; i < state.numPlayers; i++) {
+                const input = document.querySelector(`[data-name="${i}"]`);
+                state.players.push({
+                    id: i,
+                    name: (input && input.value.trim()) || PLAYER_NAMES_DEFAULT[i],
+                    money: 1500,
+                    position: 0,
+                    properties: [],
+                    houses: {},
+                    color: PLAYER_COLORS[i],
+                    symbol: PLAYER_SYMBOLS[i],
+                    bankrupt: false,
+                    inJail: false,
+                    jailTurns: 0
+                });
+            }
+            state.currentPlayer = 0;
+            state.turn = 1;
+            state.usedQuestions = new Set();
+            state.gameOver = false;
+            state.awaitingAction = false;
+
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            buildBoard();
+            updateUI();
+            nextQuestion();
+            logEvent('🎮 بدأت اللعبة! بالتوفيق للجميع', '#3b82f6');
+        }
+
+        // ============ بناء اللوحة ============
+        function buildBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+
+            for (let r = 0; r < 11; r++) {
+                for (let c = 0; c < 11; c++) {
+                    let cellData = null;
+                    let isCorner = false;
+
+                    if (r === 0 && c === 0) { cellData = BOARD_CELLS[30];
+                        isCorner = true; } else if (r === 0 && c === 10) { cellData = BOARD_CELLS[20];
+                        isCorner = true; } else if (r === 10 && c === 0) { cellData = BOARD_CELLS[10];
+                        isCorner = true; } else if (r === 10 && c === 10) { cellData = BOARD_CELLS[0];
+                        isCorner = true; } else if (r === 0) {
+                        const idx = 30 - c;
+                        cellData = BOARD_CELLS[idx];
+                    } else if (r === 10) {
+                        if (c === 0) cellData = BOARD_CELLS[10];
+                        else if (c === 10) cellData = BOARD_CELLS[0];
+                        else cellData = BOARD_CELLS[c];
+                    } else if (c === 0) {
+                        if (r === 0) cellData = BOARD_CELLS[30];
+                        else if (r === 10) cellData = BOARD_CELLS[10];
+                        else cellData = BOARD_CELLS[30 + r];
+                    } else if (c === 10) {
+                        if (r === 0) cellData = BOARD_CELLS[20];
+                        else if (r === 10) cellData = BOARD_CELLS[0];
+                        else cellData = BOARD_CELLS[20 - r];
+                    }
+
+                    if (cellData) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell' + (isCorner ? ' corner' : '');
+                        cell.dataset.cellId = cellData.id;
+                        cell.onclick = () => showCellDetails(cellData.id);
+
+                        let html = '';
+
+                        if (cellData.type === 'property' && cellData.color) {
+                            html += `<div class="color-bar" style="background:${cellData.color}"></div>`;
+                        }
+
+                        if (cellData.icon) {
+                            html += `<div class="cell-icon">${cellData.icon}</div>`;
+                        } else if (cellData.type === 'station') {
+                            html += `<div class="cell-icon">🚂</div>`;
+                        }
+
+                        html += `<div class="cell-name">${cellData.name}</div>`;
+
+                        if (cellData.price) {
+                            html += `<div class="cell-price">${cellData.price} ج.م</div>`;
+                        }
+
+                        html += `<div class="owner-flag" style="display:none" data-owner="${cellData.id}"></div>`;
+
+                        if (cellData.type === 'property') {
+                            html += `<div class="buildings" data-buildings="${cellData.id}"></div>`;
+                        }
+
+                        html += `<div class="tokens-area" data-tokens="${cellData.id}"></div>`;
+
+                        cell.innerHTML = html;
+                        board.appendChild(cell);
+                    }
+                }
+            }
+
+            const center = document.createElement('div');
+            center.className = 'board-center';
+            center.innerHTML = `
+            <div class="text-5xl md:text-7xl mb-2">🕌</div>
+            <div class="text-xl md:text-3xl font-bold text-amber-800 text-center">مونوبولي<br>الحلال</div>
+            <div class="text-xs md:text-sm text-amber-700 mt-2 text-center">بدون نرد • بدون ربا</div>
+          `;
+            board.appendChild(center);
+        }
+
+        // ============ تحديث الواجهة ============
+        function updateUI() {
+            const p = state.players[state.currentPlayer];
+
+            document.getElementById('currentName').textContent = p.name;
+            document.getElementById('currentMoney').textContent = p.money;
+            document.getElementById('currentProps').textContent = p.properties.length;
+            document.getElementById('currentAvatar').style.background = p.color;
+            document.getElementById('currentAvatar').textContent = p.symbol;
+            document.getElementById('turnCounter').textContent = `الدور ${state.turn}`;
+            const card = document.getElementById('currentPlayerCard');
+            card.style.borderColor = p.color;
+            card.style.borderWidth = '3px';
+            card.style.borderStyle = 'solid';
+
+            document.querySelectorAll('[data-tokens]').forEach(t => t.innerHTML = '');
+            state.players.forEach((pl) => {
+                if (pl.bankrupt) return;
+                const tokenArea = document.querySelector(`[data-tokens="${pl.position}"]`);
+                if (tokenArea) {
+                    const token = document.createElement('div');
+                    token.className = 'token' + (pl.id === state.currentPlayer ? ' active' : '');
+                    token.style.background = pl.color;
+                    token.textContent = pl.symbol;
+                    token.title = pl.name;
+                    tokenArea.appendChild(token);
+                }
+            });
+
+            document.querySelectorAll('[data-owner]').forEach(f => f.style.display = 'none');
+            document.querySelectorAll('[data-buildings]').forEach(b => b.innerHTML = '');
+
+            state.players.forEach(pl => {
+                pl.properties.forEach(propId => {
+                    const flag = document.querySelector(`[data-owner="${propId}"]`);
+                    if (flag) {
+                        flag.style.display = 'block';
+                        flag.style.background = pl.color;
+                    }
+
+                    const cell = BOARD_CELLS[propId];
+                    if (cell && cell.type === 'property') {
+                        const buildings = document.querySelector(`[data-buildings="${propId}"]`);
+                        if (buildings) {
+                            const houses = pl.houses[propId] || 0;
+                            if (houses === 5) {
+                                const h = document.createElement('div');
+                                h.className = 'hotel-icon';
+                                buildings.appendChild(h);
+                            } else {
+                                for (let i = 0; i < houses; i++) {
+                                    const h = document.createElement('div');
+                                    h.className = 'house-icon';
+                                    buildings.appendChild(h);
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+
+            document.querySelectorAll('.cell').forEach(cellEl => {
+                const id = parseInt(cellEl.dataset.cellId);
+                const owner = state.players.find(pl => pl.properties.includes(id));
+                if (owner) {
+                    cellEl.style.background = `linear-gradient(135deg, ${owner.color}15, ${owner.color}30)`;
+                    cellEl.style.borderColor = owner.color;
+                    cellEl.style.borderWidth = '2px';
+                } else {
+                    cellEl.style.background = 'white';
+                    cellEl.style.borderColor = '#d1d5db';
+                    cellEl.style.borderWidth = '1px';
+                }
+            });
+
+            const list = document.getElementById('playersList');
+            list.innerHTML = '';
+            state.players.forEach((pl) => {
+                const div = document.createElement('div');
+                div.className = 'player-bar' + (pl.id === state.currentPlayer ? ' active' : '');
+                div.style.color = pl.color;
+                div.innerHTML = `
+              <div class="player-avatar" style="background:${pl.color}">${pl.symbol}</div>
+              <div class="flex-1">
+                <div class="font-bold text-sm" style="color:${pl.bankrupt ? '#9ca3af' : '#1f2937'}">
+                  ${pl.name} ${pl.bankrupt ? '💀' : ''} ${pl.id === state.currentPlayer ? '👈' : ''}
+                </div>
+                <div class="text-xs text-gray-600">💰 ${pl.money} ج.م | 🏠 ${pl.properties.length} عقار</div>
+              </div>
+            `;
+                list.appendChild(div);
+            });
+
+            const cellInfo = document.getElementById('cellInfoCard');
+            if (cellInfo.classList.contains('hidden') === false) {
+                const activeCellId = document.querySelector('.cell:hover');
+                if (activeCellId) {
+                    showCellDetails(parseInt(activeCellId.dataset.cellId));
+                }
+            }
+        }
+
+        // ============ الأسئلة ============
+        function nextQuestion() {
+            if (state.gameOver || state.awaitingAction) return;
+
+            let available = [];
+            for (let i = 0; i < QUESTIONS.length; i++) {
+                if (!state.usedQuestions.has(i)) available.push(i);
+            }
+            if (available.length === 0) {
+                state.usedQuestions.clear();
+                available = QUESTIONS.map((_, i) => i);
+            }
+            const qIdx = available[Math.floor(Math.random() * available.length)];
+            state.usedQuestions.add(qIdx);
+            state.currentQuestion = QUESTIONS[qIdx];
+
+            const q = state.currentQuestion;
+            document.getElementById('questionText').textContent = q.q;
+            const ac = document.getElementById('answersContainer');
+            ac.innerHTML = '';
+            q.a.forEach((ans, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = ans;
+                btn.onclick = () => answerQuestion(i);
+                ac.appendChild(btn);
+            });
+        }
+
+        // ============ معالجة الإجابة (التعديل الجديد) ============
+        function answerQuestion(idx) {
+            if (state.awaitingAction || state.gameOver) return;
+            state.awaitingAction = true;
+
+            const q = state.currentQuestion;
+            const p = state.players[state.currentPlayer];
+            const correct = idx === q.correct;
+
+            const allBtns = document.querySelectorAll('#answersContainer .answer-btn');
+            allBtns.forEach((b, i) => {
+                b.disabled = true;
+                if (i === q.correct) b.classList.add('correct');
+                else if (i === idx && !correct) b.classList.add('wrong');
+            });
+
+            if (correct) {
+                logEvent(`✅ ${p.name} أجاب بشكل صحيح! يتقدم 3 خانات`, '#10b981');
+                setTimeout(() => {
+                    movePlayer(3);
+                }, 800);
+            } else {
+                // الإجابة الخاطئة: تراجع خطوة واحدة
+                logEvent(`❌ ${p.name} أخطأ الإجابة. يتراجع خطوة واحدة`, '#ef4444');
+                setTimeout(() => {
+                    movePlayer(-1);
+                }, 800);
+            }
+        }
+
+        // ============ الحركة ============
+        function movePlayer(steps) {
+            const p = state.players[state.currentPlayer];
+            const oldPos = p.position;
+            let newPos = (p.position + steps) % 40;
+            if (newPos < 0) newPos += 40;
+
+            // مرور نقطة البداية (للأمام فقط)
+            if (steps > 0 && newPos < oldPos) {
+                p.money += 200;
+                logEvent(`💰 ${p.name} عبر نقطة البداية +200 ج.م`, '#10b981');
+            }
+            // التراجع لا يعطي مكافأة
+
+            p.position = newPos;
+            updateUI();
+
+            setTimeout(() => {
+                state.awaitingAction = false;
+                handleLanding();
+            }, 600);
+        }
+
+        // ============ الهبوط على خانة ============
+        function handleLanding() {
+            if (state.gameOver) return;
+
+            const p = state.players[state.currentPlayer];
+            const cell = BOARD_CELLS[p.position];
+
+            if (p.bankrupt) {
+                endTurn();
+                return;
+            }
+
+            switch (cell.type) {
+                case 'go':
+                    logEvent(`🚀 ${p.name} في نقطة البداية`, '#3b82f6');
+                    endTurn();
+                    break;
+
+                case 'gotojail':
+                    logEvent(`👮 ${p.name} ذهب إلى السجن!`, '#ef4444');
+                    p.position = 10;
+                    p.inJail = true;
+                    p.jailTurns = 0;
+                    updateUI();
+                    endTurn();
+                    break;
+
+                case 'jail':
+                    logEvent(`🔒 ${p.name} في السجن`, '#6b7280');
+                    p.inJail = true;
+                    p.jailTurns = 0;
+                    endTurn();
+                    break;
+
+                case 'parking':
+                    logEvent(`🅿️ ${p.name} في المبيت`, '#6b7280');
+                    endTurn();
+                    break;
+
+                case 'tax':
+                    p.money -= cell.amount;
+                    logEvent(`💸 ${p.name} دفع ${cell.amount} ج.م ضريبة`, '#ef4444');
+                    updateUI();
+                    checkBankrupt();
+                    if (!state.gameOver) endTurn();
+                    break;
+
+                case 'chest':
+                    const chestCard = CHEST_CARDS[Math.floor(Math.random() * CHEST_CARDS.length)];
+                    logEvent(`💰 ${p.name}: ${chestCard.text}`, '#f59e0b');
+                    chestCard.effect(p);
+                    updateUI();
+                    checkBankrupt();
+                    if (!state.gameOver) endTurn();
+                    break;
+
+                case 'chance':
+                    const chanceCard = CHANCE_CARDS[Math.floor(Math.random() * CHANCE_CARDS.length)];
+                    logEvent(`❓ ${p.name}: ${chanceCard.text}`, '#8b5cf6');
+                    handleChanceCard(chanceCard);
+                    break;
+
+                case 'property':
+                case 'station':
+                case 'utility':
+                    handleProperty(cell);
+                    break;
+
+                default:
+                    endTurn();
+                    break;
+            }
+        }
+
+        function handleChanceCard(card) {
+            const p = state.players[state.currentPlayer];
+            if (typeof card.effect === 'function') {
+                card.effect(p);
+                updateUI();
+                checkBankrupt();
+                if (!state.gameOver) endTurn();
+            } else {
+                if (card.effect === 'advance3') {
+                    movePlayer(3);
+                } else if (card.effect === 'back3') {
+                    movePlayer(-3);
+                } else if (card.effect === 'gotoStart') {
+                    p.position = 0;
+                    p.money += 200;
+                    updateUI();
+                    logEvent(`🚀 ${p.name} عاد للبداية +200 ج.م`, '#10b981');
+                    endTurn();
+                }
+            }
+        }
+
+        // ============ التعامل مع العقارات ============
+        function handleProperty(cell) {
+            const p = state.players[state.currentPlayer];
+            const owner = state.players.find(pl => pl.properties.includes(cell.id));
+
+            if (!owner) {
+                showBuyDialog(cell);
+            } else if (owner.id === p.id) {
+                if (cell.type === 'property') {
+                    showBuildDialog(cell);
+                } else {
+                    logEvent(`⏭️ ${p.name} يملك ${cell.name} (لا يمكن بناء محطات/مرافق)`, '#6b7280');
+                    endTurn();
+                }
+            } else {
+                payRent(cell, owner);
+            }
+        }
+
+        // ============ عرض الشراء ============
+        function showBuyDialog(cell) {
+            const p = state.players[state.currentPlayer];
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modalContent');
+
+            content.innerHTML = `
+            <div class="text-center mb-4">
+              <div class="w-20 h-20 mx-auto rounded-2xl mb-3 flex items-center justify-center text-4xl" 
+                style="background:${cell.color || '#6b7280'}; color:white">
+                ${cell.icon || '🏠'}
+              </div>
+              <h2 class="text-2xl font-bold mb-1">${cell.name}</h2>
+              <div class="text-gray-500 text-sm">${cell.type === 'station' ? 'محطة قطار' : cell.type === 'utility' ? 'شركة مرافق' : 'عقار'}</div>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-4 mb-4 space-y-2">
+              <div class="flex justify-between"><span>💵 السعر:</span><b>${cell.price} ج.م</b></div>
+              <div class="flex justify-between"><span>💰 رصيدك:</span><b class="${p.money >= cell.price ? 'text-green-600' : 'text-red-600'}">${p.money} ج.م</b></div>
+            </div>
+
+            <div class="flex gap-2">
+              <button onclick="buyProperty(${cell.id})" 
+                class="flex-1 btn-success py-3 rounded-xl"
+                ${p.money < cell.price ? 'disabled' : ''}>
+                ✅ شراء
+              </button>
+              <button onclick="closeModal(); endTurn();" 
+                class="flex-1 btn-gray py-3 rounded-xl">
+                ❌ رفض
+              </button>
+            </div>
+          `;
+            modal.classList.remove('hidden');
+        }
+
+        function buyProperty(id) {
+            const p = state.players[state.currentPlayer];
+            const cell = BOARD_CELLS[id];
+            if (p.money < cell.price || state.awaitingAction) return;
+            state.awaitingAction = true;
+
+            p.money -= cell.price;
+            p.properties.push(id);
+            if (cell.type === 'property') p.houses[id] = 0;
+
+            logEvent(`🏠 ${p.name} اشترى ${cell.name}`, p.color);
+            closeModal();
+            updateUI();
+            state.awaitingAction = false;
+            endTurn();
+        }
+
+        // ============ عرض البناء ============
+        function showBuildDialog(cell) {
+            const p = state.players[state.currentPlayer];
+            if (cell.type !== 'property') {
+                endTurn();
+                return;
+            }
+
+            const houses = p.houses[cell.id] || 0;
+            if (houses >= 5) {
+                logEvent(`🏨 ${cell.name} لديه فندق بالفعل`, '#6b7280');
+                endTurn();
+                return;
+            }
+
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modalContent');
+            const nextLabel = houses === 4 ? 'فندق 🏨' : `منزل ${houses + 1} 🏠`;
+
+            content.innerHTML = `
+            <div class="text-center mb-4">
+              <div class="w-20 h-20 mx-auto rounded-2xl mb-3 flex items-center justify-center" 
+                style="background:${cell.color}; color:white">
+                <span class="text-4xl">${houses === 4 ? '🏨' : '🏠'}</span>
+              </div>
+              <h2 class="text-2xl font-bold mb-1">${cell.name}</h2>
+              <div class="text-gray-500">المباني الحالية: ${houses === 0 ? 'لا يوجد' : houses === 5 ? 'فندق' : houses + ' منزل'}</div>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-4 mb-4 space-y-2">
+              <div class="flex justify-between"><span>🏗️ بناء:</span><b>${nextLabel}</b></div>
+              <div class="flex justify-between"><span>💵 التكلفة:</span><b>${cell.house} ج.م</b></div>
+              <div class="flex justify-between"><span>💰 رصيدك:</span><b class="${p.money >= cell.house ? 'text-green-600' : 'text-red-600'}">${p.money} ج.م</b></div>
+              <div class="flex justify-between"><span>💸 الإيجار الجديد:</span><b class="text-blue-600">${cell.rent[houses + 1] || cell.rent[houses]} ج.م</b></div>
+            </div>
+
+            <div class="flex gap-2">
+              <button onclick="buildHouse(${cell.id})" 
+                class="flex-1 btn-success py-3 rounded-xl"
+                ${p.money < cell.house ? 'disabled' : ''}>
+                🏗️ بناء
+              </button>
+              <button onclick="closeModal(); endTurn();" 
+                class="flex-1 btn-gray py-3 rounded-xl">
+                ⏭️ تخطي
+              </button>
+            </div>
+          `;
+            modal.classList.remove('hidden');
+        }
+
+        function buildHouse(id) {
+            const p = state.players[state.currentPlayer];
+            const cell = BOARD_CELLS[id];
+            if (p.money < cell.house || state.awaitingAction) return;
+            state.awaitingAction = true;
+
+            p.money -= cell.house;
+            p.houses[id] = (p.houses[id] || 0) + 1;
+            const h = p.houses[id];
+            logEvent(`🏗️ ${p.name} بنى ${h === 5 ? 'فندق' : 'منزلاً'} في ${cell.name}`, p.color);
+            closeModal();
+            updateUI();
+            state.awaitingAction = false;
+            endTurn();
+        }
+
+        // ============ دفع الإيجار ============
+        function payRent(cell, owner) {
+            const p = state.players[state.currentPlayer];
+            let rent = 0;
+
+            if (cell.type === 'property') {
+                const houses = owner.houses[cell.id] || 0;
+                rent = cell.rent[houses] || 0;
+            } else if (cell.type === 'station') {
+                const count = owner.properties.filter(id => {
+                    const c = BOARD_CELLS[id];
+                    return c && c.type === 'station';
+                }).length;
+                const rates = [0, 25, 50, 100, 200];
+                rent = rates[Math.min(count, 4)];
+            } else if (cell.type === 'utility') {
+                const count = owner.properties.filter(id => {
+                    const c = BOARD_CELLS[id];
+                    return c && c.type === 'utility';
+                }).length;
+                const dice = 8;
+                rent = dice * (count === 2 ? 10 : 4);
+            }
+
+            if (rent === 0) {
+                logEvent(`⚠️ ${p.name} لا دفع إيجار لـ ${cell.name} (0 ج.م)`, '#6b7280');
+                endTurn();
+                return;
+            }
+
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modalContent');
+            content.innerHTML = `
+            <div class="text-center mb-4">
+              <div class="flex justify-center items-center gap-4 mb-3">
+                <div class="player-avatar" style="background:${p.color}">${p.symbol}</div>
+                <div class="text-3xl">💸</div>
+                <div class="player-avatar" style="background:${owner.color}">${owner.symbol}</div>
+              </div>
+              <h2 class="text-xl font-bold mb-1">إيجار ${cell.name}</h2>
+              <div class="text-gray-500 text-sm">${p.name} → ${owner.name}</div>
+            </div>
+
+            <div class="bg-red-50 rounded-xl p-4 mb-4 text-center">
+              <div class="text-sm text-gray-600">المبلغ المطلوب</div>
+              <div class="text-4xl font-bold text-red-600">${rent} ج.م</div>
+              <div class="text-xs text-gray-500 mt-1">(أجرة استخدام — ليست ربا)</div>
+              <div class="text-xs text-gray-400 mt-1">رصيدك: ${p.money} ج.م</div>
+            </div>
+
+            <button onclick="completeRent(${owner.id}, ${rent})" 
+              class="w-full btn-primary py-3 rounded-xl">
+              💰 ادفع الإيجار
+            </button>
+          `;
+            modal.classList.remove('hidden');
+        }
+
+        function completeRent(ownerId, rent) {
+            if (state.awaitingAction) return;
+            state.awaitingAction = true;
+
+            const p = state.players[state.currentPlayer];
+            const owner = state.players[ownerId];
+
+            if (p.money < rent) {
+                logEvent(`💀 ${p.name} أعلن إفلاسه!`, '#ef4444');
+                owner.money += p.money;
+                p.properties.forEach(pid => {
+                    if (!owner.properties.includes(pid)) {
+                        owner.properties.push(pid);
+                        if (BOARD_CELLS[pid] && BOARD_CELLS[pid].type === 'property') {
+                            owner.houses[pid] = p.houses[pid] || 0;
+                        }
+                    }
+                });
+                p.money = 0;
+                p.properties = [];
+                p.houses = {};
+                p.bankrupt = true;
+                p.inJail = false;
+            } else {
+                p.money -= rent;
+                owner.money += rent;
+                logEvent(`💸 ${p.name} دفع ${rent} ج.م لـ ${owner.name}`, '#f59e0b');
+            }
+
+            closeModal();
+            updateUI();
+            state.awaitingAction = false;
+            checkBankrupt();
+            if (!state.gameOver) endTurn();
+        }
+
+        // ============ التحقق من الإفلاس ============
+        function checkBankrupt() {
+            const active = state.players.filter(p => !p.bankrupt);
+            if (active.length === 1) {
+                state.gameOver = true;
+                const winner = active[0];
+                const modal = document.getElementById('modal');
+                const content = document.getElementById('modalContent');
+                content.innerHTML = `
+              <div class="text-center">
+                <div class="text-6xl mb-3">🏆</div>
+                <h2 class="text-3xl font-bold mb-2">الفائز!</h2>
+                <div class="player-avatar mx-auto mb-3" style="background:${winner.color}; width:80px; height:80px; font-size:36px">${winner.symbol}</div>
+                <div class="text-2xl font-bold mb-1">${winner.name}</div>
+                <div class="text-gray-600 mb-4">💰 ${winner.money} ج.م | 🏠 ${winner.properties.length} عقار</div>
+                <button onclick="location.reload()" 
+                  class="w-full btn-yellow py-3 rounded-xl text-lg">
+                  🔄 لعبة جديدة
+                </button>
+              </div>
+            `;
+                modal.classList.remove('hidden');
+                return true;
+            }
+            return false;
+        }
+
+        // ============ إنهاء الدور ============
+        function endTurn() {
+            if (state.gameOver || state.awaitingAction) return;
+
+            let next = (state.currentPlayer + 1) % state.players.length;
+            let attempts = 0;
+            while (state.players[next].bankrupt && attempts < state.players.length) {
+                next = (next + 1) % state.players.length;
+                attempts++;
+            }
+
+            if (attempts >= state.players.length) {
+                state.gameOver = true;
+                return;
+            }
+
+            if (next === 0) state.turn++;
+            state.currentPlayer = next;
+
+            updateUI();
+            setTimeout(() => {
+                if (!state.gameOver) nextQuestion();
+            }, 300);
+        }
+
+        // ============ تفاصيل الخانة ============
+        function showCellDetails(id) {
+            const cell = BOARD_CELLS[id];
+            if (!cell) return;
+
+            const card = document.getElementById('cellInfoCard');
+            const content = document.getElementById('cellInfoContent');
+            const owner = state.players.find(pl => pl.properties.includes(id));
+
+            let html = `
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" 
+                style="background:${cell.color || '#6b7280'}; color:white">
+                ${cell.icon || '🏠'}
+              </div>
+              <div>
+                <h3 class="font-bold text-lg">${cell.name}</h3>
+                <div class="text-xs text-gray-500">${cell.type === 'property' ? 'عقار' : cell.type === 'station' ? 'محطة' : cell.type === 'utility' ? 'مرافق' : cell.type}</div>
+                ${cell.price ? `<div class="text-xs text-gray-500">السعر: ${cell.price} ج.م</div>` : ''}
+              </div>
+            </div>
+          `;
+
+            if (owner) {
+                const houses = cell.type === 'property' ? (owner.houses[id] || 0) : 0;
+                const rent = cell.type === 'property' ? (cell.rent[houses] || 0) : '—';
+                html += `
+              <div class="bg-gray-50 rounded-xl p-3 space-y-1 text-sm">
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full" style="background:${owner.color}"></div>
+                  <b>مملوك لـ ${owner.name}</b>
+                </div>
+                ${cell.type === 'property' ? `
+                  <div>🏗️ المباني: ${houses === 5 ? 'فندق' : houses + ' منزل'}</div>
+                  <div>💸 الإيجار الحالي: <b class="text-blue-600">${rent} ج.م</b></div>
+                ` : cell.type === 'station' ? `
+                  <div>🚂 محطة قطار (تتضاعف الإيجارات)</div>
+                ` : cell.type === 'utility' ? `
+                  <div>💡 شركة مرافق (الإيجار حسب عدد الشركات)</div>
+                ` : ''}
+              </div>
+            `;
+            } else if (cell.type === 'property' || cell.type === 'station' || cell.type === 'utility') {
+                html += `
+              <div class="bg-green-50 text-green-700 rounded-xl p-3 text-sm text-center">🟢 متاح للشراء</div>
+            `;
+            } else {
+                html += `
+              <div class="bg-gray-50 text-gray-600 rounded-xl p-3 text-sm text-center">📍 ${cell.name}</div>
+            `;
+            }
+
+            content.innerHTML = html;
+            card.classList.remove('hidden');
+        }
+
+        // ============ إغلاق المودال ============
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        // ============ سجل الأحداث ============
+        function logEvent(text, color = '#6b7280') {
+            const log = document.getElementById('eventLog');
+            const div = document.createElement('div');
+            div.className = 'log-entry';
+            div.style.borderColor = color;
+            div.style.background = color + '10';
+            div.textContent = text;
+            log.insertBefore(div, log.firstChild);
+            while (log.children.length > 30) log.removeChild(log.lastChild);
+        }
+
+        // ============ التهيئة ============
+        renderNameInputs();
+        setPlayers(2);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+
+</body>
+</html>
